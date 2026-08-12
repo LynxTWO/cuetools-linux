@@ -1,3 +1,4 @@
+using CUETools.Linux.App.Journal;
 using CUETools.Processor;
 using CUETools.Wpf.Services;
 using CUETools.Wpf.ViewModels;
@@ -54,17 +55,30 @@ public static class Composition
         return config;
     }
 
-    public static VerifyViewModel CreateVerifyViewModel(
+    public sealed record AppGraph(
+        VerifyViewModel Verify,
+        VerificationBackfillService Backfill,
+        IDiagnosticLog Log);
+
+    public static AppGraph CreateAppGraph(
         IFileDialogService dialogs, IUserPrompt prompts, IUiDispatcher dispatcher)
     {
         CUEConfig config = CreateDefaultConfig();
         IDiagnosticLog log = new DiagnosticLog();
-        return new VerifyViewModel(
-            new VerifyService(config, log),
+        var journal = new JournalStore();
+        IVerifyService engineVerify = new VerifyService(config, log);
+        IVerifyService journaledVerify = new JournalingVerifyService(engineVerify, journal);
+        var viewModel = new VerifyViewModel(
+            journaledVerify,
             new ReportStore(log),
             new VerificationSourceDiscovery(config),
             dialogs,
             prompts,
             dispatcher);
+        // Replay re-verifies through the raw engine service: a replay that
+        // happens to race a network drop must not journal a duplicate of the
+        // entry it is resolving.
+        var backfill = new VerificationBackfillService(engineVerify, journal);
+        return new AppGraph(viewModel, backfill, log);
     }
 }
