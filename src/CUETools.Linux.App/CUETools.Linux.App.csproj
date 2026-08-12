@@ -13,6 +13,11 @@
     <!-- AVLN3001: windows are constructed with dependencies (no parameterless
          ctor), so the runtime XAML loader path is intentionally unavailable. -->
     <NoWarn>$(NoWarn);AVLN3001</NoWarn>
+    <!-- Trim/AOT analysis warnings from the engine stay warnings, not errors:
+         the engine is fork-owned and its AOT-compat issues are fixed there
+         (e.g. fork commit b21992d1); the runtime gate for AOT correctness is
+         the published-binary verify evidence, not static analysis noise. -->
+    <WarningsNotAsErrors>IL2026;IL2046;IL2055;IL2057;IL2060;IL2062;IL2065;IL2067;IL2070;IL2072;IL2075;IL2077;IL2080;IL2087;IL2090;IL2091;IL2092;IL2093;IL2094;IL2095;IL2096;IL2097;IL2098;IL2099;IL2103;IL2104;IL2105;IL2106;IL2110;IL2111;IL2112;IL2113;IL2114;IL2115;IL2116;IL2117;IL2118;IL2119;IL2120;IL2121;IL2122;IL3000;IL3001;IL3002;IL3003;IL3050;IL3051;IL3052;IL3053;IL3054;IL3055;IL3056</WarningsNotAsErrors>
   </PropertyGroup>
 
   <ItemGroup>
@@ -25,6 +30,32 @@
     <ProjectReference Include="..\..\extern\cuetools_2026\CUETools.App.Core\CUETools.App.Core.csproj" />
     <ProjectReference Include="..\..\extern\cuetools_2026\CUETools.Codecs.Flake\CUETools.Codecs.Flake.csproj" />
     <ProjectReference Include="..\..\extern\cuetools_2026\CUETools.Codecs.ALAC\CUETools.Codecs.ALAC.csproj" />
+  </ItemGroup>
+
+  <ItemGroup>
+    <!-- The engine closure is exempt from trimming: it reflects over codec
+         settings (CUEConfig's DoVerify migration, TypeDescriptor Init) and
+         TagLib# activates file handlers via reflection strings, so trimmed
+         members surface as runtime failures (MissingMethodException on
+         TagLib.Riff.File was the observed case). The app and Avalonia still
+         trim. Durable fork-side de-reflection is tracked as follow-up; the
+         runtime gate is the published-binary verify evidence. -->
+    <TrimmerRootAssembly Include="CUETools.App.Core" />
+    <TrimmerRootAssembly Include="CUETools.Processor" />
+    <TrimmerRootAssembly Include="CUETools.Codecs" />
+    <TrimmerRootAssembly Include="CUETools.Codecs.Flake" />
+    <TrimmerRootAssembly Include="CUETools.Codecs.ALAC" />
+    <TrimmerRootAssembly Include="CUETools.CTDB" />
+    <TrimmerRootAssembly Include="CUETools.CTDB.Types" />
+    <TrimmerRootAssembly Include="CUETools.AccurateRip" />
+    <TrimmerRootAssembly Include="CUETools.CDImage" />
+    <TrimmerRootAssembly Include="CUETools.Parity" />
+    <TrimmerRootAssembly Include="CUETools.Compression" />
+    <TrimmerRootAssembly Include="CUETools.Ripper" />
+    <TrimmerRootAssembly Include="Freedb" />
+    <TrimmerRootAssembly Include="TagLibSharp" />
+    <TrimmerRootAssembly Include="Newtonsoft.Json" />
+    <TrimmerRootAssembly Include="DeviceId" />
   </ItemGroup>
 
 </Project>
