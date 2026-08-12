@@ -2,6 +2,7 @@
              xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
              xmlns:vm="using:CUETools.Wpf.ViewModels"
              x:Class="CUETools.Linux.App.Views.VerifyView"
+             x:Name="VerifyRoot"
              x:DataType="vm:VerifyViewModel"
              DragDrop.AllowDrop="True">
 
@@ -152,14 +153,20 @@
                         BorderThickness="1" CornerRadius="13" Padding="18,16" Margin="0,9,0,0">
                   <StackPanel>
                     <DockPanel LastChildFill="True">
-                      <TextBlock DockPanel.Dock="Right" Margin="14,0,0,0" VerticalAlignment="Top"
-                                 Text="{Binding OutcomeText}" FontFamily="{StaticResource Mono}"
-                                 FontSize="10.5" FontWeight="Bold"
-                                 Foreground="{DynamicResource Muted}"
-                                 Classes.good="{Binding DatabaseConfirmed}"
-                                 Classes.warn="{Binding CanRepair}"
-                                 Classes.bad="{Binding Failed}"
-                                 Classes.repaired="{Binding RepairApplied}" />
+                      <StackPanel DockPanel.Dock="Right" Margin="14,0,0,0" VerticalAlignment="Top">
+                        <TextBlock HorizontalAlignment="Right"
+                                   Text="{Binding OutcomeText}" FontFamily="{StaticResource Mono}"
+                                   FontSize="10.5" FontWeight="Bold"
+                                   Foreground="{DynamicResource Muted}"
+                                   Classes.good="{Binding DatabaseConfirmed}"
+                                   Classes.warn="{Binding CanRepair}"
+                                   Classes.bad="{Binding Failed}"
+                                   Classes.repaired="{Binding RepairApplied}" />
+                        <Button Content="Repair this disc" Margin="0,8,0,0" Padding="13,7"
+                                IsVisible="{Binding CanRepair}"
+                                Command="{Binding #VerifyRoot.((vm:VerifyViewModel)DataContext).RepairDiscCommand}"
+                                CommandParameter="{Binding}" />
+                      </StackPanel>
                       <StackPanel>
                         <TextBlock Text="{Binding AlbumText}" FontFamily="{StaticResource Serif}"
                                    FontSize="20" Foreground="{DynamicResource Ink}" TextWrapping="Wrap" />
@@ -248,6 +255,39 @@
                         </StackPanel>
                       </Border>
                     </WrapPanel>
+
+    <!-- CTDB parity repair detail: scope, headroom, and (after a repair)
+                         the verified output path. The RepairScope visualization arrives
+                         in this slice's next increment per SLICE-002 section 3. -->
+                    <Border Margin="0,12,0,0" Background="{DynamicResource Face}"
+                            BorderBrush="{DynamicResource StatusWarning}" BorderThickness="1"
+                            CornerRadius="9" Padding="14,12"
+                            IsVisible="{Binding ShowRepairDetail}">
+                      <StackPanel>
+                        <DockPanel Margin="0,0,0,4">
+                          <StackPanel DockPanel.Dock="Left">
+                            <TextBlock Text="CTDB PARITY REPAIR" FontSize="9" FontWeight="Bold"
+                                       Foreground="{DynamicResource Muted}" />
+                            <TextBlock Text="{Binding RepairSummary}"
+                                       Foreground="{DynamicResource Ink}" />
+                            <TextBlock Text="{Binding RepairHeadroom}"
+                                       FontFamily="{StaticResource Mono}" FontSize="10"
+                                       Foreground="{DynamicResource StatusWarning}" />
+                          </StackPanel>
+                          <TextBlock DockPanel.Dock="Right" Text="{Binding RepairRanges}"
+                                     ToolTip.Tip="{Binding RepairRanges}"
+                                     FontFamily="{StaticResource Mono}" FontSize="9.5"
+                                     Foreground="{DynamicResource Muted}"
+                                     TextTrimming="CharacterEllipsis" MaxWidth="360"
+                                     HorizontalAlignment="Right" />
+                        </DockPanel>
+                        <TextBlock Text="{Binding RepairOutput}" ToolTip.Tip="{Binding RepairOutput}"
+                                   FontFamily="{StaticResource Mono}" FontSize="10.5"
+                                   Foreground="{DynamicResource StatusGood}"
+                                   TextTrimming="CharacterEllipsis" Margin="0,8,0,0"
+                                   IsVisible="{Binding HasRepairOutput}" />
+                      </StackPanel>
+                    </Border>
 
                     <Expander Header="{Binding TrackEvidenceHeader}" IsExpanded="{Binding IsExpanded}"
                               Margin="0,13,0,0" IsVisible="{Binding HasResult}">
