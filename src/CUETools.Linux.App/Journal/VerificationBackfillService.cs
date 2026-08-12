@@ -56,6 +56,25 @@ public sealed class VerificationBackfillService
                 continue;
             }
 
+            // The engine rewrites the album's report file on re-verify, and
+            // evidence is append-only (ADD guardrail 5): snapshot the
+            // offline-era report byte-for-byte before replaying, so history
+            // survives beside the fresh dated report.
+            string? priorReport = FindFreshReport(entry.SourcePath);
+            if (priorReport != null)
+            {
+                string preserved = priorReport + "." +
+                    DateTime.UtcNow.ToString("yyyyMMdd-HHmmss") + ".pre-backfill";
+                try
+                {
+                    File.Copy(priorReport, preserved, overwrite: false);
+                }
+                catch (Exception ex) when (ex is IOException or UnauthorizedAccessException)
+                {
+                    log?.Invoke($"backfill: {entry.Id} could not preserve prior report ({ex.GetType().Name})");
+                }
+            }
+
             VerifyFilesResult result = _verify.Verify(entry.SourcePath, (_, _) => { });
             if (result.Ok)
             {
