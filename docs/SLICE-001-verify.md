@@ -74,9 +74,14 @@ honest verdict rendered (docs/evidence/2026-08-11-verify-fixture-dark.png).
 Compiled-in managed codec registration (Flake, ALAC) per the Linux
 no-plugin-scanning posture. Headless UI test added (xunit v3 +
 Avalonia.Headless). Light-theme verify evidence:
-docs/evidence/2026-08-11-verify-fixture-light.png. Remaining in M4:
-real-album walkthrough (needs an owner-provided known-good rip) and the
-accessibility pass.
+docs/evidence/2026-08-11-verify-fixture-light.png. Real-disc walkthrough ran 2026-08-12: the owner's pressed CD
+(19 tracks, 54:31), ripped with stock GStreamer cdparanoia, verified
+"accurate | confidence 4" against AccurateRip natively on Linux
+(docs/evidence/2026-08-12-verify-real-disc-dark.png). The same run
+upgraded O-001 to an open bug: CTDB lookups fail on Linux (XML parse
+error), so the CTDB half of R-001 and the metadata naming are pending
+that fix. Remaining in M4: the O-001 CTDB fix and the accessibility
+pass.
 
 ## 4. Out of scope, on purpose
 
