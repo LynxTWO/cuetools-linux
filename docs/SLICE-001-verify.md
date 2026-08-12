@@ -60,6 +60,14 @@ Build order (spikes close before dependents):
 | M5 | Journal seam + verification backfill + offline tests |
 | M6 | Packaging, size gate, clean-install test, walkthrough evidence |
 
+Build-order status (2026-08-11): M1 done (SPIKES-2026-08-11.md). M2 done:
+fork PR LynxTWO/cuetools_2026#8 merged with all four Windows CI runs green
+(warning-gated build, 241-test modern lane, fuzz, classic devenv solution).
+M3 done: PR #2 merged, Linux CI green over the pinned submodule. M4 in
+progress: 2026 palette, fonts, and shell structure render in both themes
+(docs/evidence/2026-08-11-theme-dark.png, -light.png); themed NativeAOT
+publish measures 32 MB installed, 7.8 MB gzipped binary, within D-025.
+
 ## 4. Out of scope, on purpose
 
 | Excluded | Where it will connect later | Log entry |
