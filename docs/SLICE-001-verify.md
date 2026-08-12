@@ -93,6 +93,16 @@ AccurateRip and CTDB lookups and zero diagnostic-log errors
 with runtime evidence. Payload: 49 MB installed, 15.5 MB gzipped binary,
 within D-025. Remaining in M4: the accessibility pass.
 
+M5 status (2026-08-12 evening): backfill journal complete. Entry + store
+(atomic, forward-compatible, AOT-safe JSON), JournalingVerifyService
+(connectivity-probe offline detection; journals successful offline
+verifies), VerificationBackfillService (startup replay: resolve with
+evidence path, unresolvable-with-reason for missing sources, retry with
+attempt counts), wired into app startup off the UI thread. Verified albums
+get the engine's dated .accurip report by default (R-001). 17/17 tests.
+System-level offline evidence (S-002/S-003 acceptance under real network
+loss) remains for the slice closeout.
+
 ## 4. Out of scope, on purpose
 
 | Excluded | Where it will connect later | Log entry |
