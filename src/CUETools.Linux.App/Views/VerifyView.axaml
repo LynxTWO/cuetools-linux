@@ -1,6 +1,7 @@
 <UserControl xmlns="https://github.com/avaloniaui"
              xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
              xmlns:vm="using:CUETools.Wpf.ViewModels"
+             xmlns:ctl="using:CUETools.Linux.App.Controls"
              x:Class="CUETools.Linux.App.Views.VerifyView"
              x:Name="VerifyRoot"
              x:DataType="vm:VerifyViewModel"
@@ -281,6 +282,15 @@
                                      TextTrimming="CharacterEllipsis" MaxWidth="360"
                                      HorizontalAlignment="Right" />
                         </DockPanel>
+                        <ctl:RepairScope Height="128" Margin="0,8,0,0"
+                                         Active="{Binding IsBusy}"
+                                         Applied="{Binding RepairApplied}"
+                                         Recoverable="{Binding CanRepair}"
+                                         Progress="{Binding #VerifyRoot.((vm:VerifyViewModel)DataContext).Progress}"
+                                         Samples="{Binding Result.RepairSamples}"
+                                         Sectors="{Binding Result.RepairSectors}"
+                                         Npar="{Binding Result.RepairNpar}"
+                                         MapSource="{Binding Result.RepairSectorMap}" />
                         <TextBlock Text="{Binding RepairOutput}" ToolTip.Tip="{Binding RepairOutput}"
                                    FontFamily="{StaticResource Mono}" FontSize="10.5"
                                    Foreground="{DynamicResource StatusGood}"
