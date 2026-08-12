@@ -462,6 +462,24 @@ OPTIONS CONSIDERED: Deferring both (keeps slice focus, leaves the loop
 slower and the trim surface wide).
 REVISIT WHEN: Both PRs merge or CI rejects an approach.
 
+DECISION: D-038 User manual sourcebook
+STATUS: Confirmed
+CHOICE: Collect user-manual raw material continuously while capabilities
+ship (docs/manual/notes/, one plain-English note per topic, referencing
+the evidence screenshots), and assemble the full HTML manual after the
+port surface stabilizes. Per-release definition of done gains "manual
+notes current for user-visible changes" (EDD section 17).
+BECAUSE: Owner proposed collecting during the build; capture-now
+assemble-late preserves knowledge that is expensive to reconstruct
+(verdict vocabulary, honest-behavior rationale) and reuses the evidence
+screenshots as illustrations. Notes follow the no-invented-behavior rule:
+only verified behavior enters a note.
+OPTIONS CONSIDERED: Write the manual at the end from memory (archaeology,
+loses nuance); write full manual pages per slice now (churn while the
+surface still moves).
+REVISIT WHEN: The port surface stabilizes enough to design the HTML
+manual's structure; that assembly is its own planned piece of work.
+
 ---
 
 ## Slice growth tally

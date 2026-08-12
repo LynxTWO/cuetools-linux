@@ -325,8 +325,9 @@ checklist.
 
 **Per release:** migrations applied and reversible; rollback path confirmed
 per ADD section 12; checks in place per section 13; version tagged with a
-changelog entry; size gate passed (D-025); **final approval: Daniel Boyd**
-(D-029).
+changelog entry; size gate passed (D-025); manual sourcebook notes current
+for user-visible changes (docs/manual/, D-038); **final approval: Daniel
+Boyd** (D-029).
 
 ## 18. Change Control
 
