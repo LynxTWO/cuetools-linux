@@ -1,35 +1,28 @@
 using System.Diagnostics;
 using Avalonia;
-using Avalonia.Controls;
 using Avalonia.Controls.ApplicationLifetimes;
-using Avalonia.Themes.Fluent;
+using Avalonia.Markup.Xaml;
+using CUETools.Linux.App.Services;
 
 namespace CUETools.Linux.App;
 
-public class App : Application
+public partial class App : Application
 {
-    public override void Initialize() => Styles.Add(new FluentTheme());
+    public override void Initialize() => AvaloniaXamlLoader.Load(this);
 
     public override void OnFrameworkInitializationCompleted()
     {
         if (ApplicationLifetime is IClassicDesktopStyleApplicationLifetime desktop)
         {
-            var window = new Window
-            {
-                Width = 960,
-                Height = 600,
-                Title = "CUETools Linux",
-                Content = new TextBlock
-                {
-                    Text = "CUETools Linux (scaffold): the Verify workspace arrives with milestone M4.",
-                    Margin = new Thickness(24),
-                },
-            };
+            var theme = new ThemeState();
+            theme.Apply(theme.Current);
+
+            var window = new MainWindow(theme);
             window.Opened += (_, _) =>
             {
                 // --smoke: prove the app reaches a visible window, then exit
-                // (used by CI and by startup measurements; the stopwatch is
-                // started in Main so the number covers the whole launch).
+                // (used by CI and startup measurements; the stopwatch starts
+                // in Main so the number covers the whole launch).
                 Console.WriteLine($"startup-to-window-ms={Program.Startup.ElapsedMilliseconds}");
                 if (desktop.Args is ["--smoke", ..])
                 {
@@ -38,6 +31,7 @@ public class App : Application
             };
             desktop.MainWindow = window;
         }
+
         base.OnFrameworkInitializationCompleted();
     }
 }
