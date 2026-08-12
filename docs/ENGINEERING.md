@@ -313,7 +313,7 @@ one mode at a time, narrowest permissions.
 | A-002 | NativeAOT compatibility | Publish mode falls back | S-3 proved the UI toolchain (32.8 MB installed, ~440 ms to window). Residual A-002b: engine's Newtonsoft.Json under AOT untested; trimmed fallback stands | Watching |
 | A-003 | Native codecs build as .so | Codec runtime blocked | Codec build spike | Open |
 | Q-001 | Linux v1 external encoder set | Convert completeness | Close at convert slice planning | Open |
-| O-001 | CTDB status line shows an XML parse quirk on the unknown-disc path ("error in XML document (0,0)"), observed 2026-08-11 during the first live verify on Linux | Cosmetic verdict text; verdict itself honest | Compare against WPF behavior for the same unknown TOC; fix where the truth lives | Watching |
+| O-001 | UPGRADED TO BUG 2026-08-12: CTDB lookups fail on Linux ("error in XML document (0,0)"; a real pressed disc with an AccurateRip confidence-4 match reports CTDB "not found", and no CTDB metadata arrives). Blocks R-001's CTDB half and R-009 | Verify page shows AR-only evidence; repair and metadata unavailable | Debug the CTDB client response path on Linux (serializer, encoding, HTTP); compare a working WPF request byte-for-byte | Open |
 
 ## 17. Definition of Done
 
