@@ -46,6 +46,11 @@ public static class Composition
         config.advanced.CreateTOC = true;
         config.advanced.DetailedCTDBLog = true;
         config.advanced.coversSearch = CUEConfigAdvanced.CTDBCoversSearch.Extensive;
+        // Linux v1 has no settings page yet, and R-001's acceptance test
+        // requires a dated report file next to the verified album, so the
+        // engine's own AccurateRip log writer is on by default here (the
+        // WPF head leaves it to its settings page).
+        config.writeArLogOnVerify = true;
         return config;
     }
 
