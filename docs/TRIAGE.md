@@ -59,10 +59,9 @@ Budget posture:      near zero (Assumed)
 - U-004: CLOSED 2026-08-11. Avalonia desktop Linux is X11 (XWayland on
   Wayland sessions); 12.1 adds an experimental opt-in native Wayland backend.
   See RESEARCH-2026-08-11-unknowns.md.
-- U-005: does the fork's vendor staging (eng/ci/Prepare-VendorSources.ps1)
-  run under PowerShell Core on Linux? Verification plan: spike scheduled in
-  the build order before any dependent engine-from-source work (D-014).
-- U-006: the engine's CTDB client uses the DeviceId 4.0.0 package for a
-  machine fingerprint on net47/netstandard builds; its providers are
-  typically Windows-oriented. Verification plan: test DeviceId behavior on
-  Linux during the first engine-on-Linux spike; privacy note in EDD section 8.
+- U-005: CLOSED 2026-08-11 by spike S-1. Vendor staging, engine build, and
+  engine execution all pass under pwsh 7.6 / SDK 10 on Ubuntu 24.04. See
+  SPIKES-2026-08-11.md.
+- U-006: CLOSED 2026-08-11 by spike S-2. On the netstandard/net10 path the
+  CTDB fingerprint is a stable SHA-256 hash of the machine name only. See
+  SPIKES-2026-08-11.md.

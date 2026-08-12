@@ -86,8 +86,8 @@ Protected three per D-027: honest, small and fast, accessible.
 | ID | Question | Blocks what | Close by |
 | --- | --- | --- | --- |
 | Q-001 | Which external command encoders ship on Linux v1 (opus, vorbis, musepack have native builds; qaac and TAK stay Windows-only) | Convert feature completeness | Convert slice planning |
-| Q-002 | What does the DeviceId package send on Linux (CTDB machine fingerprint, U-006) | CTDB submission path; privacy inventory | Engine-on-Linux spike |
-| Q-003 | Does fork vendor staging run under pwsh on Linux (U-005) | Engine-from-source builds | First spike in the build order |
+| Q-002 | CLOSED 2026-08-11 (spike S-2): on Linux the fingerprint is a SHA-256 hash of the machine name only | - | Closed |
+| Q-003 | CLOSED 2026-08-11 (spike S-1): staging, build, and execution all pass under pwsh/SDK 10 | - | Closed |
 
 **Ledger rules.** Every requirement has an observable acceptance test.
 Assumptions get verified and promoted, or corrected, never silently adopted.
@@ -308,9 +308,9 @@ one mode at a time, narrowest permissions.
 | U-002 | Budget posture near zero (Assumed) | Signing/store fees blocked | Confirm when fees appear | Watching |
 | U-003 | Fork's Linux drive access approach | - | CLOSED: SG_IO shim proven | Closed |
 | U-004 | Display-server posture | - | CLOSED: X11 default, Wayland opt-in | Closed |
-| U-005 / Q-003 | Vendor staging under pwsh on Linux | Engine builds blocked | Spike first in build order | Open |
-| U-006 / Q-002 | DeviceId behavior on Linux | CTDB submissions; privacy text | Engine-on-Linux spike | Open |
-| A-002 | NativeAOT compatibility | Publish mode falls back | Publish spike; trimmed fallback named | Open |
+| U-005 / Q-003 | Vendor staging under pwsh on Linux | Engine builds blocked | CLOSED by spike S-1: staging, build, and run all pass (SPIKES-2026-08-11.md) | Closed |
+| U-006 / Q-002 | DeviceId behavior on Linux | CTDB submissions; privacy text | CLOSED by spike S-2: hashed machine name only, stable (SPIKES-2026-08-11.md) | Closed |
+| A-002 | NativeAOT compatibility | Publish mode falls back | S-3 proved the UI toolchain (32.8 MB installed, ~440 ms to window). Residual A-002b: engine's Newtonsoft.Json under AOT untested; trimmed fallback stands | Watching |
 | A-003 | Native codecs build as .so | Codec runtime blocked | Codec build spike | Open |
 | Q-001 | Linux v1 external encoder set | Convert completeness | Close at convert slice planning | Open |
 
