@@ -434,6 +434,34 @@ support).
 REVISIT WHEN: Avalonia's headless MSTest support reaches parity and
 consistency with the fork starts to matter.
 
+DECISION: D-036 SLICE-002 selection: Repair
+STATUS: Confirmed
+CHOICE: SLICE-002 is CTDB parity repair inside the Verify & Repair page
+(SLICE-002-repair.md). Owner explicitly authorized starting it while
+SLICE-001's two owner-side rows (S-007 theme review, S-008 accessibility)
+remain open in parallel; those rows stay owned by the owner and gate
+SLICE-001's Done status, not SLICE-002's start.
+BECAUSE: Completes the page's named promise with the smallest step: the
+engine machinery and command wiring already ship in the shared core;
+SLICE-001 omitted only the UI surface (D-032). Repair is CUETools' most
+distinctive capability.
+OPTIONS CONSIDERED: Codec runtime (unlocks WavPack/APE, closes A-003);
+rip foundations (largest lift).
+REVISIT WHEN: SLICE-002 closes; the expansion loop reconvenes.
+
+DECISION: D-037 Fork housekeeping authorized
+STATUS: Confirmed
+CHOICE: Two fork-side PRs approved to run between slice work: engine test
+TFM modernization (net8.0 targets for the net47-only test projects, with
+test-suites.json lane updates) and the de-reflection seam for the
+DoVerify migration (shrinks the Linux app's trimming exemptions).
+BECAUSE: Both close findings from the SLICE-001 build (Linux-runnable
+engine tests; TrimmerRootAssembly breadth). Windows CI validates both
+before merge.
+OPTIONS CONSIDERED: Deferring both (keeps slice focus, leaves the loop
+slower and the trim surface wide).
+REVISIT WHEN: Both PRs merge or CI rejects an approach.
+
 ---
 
 ## Slice growth tally
