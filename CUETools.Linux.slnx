@@ -1,0 +1,21 @@
+<Solution>
+  <Folder Name="/extern/" />
+  <Folder Name="/extern/cuetools_2026/">
+    <Project Path="extern/cuetools_2026/CUETools.AccurateRip/CUETools.AccurateRip.csproj" />
+    <Project Path="extern/cuetools_2026/CUETools.CDImage/CUETools.CDImage.csproj" />
+    <Project Path="extern/cuetools_2026/CUETools.Codecs/CUETools.Codecs.csproj" />
+    <Project Path="extern/cuetools_2026/CUETools.Compression/CUETools.Compression.csproj" />
+    <Project Path="extern/cuetools_2026/CUETools.CTDB.Types/CUETools.CTDB.Types.csproj" />
+    <Project Path="extern/cuetools_2026/CUETools.CTDB/CUETools.CTDB.csproj" />
+    <Project Path="extern/cuetools_2026/CUETools.Parity/CUETools.Parity.csproj" />
+    <Project Path="extern/cuetools_2026/CUETools.Processor/CUETools.Processor.csproj" />
+    <Project Path="extern/cuetools_2026/CUETools.Ripper/CUETools.Ripper.csproj" />
+    <Project Path="extern/cuetools_2026/Freedb/Freedb.csproj" />
+  </Folder>
+  <Folder Name="/src/">
+    <Project Path="src/CUETools.Linux.App/CUETools.Linux.App.csproj" />
+  </Folder>
+  <Folder Name="/tests/">
+    <Project Path="tests/CUETools.Linux.Tests/CUETools.Linux.Tests.csproj" />
+  </Folder>
+</Solution>

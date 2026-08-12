@@ -385,6 +385,55 @@ names its seam.
 OPTIONS CONSIDERED: Repair inside slice 1 (bigger boundary, slower proof).
 REVISIT WHEN: SLICE-002 selection.
 
+DECISION: D-033 Autonomy grant for SLICE-001 execution
+STATUS: Confirmed
+CHOICE: Owner authorized (2026-08-11, in session): the agent may merge its
+own PRs in cuetools-linux, open and merge the SLICE-001 fork PRs, and
+proceed through the approved build order autonomously, stopping only where
+genuine owner input is required. D-028 remains the default posture outside
+this grant; hard stops remain for anything destructive, scope-changing, or
+outside the slice boundary.
+BECAUSE: Owner said "feel free to merge yourself" and "continue to work
+autonomously until you can't go any further without input from Me".
+OPTIONS CONSIDERED: Per-action approval (the D-028 default).
+REVISIT WHEN: SLICE-001 closes, or the owner narrows the grant.
+
+DECISION: D-034 Linux-repo restore posture (no lock files)
+STATUS: Confirmed
+CHOICE: This repository carries no NuGet lock files anywhere in its build
+graph. eng/build.sh (used by CI and contributors) passes
+RestorePackagesWithLockFile=false and RestoreLockedMode=false on every
+build so the fork submodule's lock machinery never engages here.
+Determinism comes from exact-pinned package versions in first-party
+csproj files plus the extern/cuetools_2026 submodule commit pin. CI
+asserts the submodule working tree stays byte-clean after building.
+BECAUSE: Measured on 2026-08-11: restoring the fork's engine projects on
+Ubuntu modifies their committed packages.lock.json (Linux auto-injects
+Microsoft.NETFramework.ReferenceAssemblies for net47; newer NuGet writes
+the TagLibSharp project id with different casing), so locked-mode restore
+can never pass on a non-Windows host today. Filed upstream as fork issue
+LynxTWO/cuetools_2026#7 with the diff evidence. A Directory.Build.rsp
+variant of the neutralization failed silently and was rejected in favor of
+explicit flags in one script.
+OPTIONS CONSIDERED: Fork-side lock invariance now (needs devenv/Windows
+validation the Linux side cannot provide; left to the fork via issue #7);
+per-OS conditional package references (locked mode then fails on the other
+OS); two-SDK split builds (does not remove the OS-conditional injection).
+REVISIT WHEN: Fork issue #7 lands OS-invariant locks; this repo then
+re-enables lock files and locked CI restore as its own decision.
+
+DECISION: D-035 Test framework for first-party Linux projects
+STATUS: Confirmed
+CHOICE: xunit (with Microsoft.NET.Test.Sdk) for CUETools.Linux.Tests;
+Avalonia.Headless.XUnit planned for UI tests at M4.
+BECAUSE: Avalonia's headless testing ships first-class xunit support,
+which EDD section 11 already names for page-logic tests. The fork's MSTest
+convention stays fork-side; contracts do not cross the repo boundary.
+OPTIONS CONSIDERED: MSTest v2 (fork convention, weaker Avalonia headless
+support).
+REVISIT WHEN: Avalonia's headless MSTest support reaches parity and
+consistency with the fork starts to matter.
+
 ---
 
 ## Slice growth tally
