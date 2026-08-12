@@ -34,6 +34,13 @@ dotnet build tests/CUETools.Linux.Tests/CUETools.Linux.Tests.csproj \
 dotnet test tests/CUETools.Linux.Tests/CUETools.Linux.Tests.csproj \
   -c "$CONFIG" --no-build --nologo
 
+# --publish: NativeAOT publish inside the same lock set-aside window
+# (publish restores too, so it needs the identical treatment; D-034).
+if [ "${1:-}" = "--publish" ]; then
+  dotnet publish src/CUETools.Linux.App/CUETools.Linux.App.csproj \
+    -c "$CONFIG" -r linux-x64 --nologo "${LOCKFLAGS[@]}"
+fi
+
 restore_locks
 trap - EXIT
 if [ -n "$(git -C "$SUB" status --porcelain)" ]; then
