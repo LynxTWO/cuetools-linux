@@ -1,6 +1,6 @@
 # CUETools Linux Slice Brief: SLICE-001 Verify
 
-Version: 0.1 Draft. Date: 2026-08-11. Status: Proposed.
+Version: 0.2. Date: 2026-08-11. Status: Approved for build.
 Companion documents: ARCHITECTURE.md, ENGINEERING.md, DECISION-LOG.md.
 
 One narrow, production-quality section. This document is the agent's build
@@ -137,6 +137,6 @@ last folder). DriveProfile: not created in this slice.
 
 ---
 
-*Approved for build by: pending. Until then, this brief is a proposal. When
-section 11 closes with evidence, mark the status Done and update ADD
-section 15 before opening the next brief.*
+*Approved for build by: Daniel Boyd, 2026-08-11. When section 11 closes with
+evidence, mark the status Done and update ADD section 15 before opening the
+next brief.*
