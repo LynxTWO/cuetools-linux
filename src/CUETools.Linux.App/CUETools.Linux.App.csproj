@@ -10,12 +10,21 @@
     <StripSymbols>true</StripSymbols>
     <InvariantGlobalization>true</InvariantGlobalization>
     <AvaloniaUseCompiledBindingsByDefault>true</AvaloniaUseCompiledBindingsByDefault>
+    <!-- AVLN3001: windows are constructed with dependencies (no parameterless
+         ctor), so the runtime XAML loader path is intentionally unavailable. -->
+    <NoWarn>$(NoWarn);AVLN3001</NoWarn>
   </PropertyGroup>
 
   <ItemGroup>
     <PackageReference Include="Avalonia" Version="12.1.1" />
     <PackageReference Include="Avalonia.Desktop" Version="12.1.1" />
     <PackageReference Include="Avalonia.Themes.Fluent" Version="12.1.1" />
+  </ItemGroup>
+
+  <ItemGroup>
+    <ProjectReference Include="..\..\extern\cuetools_2026\CUETools.App.Core\CUETools.App.Core.csproj" />
+    <ProjectReference Include="..\..\extern\cuetools_2026\CUETools.Codecs.Flake\CUETools.Codecs.Flake.csproj" />
+    <ProjectReference Include="..\..\extern\cuetools_2026\CUETools.Codecs.ALAC\CUETools.Codecs.ALAC.csproj" />
   </ItemGroup>
 
 </Project>

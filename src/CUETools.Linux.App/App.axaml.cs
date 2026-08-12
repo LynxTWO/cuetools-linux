@@ -14,10 +14,19 @@ public partial class App : Application
     {
         if (ApplicationLifetime is IClassicDesktopStyleApplicationLifetime desktop)
         {
+            Composition.RegisterManagedCodecs();
+
             var theme = new ThemeState();
             theme.Apply(theme.Current);
 
-            var window = new MainWindow(theme);
+            MainWindow? windowRef = null;
+            var verify = Composition.CreateVerifyViewModel(
+                new AvaloniaFileDialogService(() => windowRef),
+                new AvaloniaUserPrompt(() => windowRef),
+                new AvaloniaUiDispatcher());
+
+            var window = new MainWindow(theme, verify);
+            windowRef = window;
             window.Opened += (_, _) =>
             {
                 // --smoke: prove the app reaches a visible window, then exit
@@ -27,6 +36,19 @@ public partial class App : Application
                 if (desktop.Args is ["--smoke", ..])
                 {
                     desktop.Shutdown();
+                    return;
+                }
+
+                // Existing paths on the command line load into Verify at
+                // startup; --verify also starts the run. Useful for desktop
+                // file-manager integration and headless evidence runs.
+                string[] paths = (desktop.Args ?? Array.Empty<string>())
+                    .Where(arg => File.Exists(arg) || Directory.Exists(arg))
+                    .ToArray();
+                if (paths.Length > 0 && verify.LoadSources(paths) &&
+                    desktop.Args!.Contains("--verify"))
+                {
+                    verify.VerifyCommand.Execute(null);
                 }
             };
             desktop.MainWindow = window;
