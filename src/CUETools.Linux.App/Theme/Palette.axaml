@@ -1,0 +1,128 @@
+<ResourceDictionary xmlns="https://github.com/avaloniaui"
+                    xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml">
+
+  <!-- CUETools 2026 palette, ported token-for-token from the fork's
+       ThemeService.cs (Dark/Light tables) and Theme.xaml (stable accents,
+       lamp ramp). Structural keys ride Avalonia theme variants, so
+       RequestedThemeVariant switching re-resolves every DynamicResource
+       live: the platform gives us what the WPF side needed its
+       palette-swap mechanism for. Decorative accents are variant-invariant
+       by design, same as upstream. -->
+
+  <ResourceDictionary.ThemeDictionaries>
+    <ResourceDictionary x:Key="Dark">
+      <SolidColorBrush x:Key="Ground" Color="#0C0F0D" />
+      <SolidColorBrush x:Key="Bar" Color="#0E1310" />
+      <SolidColorBrush x:Key="Face" Color="#161C16" />
+      <SolidColorBrush x:Key="Panel" Color="#141A16" />
+      <SolidColorBrush x:Key="Line" Color="#28312A" />
+      <SolidColorBrush x:Key="Ink" Color="#EDF1E9" />
+      <SolidColorBrush x:Key="InkDim" Color="#B1BCAE" />
+      <SolidColorBrush x:Key="Muted" Color="#7D887C" />
+      <SolidColorBrush x:Key="StatusAccent" Color="#34CFC0" />
+      <SolidColorBrush x:Key="StatusGood" Color="#5CCB8B" />
+      <SolidColorBrush x:Key="StatusWarning" Color="#E9A63F" />
+      <SolidColorBrush x:Key="StatusDanger" Color="#E06C75" />
+      <SolidColorBrush x:Key="ScrollTrack" Color="#111713" />
+      <SolidColorBrush x:Key="ScrollTrackBorder" Color="#2B3931" />
+      <SolidColorBrush x:Key="ScrollThumb" Color="#50675F" />
+      <SolidColorBrush x:Key="ScrollThumbHover" Color="#34CFC0" />
+      <SolidColorBrush x:Key="ScrollThumbPressed" Color="#78E9DE" />
+      <SolidColorBrush x:Key="Glass" Color="#0E1311" />
+      <SolidColorBrush x:Key="GlassLine" Color="#243029" />
+      <SolidColorBrush x:Key="ButtonPressed" Color="#0C110E" />
+      <SolidColorBrush x:Key="ControlBorder" Color="#42FFFFFF" />
+      <SolidColorBrush x:Key="ButtonEdge" Color="#0A0E0B" />
+      <Color x:Key="ControlShadowColor">#000000</Color>
+      <SolidColorBrush x:Key="SwitchHousingBorder" Color="#0A0F0B" />
+      <Color x:Key="SwitchHousingTopColor">#0A0E0B</Color>
+      <Color x:Key="SwitchHousingBottomColor">#131A14</Color>
+      <Color x:Key="SwitchChannelTopColor">#B0000000</Color>
+      <Color x:Key="SwitchChannelMidColor">#40000000</Color>
+      <Color x:Key="SwitchChannelBottomColor">#2AFFFFFF</Color>
+      <Color x:Key="SwitchThumbTopColor">#5A6356</Color>
+      <Color x:Key="SwitchThumbMidColor">#333C34</Color>
+      <Color x:Key="SwitchThumbBottomColor">#242B25</Color>
+      <SolidColorBrush x:Key="SwitchSheen" Color="#26FFFFFF" />
+      <SolidColorBrush x:Key="DiscData" Color="#93A39F" />
+      <SolidColorBrush x:Key="DiscHub" Color="#BCC8C4" />
+      <SolidColorBrush x:Key="DiscEdge" Color="#DDE6E2" />
+      <SolidColorBrush x:Key="DiscBack" Color="#303A36" />
+      <SolidColorBrush x:Key="DiscTrack" Color="#E5F3EE" />
+      <LinearGradientBrush x:Key="ButtonFace" StartPoint="0%,0%" EndPoint="0%,100%">
+        <GradientStop Color="#1B221C" Offset="0" />
+        <GradientStop Color="#121813" Offset="1" />
+      </LinearGradientBrush>
+    </ResourceDictionary>
+
+    <ResourceDictionary x:Key="Light">
+      <SolidColorBrush x:Key="Ground" Color="#E7ECE2" />
+      <SolidColorBrush x:Key="Bar" Color="#DEE4D8" />
+      <SolidColorBrush x:Key="Face" Color="#F4F7EF" />
+      <SolidColorBrush x:Key="Panel" Color="#F1F5EB" />
+      <SolidColorBrush x:Key="Line" Color="#CAD2C2" />
+      <SolidColorBrush x:Key="Ink" Color="#1A211B" />
+      <SolidColorBrush x:Key="InkDim" Color="#414A40" />
+      <SolidColorBrush x:Key="Muted" Color="#6C766A" />
+      <SolidColorBrush x:Key="StatusAccent" Color="#087067" />
+      <SolidColorBrush x:Key="StatusGood" Color="#246D3C" />
+      <SolidColorBrush x:Key="StatusWarning" Color="#835600" />
+      <SolidColorBrush x:Key="StatusDanger" Color="#A83442" />
+      <SolidColorBrush x:Key="ScrollTrack" Color="#D7DED1" />
+      <SolidColorBrush x:Key="ScrollTrackBorder" Color="#B7C2B2" />
+      <SolidColorBrush x:Key="ScrollThumb" Color="#71837B" />
+      <SolidColorBrush x:Key="ScrollThumbHover" Color="#087067" />
+      <SolidColorBrush x:Key="ScrollThumbPressed" Color="#07544E" />
+      <SolidColorBrush x:Key="Glass" Color="#E4E9DD" />
+      <SolidColorBrush x:Key="GlassLine" Color="#CAD2C2" />
+      <SolidColorBrush x:Key="ButtonPressed" Color="#D6DDCC" />
+      <SolidColorBrush x:Key="ControlBorder" Color="#6676816F" />
+      <SolidColorBrush x:Key="ButtonEdge" Color="#B8C2B2" />
+      <Color x:Key="ControlShadowColor">#536057</Color>
+      <SolidColorBrush x:Key="SwitchHousingBorder" Color="#9DAA98" />
+      <Color x:Key="SwitchHousingTopColor">#D4DBCE</Color>
+      <Color x:Key="SwitchHousingBottomColor">#EEF2E9</Color>
+      <Color x:Key="SwitchChannelTopColor">#66747D70</Color>
+      <Color x:Key="SwitchChannelMidColor">#33747D70</Color>
+      <Color x:Key="SwitchChannelBottomColor">#B8FFFFFF</Color>
+      <Color x:Key="SwitchThumbTopColor">#7E897A</Color>
+      <Color x:Key="SwitchThumbMidColor">#5F695C</Color>
+      <Color x:Key="SwitchThumbBottomColor">#465044</Color>
+      <SolidColorBrush x:Key="SwitchSheen" Color="#66FFFFFF" />
+      <SolidColorBrush x:Key="DiscData" Color="#74837E" />
+      <SolidColorBrush x:Key="DiscHub" Color="#AAB7B2" />
+      <SolidColorBrush x:Key="DiscEdge" Color="#4B5954" />
+      <SolidColorBrush x:Key="DiscBack" Color="#2E3935" />
+      <SolidColorBrush x:Key="DiscTrack" Color="#E8F2EE" />
+      <LinearGradientBrush x:Key="ButtonFace" StartPoint="0%,0%" EndPoint="0%,100%">
+        <GradientStop Color="#FBFDF7" Offset="0" />
+        <GradientStop Color="#E9EEE1" Offset="1" />
+      </LinearGradientBrush>
+    </ResourceDictionary>
+  </ResourceDictionary.ThemeDictionaries>
+
+  <!-- Decorative accents, identical in both themes (Theme.xaml lines 10-14). -->
+  <SolidColorBrush x:Key="Teal" Color="#34CFC0" />
+  <SolidColorBrush x:Key="Teal2" Color="#46B8E0" />
+  <SolidColorBrush x:Key="Amber" Color="#E9A63F" />
+  <SolidColorBrush x:Key="Good" Color="#5CCB8B" />
+  <SolidColorBrush x:Key="TealSoft" Color="#2434CFC0" />
+
+  <!-- Lamp ramp for lit-panel controls (Theme.xaml lines 19-27). -->
+  <Color x:Key="LampCore">#EAFFFB</Color>
+  <Color x:Key="LampLight">#6FE3D6</Color>
+  <Color x:Key="LampBase">#27A99C</Color>
+  <Color x:Key="LampDark">#0E4F48</Color>
+  <Color x:Key="LampEdge">#06211E</Color>
+  <Color x:Key="LampHalo">#34CFC0</Color>
+  <Color x:Key="LampCapCore">#B8F1FBF9</Color>
+  <Color x:Key="LampCapMid">#5A45D6C9</Color>
+  <Color x:Key="LampCapEdge">#0034CFC0</Color>
+
+  <!-- Font stacks: same roles as the fork's Serif/Mono, with faces that ship
+       on Ubuntu leading and the Windows faces retained as fallbacks for
+       cross-platform documents. -->
+  <FontFamily x:Key="Serif">Liberation Serif, DejaVu Serif, Sitka Text, Cambria, Georgia, serif</FontFamily>
+  <FontFamily x:Key="Mono">Ubuntu Mono, DejaVu Sans Mono, Liberation Mono, Consolas, monospace</FontFamily>
+
+</ResourceDictionary>
