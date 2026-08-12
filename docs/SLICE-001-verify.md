@@ -73,8 +73,10 @@ WAV decoded, per-track CRC32s computed, live AccurateRip and CTDB queried,
 honest verdict rendered (docs/evidence/2026-08-11-verify-fixture-dark.png).
 Compiled-in managed codec registration (Flake, ALAC) per the Linux
 no-plugin-scanning posture. Headless UI test added (xunit v3 +
-Avalonia.Headless). Remaining in M4: light-theme verify pass, real-album
-walkthrough (needs an owner-provided known-good rip), accessibility pass.
+Avalonia.Headless). Light-theme verify evidence:
+docs/evidence/2026-08-11-verify-fixture-light.png. Remaining in M4:
+real-album walkthrough (needs an owner-provided known-good rip) and the
+accessibility pass.
 
 ## 4. Out of scope, on purpose
 
