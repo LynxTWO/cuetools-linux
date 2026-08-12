@@ -20,10 +20,11 @@ public partial class App : Application
             theme.Apply(theme.Current);
 
             MainWindow? windowRef = null;
-            var verify = Composition.CreateVerifyViewModel(
+            Composition.AppGraph graph = Composition.CreateAppGraph(
                 new AvaloniaFileDialogService(() => windowRef),
                 new AvaloniaUserPrompt(() => windowRef),
                 new AvaloniaUiDispatcher());
+            var verify = graph.Verify;
 
             var window = new MainWindow(theme, verify);
             windowRef = window;
@@ -50,6 +51,30 @@ public partial class App : Application
                 {
                     verify.VerifyCommand.Execute(null);
                 }
+
+                // Verification backfill replay (D-010/D-011): pending offline
+                // journal entries re-verify automatically once the databases
+                // answer again. Off the UI thread; outcomes go to the
+                // diagnostic log.
+                _ = Task.Run(() =>
+                {
+                    try
+                    {
+                        var outcome = graph.Backfill.ReplayPending(
+                            line => graph.Log.Info("backfill", line));
+                        if (outcome.Resolved + outcome.Unresolvable + outcome.StillPending > 0)
+                        {
+                            graph.Log.Info("backfill",
+                                $"replay done: {outcome.Resolved} resolved, " +
+                                $"{outcome.Unresolvable} unresolvable, " +
+                                $"{outcome.StillPending} still pending");
+                        }
+                    }
+                    catch (Exception ex)
+                    {
+                        graph.Log.Warn("backfill", "replay failed: " + ex.GetType().Name);
+                    }
+                });
             };
             desktop.MainWindow = window;
         }
