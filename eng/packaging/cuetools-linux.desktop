@@ -1,0 +1,11 @@
+[Desktop Entry]
+Type=Application
+Name=CUETools Linux
+GenericName=CD Verification and Repair
+Comment=Verify, repair, and convert lossless CD rips with AccurateRip and CTDB
+Exec=cuetools-linux %F
+Icon=cuetools-linux
+Terminal=false
+Categories=AudioVideo;Audio;
+MimeType=application/x-cue;
+Keywords=CD;rip;verify;AccurateRip;CTDB;FLAC;cue;
