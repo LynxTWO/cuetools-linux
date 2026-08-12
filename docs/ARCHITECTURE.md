@@ -376,14 +376,13 @@ DECISION: D-025 Performance targets (see DECISION-LOG.md)
 
 ## 15. Current Build Boundary
 
-- **Current slice:** SLICE-001 Verify: album verification with honest
-  AR/CTDB verdict, named report, 2026 theme, journal seam, .deb and
-  AppImage packaging (SLICE-001-verify.md).
-- **Modules the slice touches:** Desktop shell, Shared app core (extraction
-  in the fork), Job orchestration and evidence, Engine (consumed), Platform
-  services.
-- **Modules the slice stubs:** Codec runtime (honest unavailable rows,
-  D-032). Drive access untouched.
+- **Current slice:** SLICE-002 Repair: CTDB parity repair inside the
+  Verify & Repair page (SLICE-002-repair.md). SLICE-001 is built and
+  evidenced except its two owner-side rows (S-007, S-008), which the owner
+  holds in parallel (D-036).
+- **Modules the slice touches:** Desktop shell (repair UI blocks,
+  RepairScope port), Shared app core (consumed).
+- **Modules the slice stubs:** none new; SLICE-001 stubs stand.
 - **Everything else:** designed above, deliberately unbuilt.
 
 ---
