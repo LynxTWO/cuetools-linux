@@ -1,0 +1,3 @@
+[submodule "extern/cuetools_2026"]
+	path = extern/cuetools_2026
+	url = https://github.com/LynxTWO/cuetools_2026.git
