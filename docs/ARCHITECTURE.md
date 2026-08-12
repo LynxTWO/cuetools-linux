@@ -12,12 +12,12 @@ guardrails control.
 
 ```text
 INTERVIEW STATE
-Last completed:   Phase 5 slice selection; SLICE-001 Verify proposed
-Next:             Phase 6 audit pass, repo creation, owner review, then M1
-                  spikes per SLICE-001 build order
-Open questions:   Q-001 to Q-003 (EDD 4.3), scheduled as spikes in M1 or at
-                  their named triggers
-Statuses pending: SLICE-001 approval for build (owner)
+Last completed:   Phase 6 audit passed; SLICE-001 Approved for build
+                  (Daniel Boyd, 2026-08-11)
+Next:             SLICE-001 milestone M1: spikes S-1 (pwsh vendor staging),
+                  S-2 (DeviceId on Linux), S-3 (NativeAOT publish)
+Open questions:   Q-001 (encoder set, closes at convert slice planning)
+Statuses pending: none
 ```
 
 ## 1. One-Page Overview
