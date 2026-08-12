@@ -1,0 +1,21 @@
+<Project>
+  <!--
+    Common properties for first-party CUETools Linux projects only. Projects
+    under extern/cuetools_2026 resolve the fork's own Directory.Build.props
+    and never see this file.
+
+    Restore posture (decision D-034): this repo carries no NuGet lock files.
+    The fork's committed locks are Windows/SDK-8 specific today (fork issue
+    #7), so eng/build.sh passes the lock-neutralizing properties on every
+    build. Determinism comes from exact-pinned package versions here plus
+    the extern/cuetools_2026 submodule commit pin. Build through
+    eng/build.sh; a bare dotnet build works but may dirty the submodule's
+    lock files (harmless locally, rejected by CI).
+  -->
+  <PropertyGroup>
+    <Nullable>enable</Nullable>
+    <LangVersion>latest</LangVersion>
+    <TreatWarningsAsErrors>true</TreatWarningsAsErrors>
+    <ImplicitUsings>enable</ImplicitUsings>
+  </PropertyGroup>
+</Project>
