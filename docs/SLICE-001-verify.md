@@ -103,6 +103,15 @@ get the engine's dated .accurip report by default (R-001). 17/17 tests.
 System-level offline evidence (S-002/S-003 acceptance under real network
 loss) remains for the slice closeout.
 
+M6 status (2026-08-12 evening): .deb and AppImage packaging complete with
+D-025 size gates enforced in the packaging scripts (measured: deb 17 MB
+download / 49 MB installed; AppImage 20 MB). Icon derived from the WPF
+app.ico for one identity across heads. Packaged AppImage smoke-launches to
+a visible window (a latent shutdown-during-startup crash in the --smoke
+path was found and fixed along the way). CI gains a package job:
+NativeAOT publish, both packages, clean apt install of the deb plus
+xvfb smoke launch (R-010), AppImage smoke, artifacts uploaded.
+
 ## 4. Out of scope, on purpose
 
 | Excluded | Where it will connect later | Log entry |

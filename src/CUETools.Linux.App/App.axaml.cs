@@ -36,8 +36,14 @@ public partial class App : Application
                 Console.WriteLine($"startup-to-window-ms={Program.Startup.ElapsedMilliseconds}");
                 if (desktop.Args is ["--smoke", ..])
                 {
-                    desktop.Shutdown();
-                    return;
+                    // Hard exit by design: --smoke exists to prove the app
+                    // reaches a visible window. Graceful lifetime shutdown
+                    // from inside Opened races StartCore's own use of the
+                    // window (observed NullReferenceException on the X11
+                    // backend), and a diagnostics path has nothing to tear
+                    // down gracefully.
+                    Console.Out.Flush();
+                    Environment.Exit(0);
                 }
 
                 // Existing paths on the command line load into Verify at
