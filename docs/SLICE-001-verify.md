@@ -112,6 +112,20 @@ path was found and fixed along the way). CI gains a package job:
 NativeAOT publish, both packages, clean apt install of the deb plus
 xvfb smoke launch (R-010), AppImage smoke, artifacts uploaded.
 
+S-002/S-003 system evidence (2026-08-12 night): a true-offline verify
+(app run inside an unprivileged network namespace, loopback only) wrote
+the honest offline report ("database access error: Resource temporarily
+unavailable" for both databases), a Pending journal entry, and the
+evidence screenshot (docs/evidence/2026-08-12-s002-offline-verify.png).
+The next online launch replayed automatically: entry Resolved with one
+attempt, the offline-era report preserved byte-for-byte as
+album.accurip.<timestamp>.pre-backfill (sha256 dbd62420... identical
+before and after), and a fresh dated report with real database answers.
+Replay now snapshots the prior report before re-verifying (append-only
+evidence, ADD guardrail 5), pinned by test. SLICE-001 acceptance rows
+S-001 through S-006 all carry evidence; S-007/S-008 (owner review,
+accessibility) remain with the owner.
+
 ## 4. Out of scope, on purpose
 
 | Excluded | Where it will connect later | Log entry |

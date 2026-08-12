@@ -131,12 +131,16 @@ public class BackfillTests
             File.WriteAllText(cue, "FILE \"x.wav\" WAVE");
             string report = Path.Combine(album, "x.accurip");
 
+            // The offline-era report must survive byte-for-byte when the
+            // replay's re-verify rewrites the live report file.
+            File.WriteAllText(report, "offline-era report bytes");
+
             store.CreatePending(BackfillLane.Verification, cue, "id");
             var inner = new ScriptedVerifyService
             {
                 OnVerify = path =>
                 {
-                    File.WriteAllText(report, "dated report");
+                    File.WriteAllText(report, "fresh dated report");
                     return new VerifyFilesResult { Ok = true, Status = "Verified.", Source = path };
                 },
             };
@@ -148,6 +152,9 @@ public class BackfillTests
             Assert.Equal(BackfillState.Resolved, entry.State);
             Assert.Equal(1, entry.Attempts);
             Assert.Equal(report, entry.ResolutionEvidencePath);
+            Assert.Equal("fresh dated report", File.ReadAllText(report));
+            string preserved = Assert.Single(Directory.GetFiles(album, "*.pre-backfill"));
+            Assert.Equal("offline-era report bytes", File.ReadAllText(preserved));
         }
         finally
         {
