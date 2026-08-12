@@ -1,0 +1,329 @@
+<UserControl xmlns="https://github.com/avaloniaui"
+             xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
+             xmlns:vm="using:CUETools.Wpf.ViewModels"
+             x:Class="CUETools.Linux.App.Views.VerifyView"
+             x:DataType="vm:VerifyViewModel"
+             DragDrop.AllowDrop="True">
+
+  <!-- Port of the WPF VerifyView (fork Views/VerifyView.xaml) against the
+       shared app core's VerifyViewModel. Repair affordances are deliberately
+       absent in SLICE-001 (stub decision D-032): verdicts only. -->
+  <UserControl.Styles>
+    <Style Selector="TextBlock.good">
+      <Setter Property="Foreground" Value="{DynamicResource StatusGood}" />
+    </Style>
+    <Style Selector="TextBlock.warn">
+      <Setter Property="Foreground" Value="{DynamicResource StatusWarning}" />
+    </Style>
+    <Style Selector="TextBlock.bad">
+      <Setter Property="Foreground" Value="{DynamicResource StatusDanger}" />
+    </Style>
+    <Style Selector="TextBlock.repaired">
+      <Setter Property="Foreground" Value="{DynamicResource StatusGood}" />
+    </Style>
+    <Style Selector="Button.accent">
+      <Setter Property="Background" Value="{DynamicResource StatusAccent}" />
+      <Setter Property="Foreground" Value="{DynamicResource Ground}" />
+      <Setter Property="FontWeight" Value="SemiBold" />
+    </Style>
+  </UserControl.Styles>
+
+  <Grid RowDefinitions="Auto,*,Auto" Background="{DynamicResource Ground}">
+
+    <!-- Source selection stays reachable at compact widths. -->
+    <Border Grid.Row="0" Background="{DynamicResource Panel}"
+            BorderBrush="{DynamicResource Line}" BorderThickness="0,0,0,1">
+      <ScrollViewer HorizontalScrollBarVisibility="Auto" VerticalScrollBarVisibility="Disabled">
+        <Grid ColumnDefinitions="Auto,*,Auto" MinWidth="720" Margin="16,10">
+          <TextBlock Grid.Column="0" Text="Source" Foreground="{DynamicResource Muted}"
+                     FontSize="11" VerticalAlignment="Center" Margin="0,0,12,0" />
+          <Border Grid.Column="1" Background="{DynamicResource Glass}"
+                  BorderBrush="{DynamicResource GlassLine}" BorderThickness="1"
+                  CornerRadius="6" Padding="10,6" VerticalAlignment="Center">
+            <TextBlock Text="{Binding SourcePath}" ToolTip.Tip="{Binding SourcePath}"
+                       Foreground="{DynamicResource InkDim}"
+                       FontFamily="{StaticResource Mono}" FontSize="11.5"
+                       TextTrimming="CharacterEllipsis" />
+          </Border>
+          <WrapPanel Grid.Column="2" Margin="8,0,0,0">
+            <Button Content="File..." Command="{Binding BrowseFileCommand}"
+                    Padding="12,7" Margin="0,0,7,0"
+                    AutomationProperties.Name="Choose CUE sheet, playlist, or audio file" />
+            <Button Content="Folder..." Command="{Binding BrowseFolderCommand}"
+                    Padding="12,7" Margin="0,0,7,0"
+                    AutomationProperties.Name="Choose album folder" />
+            <Button Content="Verify album" Command="{Binding VerifyCommand}"
+                    Classes="accent" Padding="16,7" Margin="0,0,7,0" />
+            <Button Content="Stop after disc" Command="{Binding StopCommand}"
+                    Padding="13,7" IsVisible="{Binding IsBusy}" />
+          </WrapPanel>
+        </Grid>
+      </ScrollViewer>
+    </Border>
+
+    <Grid Grid.Row="1">
+      <!-- Empty state doubles as a large drop target. -->
+      <Border Margin="28" MaxWidth="680" MinHeight="330"
+              HorizontalAlignment="Center" VerticalAlignment="Center"
+              Background="{DynamicResource Glass}"
+              BorderBrush="{DynamicResource GlassLine}"
+              BorderThickness="1" CornerRadius="18" Opacity="0.92"
+              IsVisible="{Binding !HasSource}"
+              AutomationProperties.Name="Drop an album folder, CUE sheet, playlist, or lossless audio file">
+        <StackPanel Margin="42" VerticalAlignment="Center" HorizontalAlignment="Center" MaxWidth="520">
+          <Grid Width="112" Height="112" Margin="0,0,0,18">
+            <Ellipse Fill="{DynamicResource Face}" Stroke="{DynamicResource StatusAccent}"
+                     StrokeThickness="2" Opacity="0.9" />
+            <Ellipse Width="62" Height="62" Fill="{DynamicResource Ground}"
+                     Stroke="{DynamicResource GlassLine}" StrokeThickness="1" />
+            <Ellipse Width="20" Height="20" Fill="{DynamicResource StatusAccent}" />
+            <Path Data="M0,0 L0,28 M-10,18 L0,28 L10,18" Stroke="{DynamicResource Ink}"
+                  StrokeThickness="3" StrokeLineCap="Round"
+                  HorizontalAlignment="Center" VerticalAlignment="Center"
+                  Margin="0,46,0,0" />
+          </Grid>
+          <TextBlock Text="Drop an album folder here"
+                     FontFamily="{StaticResource Serif}" FontSize="25"
+                     Foreground="{DynamicResource Ink}" HorizontalAlignment="Center" />
+          <TextBlock Text="CUETools finds CUE sheets, keeps multi-disc boundaries explicit, and verifies each disc in order. You can also drop CUE, M3U, or a single supported lossless file."
+                     TextAlignment="Center" TextWrapping="Wrap"
+                     Foreground="{DynamicResource Muted}" FontSize="12.5" Margin="0,9,0,0" />
+          <TextBlock Text="Sources overlap? CUETools stops and asks instead of guessing."
+                     TextAlignment="Center" Foreground="{DynamicResource StatusWarning}"
+                     FontFamily="{StaticResource Mono}" FontSize="10.5" Margin="0,16,0,0" />
+        </StackPanel>
+      </Border>
+
+      <!-- Album workspace. -->
+      <ScrollViewer VerticalScrollBarVisibility="Auto" HorizontalScrollBarVisibility="Auto"
+                    IsVisible="{Binding HasSource}">
+        <StackPanel MinWidth="720" Margin="24,20,24,28">
+          <TextBlock Text="{Binding AlbumHeading}" ToolTip.Tip="{Binding AlbumHeading}"
+                     FontFamily="{StaticResource Serif}" FontSize="27"
+                     Foreground="{DynamicResource Ink}" TextWrapping="Wrap" />
+
+          <Border Margin="0,16,0,0" Background="{DynamicResource Face}"
+                  BorderBrush="{DynamicResource GlassLine}" BorderThickness="1"
+                  CornerRadius="13" Padding="18,15">
+            <Grid ColumnDefinitions="*,Auto">
+              <StackPanel Grid.Column="0" Margin="0,0,18,0">
+                <TextBlock Text="ALBUM VERDICT" FontSize="9.5" FontWeight="Bold"
+                           Foreground="{DynamicResource Muted}" />
+                <TextBlock Text="{Binding OverviewHeadline}"
+                           FontFamily="{StaticResource Serif}" FontSize="21"
+                           Foreground="{DynamicResource Ink}" Margin="0,3,0,0" TextWrapping="Wrap" />
+                <TextBlock Text="{Binding OverviewDetail}"
+                           FontFamily="{StaticResource Mono}" FontSize="10.5"
+                           Foreground="{DynamicResource Muted}" Margin="0,5,0,0" TextWrapping="Wrap" />
+              </StackPanel>
+              <WrapPanel Grid.Column="1" VerticalAlignment="Center">
+                <Border Background="{DynamicResource Glass}" BorderBrush="{DynamicResource Line}"
+                        BorderThickness="1" CornerRadius="8" Padding="13,9" Margin="4">
+                  <StackPanel>
+                    <TextBlock Text="DISCS" FontSize="8.5" Foreground="{DynamicResource Muted}" />
+                    <TextBlock Text="{Binding DiscCountText}" FontFamily="{StaticResource Mono}"
+                               Foreground="{DynamicResource StatusAccent}" />
+                  </StackPanel>
+                </Border>
+                <Border Background="{DynamicResource Glass}" BorderBrush="{DynamicResource Line}"
+                        BorderThickness="1" CornerRadius="8" Padding="13,9" Margin="4">
+                  <StackPanel>
+                    <TextBlock Text="TRACKS" FontSize="8.5" Foreground="{DynamicResource Muted}" />
+                    <TextBlock Text="{Binding TrackCountText}" FontFamily="{StaticResource Mono}"
+                               Foreground="{DynamicResource Ink}" />
+                  </StackPanel>
+                </Border>
+                <Border Background="{DynamicResource Glass}" BorderBrush="{DynamicResource Line}"
+                        BorderThickness="1" CornerRadius="8" Padding="13,9" Margin="4">
+                  <StackPanel>
+                    <TextBlock Text="DURATION" FontSize="8.5" Foreground="{DynamicResource Muted}" />
+                    <TextBlock Text="{Binding DurationText}" FontFamily="{StaticResource Mono}"
+                               Foreground="{DynamicResource Ink}" />
+                  </StackPanel>
+                </Border>
+              </WrapPanel>
+            </Grid>
+          </Border>
+
+          <ItemsControl ItemsSource="{Binding Discs}" Margin="0,9,0,0">
+            <ItemsControl.ItemTemplate>
+              <DataTemplate x:DataType="vm:VerifyDiscViewModel">
+                <Border Background="{DynamicResource Panel}" BorderBrush="{DynamicResource Line}"
+                        BorderThickness="1" CornerRadius="13" Padding="18,16" Margin="0,9,0,0">
+                  <StackPanel>
+                    <DockPanel LastChildFill="True">
+                      <TextBlock DockPanel.Dock="Right" Margin="14,0,0,0" VerticalAlignment="Top"
+                                 Text="{Binding OutcomeText}" FontFamily="{StaticResource Mono}"
+                                 FontSize="10.5" FontWeight="Bold"
+                                 Foreground="{DynamicResource Muted}"
+                                 Classes.good="{Binding DatabaseConfirmed}"
+                                 Classes.warn="{Binding CanRepair}"
+                                 Classes.bad="{Binding Failed}"
+                                 Classes.repaired="{Binding RepairApplied}" />
+                      <StackPanel>
+                        <TextBlock Text="{Binding AlbumText}" FontFamily="{StaticResource Serif}"
+                                   FontSize="20" Foreground="{DynamicResource Ink}" TextWrapping="Wrap" />
+                        <TextBlock Text="{Binding DiscIdentity}" Foreground="{DynamicResource InkDim}"
+                                   FontSize="12" Margin="0,3,0,0" />
+                        <TextBlock Text="{Binding SourceCaption}" ToolTip.Tip="{Binding Source.Path}"
+                                   Foreground="{DynamicResource Muted}"
+                                   FontFamily="{StaticResource Mono}" FontSize="10.5"
+                                   Margin="0,3,0,0" TextTrimming="CharacterEllipsis" />
+                      </StackPanel>
+                    </DockPanel>
+
+                    <WrapPanel Margin="-5,13,-5,0">
+                      <Border Width="250" MinHeight="68" Background="{DynamicResource Glass}"
+                              BorderBrush="{DynamicResource GlassLine}" BorderThickness="1"
+                              CornerRadius="9" Padding="14,11" Margin="5">
+                        <StackPanel>
+                          <TextBlock Text="ACCURATERIP" FontSize="9" FontWeight="Bold"
+                                     Foreground="{DynamicResource Muted}" />
+                          <TextBlock Text="{Binding ArText}" FontFamily="{StaticResource Serif}"
+                                     FontSize="16" Foreground="{DynamicResource StatusAccent}"
+                                     Margin="0,2,0,0" TextWrapping="Wrap" />
+                        </StackPanel>
+                      </Border>
+                      <Border Width="250" MinHeight="68" Background="{DynamicResource Glass}"
+                              BorderBrush="{DynamicResource GlassLine}" BorderThickness="1"
+                              CornerRadius="9" Padding="14,11" Margin="5">
+                        <StackPanel>
+                          <TextBlock Text="CUETOOLS DB" FontSize="9" FontWeight="Bold"
+                                     Foreground="{DynamicResource Muted}" />
+                          <TextBlock Text="{Binding CtdbText}" FontFamily="{StaticResource Serif}"
+                                     FontSize="16" Foreground="{DynamicResource StatusAccent}"
+                                     Margin="0,2,0,0" TextWrapping="Wrap" />
+                        </StackPanel>
+                      </Border>
+                      <Border Background="{DynamicResource Glass}"
+                              BorderBrush="{DynamicResource GlassLine}" BorderThickness="1"
+                              CornerRadius="9" Padding="14,11" Margin="5">
+                        <StackPanel>
+                          <TextBlock Text="LAYOUT" FontSize="9" FontWeight="Bold"
+                                     Foreground="{DynamicResource Muted}" />
+                          <TextBlock Text="{Binding TrackCountText}" FontFamily="{StaticResource Mono}"
+                                     Foreground="{DynamicResource Ink}" />
+                          <TextBlock Text="{Binding DurationText}" FontFamily="{StaticResource Mono}"
+                                     Foreground="{DynamicResource InkDim}" />
+                        </StackPanel>
+                      </Border>
+                    </WrapPanel>
+
+                    <!-- Release facts appear only when the source carries them. -->
+                    <WrapPanel Margin="-5,4,-5,0">
+                      <Border Background="{DynamicResource Face}" BorderBrush="{DynamicResource Line}"
+                              BorderThickness="1" CornerRadius="7" Padding="10,7" Margin="5"
+                              IsVisible="{Binding HasRelease}">
+                        <StackPanel>
+                          <TextBlock Text="RELEASE" FontSize="8.5" Foreground="{DynamicResource Muted}" />
+                          <TextBlock Text="{Binding ReleaseText}" FontFamily="{StaticResource Mono}"
+                                     FontSize="10.5" Foreground="{DynamicResource Ink}" />
+                        </StackPanel>
+                      </Border>
+                      <Border Background="{DynamicResource Face}" BorderBrush="{DynamicResource Line}"
+                              BorderThickness="1" CornerRadius="7" Padding="10,7" Margin="5"
+                              IsVisible="{Binding HasLabel}">
+                        <StackPanel>
+                          <TextBlock Text="LABEL / CATALOG" FontSize="8.5" Foreground="{DynamicResource Muted}" />
+                          <TextBlock Text="{Binding LabelText}" FontFamily="{StaticResource Mono}"
+                                     FontSize="10.5" Foreground="{DynamicResource Ink}" />
+                        </StackPanel>
+                      </Border>
+                      <Border Background="{DynamicResource Face}" BorderBrush="{DynamicResource Line}"
+                              BorderThickness="1" CornerRadius="7" Padding="10,7" Margin="5"
+                              IsVisible="{Binding HasGenre}">
+                        <StackPanel>
+                          <TextBlock Text="GENRE" FontSize="8.5" Foreground="{DynamicResource Muted}" />
+                          <TextBlock Text="{Binding GenreText}" FontFamily="{StaticResource Mono}"
+                                     FontSize="10.5" Foreground="{DynamicResource Ink}" />
+                        </StackPanel>
+                      </Border>
+                      <Border Background="{DynamicResource Face}" BorderBrush="{DynamicResource Line}"
+                              BorderThickness="1" CornerRadius="7" Padding="10,7" Margin="5"
+                              IsVisible="{Binding HasBarcode}">
+                        <StackPanel>
+                          <TextBlock Text="BARCODE" FontSize="8.5" Foreground="{DynamicResource Muted}" />
+                          <TextBlock Text="{Binding BarcodeText}" FontFamily="{StaticResource Mono}"
+                                     FontSize="10.5" Foreground="{DynamicResource Ink}" />
+                        </StackPanel>
+                      </Border>
+                    </WrapPanel>
+
+                    <Expander Header="{Binding TrackEvidenceHeader}" IsExpanded="{Binding IsExpanded}"
+                              Margin="0,13,0,0" IsVisible="{Binding HasResult}">
+                      <Border Background="{DynamicResource Glass}"
+                              BorderBrush="{DynamicResource GlassLine}" BorderThickness="1"
+                              Margin="0,7,0,0">
+                        <StackPanel>
+                          <Grid ColumnDefinitions="38,290,180,90,72,78" Margin="10,7">
+                            <TextBlock Grid.Column="0" Text="#" FontSize="10.5" FontWeight="Bold" Foreground="{DynamicResource Muted}" />
+                            <TextBlock Grid.Column="1" Text="Title" FontSize="10.5" FontWeight="Bold" Foreground="{DynamicResource Muted}" />
+                            <TextBlock Grid.Column="2" Text="Artist" FontSize="10.5" FontWeight="Bold" Foreground="{DynamicResource Muted}" />
+                            <TextBlock Grid.Column="3" Text="CRC32" FontSize="10.5" FontWeight="Bold" Foreground="{DynamicResource Muted}" />
+                            <TextBlock Grid.Column="4" Text="AR conf" FontSize="10.5" FontWeight="Bold" Foreground="{DynamicResource Muted}" />
+                            <TextBlock Grid.Column="5" Text="CTDB conf" FontSize="10.5" FontWeight="Bold" Foreground="{DynamicResource Muted}" />
+                          </Grid>
+                          <Rectangle Height="1" Fill="{DynamicResource GlassLine}" />
+                          <ScrollViewer MaxHeight="310" VerticalScrollBarVisibility="Auto">
+                            <ItemsControl ItemsSource="{Binding Tracks}">
+                              <ItemsControl.ItemTemplate>
+                                <DataTemplate x:DataType="vm:VerifyTrackPresentation">
+                                  <Grid ColumnDefinitions="38,290,180,90,72,78" Margin="10,3"
+                                        Classes.confirmed="{Binding Confirmed}">
+                                    <Grid.Styles>
+                                      <Style Selector="TextBlock">
+                                        <Setter Property="FontFamily" Value="{StaticResource Mono}" />
+                                        <Setter Property="FontSize" Value="11" />
+                                        <Setter Property="Foreground" Value="{DynamicResource InkDim}" />
+                                      </Style>
+                                      <Style Selector="Grid.confirmed TextBlock">
+                                        <Setter Property="Foreground" Value="{DynamicResource StatusGood}" />
+                                      </Style>
+                                    </Grid.Styles>
+                                    <TextBlock Grid.Column="0" Text="{Binding Number}" />
+                                    <TextBlock Grid.Column="1" Text="{Binding Title}" TextTrimming="CharacterEllipsis" />
+                                    <TextBlock Grid.Column="2" Text="{Binding Artist}" TextTrimming="CharacterEllipsis" />
+                                    <TextBlock Grid.Column="3" Text="{Binding Crc32}" />
+                                    <TextBlock Grid.Column="4" Text="{Binding ArText}" />
+                                    <TextBlock Grid.Column="5" Text="{Binding CtdbText}" />
+                                  </Grid>
+                                </DataTemplate>
+                              </ItemsControl.ItemTemplate>
+                            </ItemsControl>
+                          </ScrollViewer>
+                        </StackPanel>
+                      </Border>
+                    </Expander>
+
+                    <Grid ColumnDefinitions="*,Auto" Margin="0,12,0,0">
+                      <TextBlock Grid.Column="0" Text="{Binding StatusText}"
+                                 Foreground="{DynamicResource Muted}" FontSize="11.5" TextWrapping="Wrap" />
+                      <TextBlock Grid.Column="1" Text="{Binding TocText}" ToolTip.Tip="{Binding TocText}"
+                                 FontFamily="{StaticResource Mono}" FontSize="9.5"
+                                 Foreground="{DynamicResource Muted}" TextTrimming="CharacterEllipsis"
+                                 MaxWidth="230" Margin="12,0,0,0" IsVisible="{Binding HasToc}" />
+                    </Grid>
+                  </StackPanel>
+                </Border>
+              </DataTemplate>
+            </ItemsControl.ItemTemplate>
+          </ItemsControl>
+        </StackPanel>
+      </ScrollViewer>
+    </Grid>
+
+    <Border Grid.Row="2" Background="{DynamicResource Panel}"
+            BorderBrush="{DynamicResource Line}" BorderThickness="0,1,0,0" Padding="16,10">
+      <StackPanel>
+        <TextBlock Text="{Binding StatusText}" ToolTip.Tip="{Binding StatusText}"
+                   Foreground="{DynamicResource InkDim}" FontSize="12"
+                   TextTrimming="CharacterEllipsis" />
+        <ProgressBar Height="4" Margin="0,7,0,0" Minimum="0" Maximum="1"
+                     Value="{Binding Progress}"
+                     Background="{DynamicResource Glass}"
+                     Foreground="{DynamicResource StatusAccent}" BorderThickness="0" />
+      </StackPanel>
+    </Border>
+  </Grid>
+
+</UserControl>
