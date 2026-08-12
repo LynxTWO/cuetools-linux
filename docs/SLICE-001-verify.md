@@ -67,6 +67,14 @@ M3 done: PR #2 merged, Linux CI green over the pinned submodule. M4 in
 progress: 2026 palette, fonts, and shell structure render in both themes
 (docs/evidence/2026-08-11-theme-dark.png, -light.png); themed NativeAOT
 publish measures 32 MB installed, 7.8 MB gzipped binary, within D-025.
+M4 continued (same day): the Verify workspace runs end to end on Ubuntu
+against the shared app core (fork PR #9 async seams merged): cue parsed,
+WAV decoded, per-track CRC32s computed, live AccurateRip and CTDB queried,
+honest verdict rendered (docs/evidence/2026-08-11-verify-fixture-dark.png).
+Compiled-in managed codec registration (Flake, ALAC) per the Linux
+no-plugin-scanning posture. Headless UI test added (xunit v3 +
+Avalonia.Headless). Remaining in M4: light-theme verify pass, real-album
+walkthrough (needs an owner-provided known-good rip), accessibility pass.
 
 ## 4. Out of scope, on purpose
 
