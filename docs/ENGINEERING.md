@@ -310,10 +310,10 @@ one mode at a time, narrowest permissions.
 | U-004 | Display-server posture | - | CLOSED: X11 default, Wayland opt-in | Closed |
 | U-005 / Q-003 | Vendor staging under pwsh on Linux | Engine builds blocked | CLOSED by spike S-1: staging, build, and run all pass (SPIKES-2026-08-11.md) | Closed |
 | U-006 / Q-002 | DeviceId behavior on Linux | CTDB submissions; privacy text | CLOSED by spike S-2: hashed machine name only, stable (SPIKES-2026-08-11.md) | Closed |
-| A-002 | NativeAOT compatibility | Publish mode falls back | S-3 proved the UI toolchain (32.8 MB installed, ~440 ms to window). Residual A-002b: engine's Newtonsoft.Json under AOT untested; trimmed fallback stands | Watching |
+| A-002 | NativeAOT compatibility | Publish mode falls back | CLOSED 2026-08-12 with runtime evidence: the NativeAOT-published binary runs the complete verify journey (decode, CRCs, live AR and CTDB, honest verdicts; docs/evidence/2026-08-12-verify-nativeaot-dark.png). Three landmines found and defused: sgen XmlSerializer (fork PR #10 parser), CUEProcessorPlugins empty Assembly.Location (fork PR #11), and reflection trimming (engine closure exempted from trimming via TrimmerRootAssembly, ~10 MB cost; fork-side de-reflection is follow-up). Payload 49 MB installed, 15.5 MB gzipped binary, inside D-025 | Closed |
 | A-003 | Native codecs build as .so | Codec runtime blocked | Codec build spike | Open |
 | Q-001 | Linux v1 external encoder set | Convert completeness | Close at convert slice planning | Open |
-| O-001 | UPGRADED TO BUG 2026-08-12: CTDB lookups fail on Linux ("error in XML document (0,0)"; a real pressed disc with an AccurateRip confidence-4 match reports CTDB "not found", and no CTDB metadata arrives). Blocks R-001's CTDB half and R-009 | Verify page shows AR-only evidence; repair and metadata unavailable | Debug the CTDB client response path on Linux (serializer, encoding, HTTP); compare a working WPF request byte-for-byte | Open |
+| O-001 | CLOSED 2026-08-12. Root cause: PublishAot sets IsDynamicCodeSupported=false even for JIT builds, and modern .NET's XmlSerializer then abandons the sgen pre-generated serializer and fails in reflection mode. Fixed by fork PR #10: explicit AOT-safe CTDBResponseParser (XmlReader, DTD-prohibited, differential-tested against XmlSerializer). CTDB lookups now work under JIT and NativeAOT; verified live on both | - | Fixed where the truth lives | Closed |
 
 ## 17. Definition of Done
 

@@ -83,6 +83,16 @@ error), so the CTDB half of R-001 and the metadata naming are pending
 that fix. Remaining in M4: the O-001 CTDB fix and the accessibility
 pass.
 
+AOT closure (2026-08-12 afternoon): O-001 root-caused and CLOSED (fork PR
+#10: AOT-safe CTDB parser, differential-tested); CUEProcessorPlugins
+hardened for empty Assembly.Location under single-file/AOT hosts (fork PR
+#11); the engine closure is exempted from trimming in the app. The
+NativeAOT-published binary now runs the complete verify journey with live
+AccurateRip and CTDB lookups and zero diagnostic-log errors
+(docs/evidence/2026-08-12-verify-nativeaot-dark.png). Risk A-002 closed
+with runtime evidence. Payload: 49 MB installed, 15.5 MB gzipped binary,
+within D-025. Remaining in M4: the accessibility pass.
+
 ## 4. Out of scope, on purpose
 
 | Excluded | Where it will connect later | Log entry |
