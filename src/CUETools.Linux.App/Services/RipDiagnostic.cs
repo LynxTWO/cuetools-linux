@@ -56,6 +56,41 @@ internal static class RipDiagnostic
                     Console.WriteLine(known
                         ? $"    ar-offset: {arOffset:+0;-0;+0} samples (AccurateRip drive table)"
                         : "    ar-offset: not found in the AccurateRip drive table");
+
+                    // Secure-window read: one Read pulls a whole PrefetchSector
+                    // window (MSECTORS = 2400 sectors, ~32 s of audio) through
+                    // the engine's multi-pass vote path at the default
+                    // correction quality. Stats only - sector payloads are
+                    // never printed (scrubbed-logging rule).
+                    int maxPass = 0, progressEvents = 0;
+                    EventHandler<ReadProgressArgs> onProgress = (_, args) =>
+                    {
+                        progressEvents++;
+                        if (args.Pass > maxPass)
+                            maxPass = args.Pass;
+                    };
+                    reader.ReadProgress += onProgress;
+                    try
+                    {
+                        var buff = new CUETools.Codecs.AudioBuffer(
+                            CUETools.Codecs.AudioPCMConfig.RedBook, 588 * 100);
+                        var sw = System.Diagnostics.Stopwatch.StartNew();
+                        int got = reader.Read(buff, -1);
+                        sw.Stop();
+                        int failed = 0;
+                        foreach (bool bit in reader.FailedSectors)
+                            if (bit)
+                                failed++;
+                        Console.WriteLine(
+                            $"    secure-read: {got} samples ({sw.ElapsedMilliseconds} ms window), " +
+                            $"passes={maxPass + 1}, events={progressEvents}, failedSectors={failed}, " +
+                            $"cacheDefeatBytes={reader.CacheDefeatBytes}, " +
+                            $"commRetries={reader.ReadCommunicationRetryCount}");
+                    }
+                    finally
+                    {
+                        reader.ReadProgress -= onProgress;
+                    }
                 }
                 finally
                 {
