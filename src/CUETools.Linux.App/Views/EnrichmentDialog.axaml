@@ -1,0 +1,59 @@
+<Window xmlns="https://github.com/avaloniaui"
+        xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
+        xmlns:svc="using:CUETools.Linux.App.Services"
+        x:Class="CUETools.Linux.App.Views.EnrichmentDialog"
+        Title="Enrich metadata"
+        Width="560" Height="520"
+        WindowStartupLocation="CenterOwner"
+        Background="{DynamicResource Ground}">
+  <Grid RowDefinitions="Auto,*,Auto" Margin="20,16,20,18">
+
+    <StackPanel Grid.Row="0" Spacing="4">
+      <TextBlock Text="Proposed changes"
+                 FontFamily="{StaticResource Serif}" FontSize="20"
+                 Foreground="{DynamicResource Ink}" />
+      <TextBlock x:Name="ProviderLine"
+                 Foreground="{DynamicResource Muted}" FontSize="11.5"
+                 TextWrapping="Wrap" />
+      <TextBlock Text="Nothing is written until you approve. Approving applies every change below to this album's audio file tags; the files' audio bytes are untouched."
+                 Foreground="{DynamicResource Muted}" FontSize="11.5"
+                 TextWrapping="Wrap" />
+    </StackPanel>
+
+    <ScrollViewer Grid.Row="1" Margin="0,12,0,0">
+      <ItemsControl x:Name="ChangeList">
+        <ItemsControl.ItemTemplate>
+          <DataTemplate x:DataType="svc:EnrichmentChange">
+            <Border Background="{DynamicResource Face}"
+                    BorderBrush="{DynamicResource Line}" BorderThickness="1"
+                    CornerRadius="8" Padding="12,8" Margin="0,0,0,6">
+              <StackPanel Spacing="3">
+                <TextBlock Text="{Binding Display}"
+                           FontFamily="{StaticResource Mono}" FontSize="10.5"
+                           Foreground="{DynamicResource Muted}" />
+                <DockPanel>
+                  <TextBlock DockPanel.Dock="Left" Text="{Binding Current}"
+                             Foreground="{DynamicResource Muted}" FontSize="12.5"
+                             TextTrimming="CharacterEllipsis" MaxWidth="215" />
+                  <TextBlock DockPanel.Dock="Left" Text=" -> "
+                             Foreground="{DynamicResource Muted}" FontSize="12.5" />
+                  <TextBlock Text="{Binding Proposed}"
+                             Foreground="{DynamicResource Ink}" FontSize="12.5"
+                             FontWeight="SemiBold" TextWrapping="Wrap" />
+                </DockPanel>
+              </StackPanel>
+            </Border>
+          </DataTemplate>
+        </ItemsControl.ItemTemplate>
+      </ItemsControl>
+    </ScrollViewer>
+
+    <DockPanel Grid.Row="2" Margin="0,14,0,0" LastChildFill="False">
+      <Button DockPanel.Dock="Right" Content="Apply these changes"
+              Classes="accent" Padding="16,7" Margin="8,0,0,0"
+              Click="OnApproveClick" />
+      <Button DockPanel.Dock="Right" Content="Cancel" Padding="14,7"
+              Click="OnCancelClick" />
+    </DockPanel>
+  </Grid>
+</Window>
