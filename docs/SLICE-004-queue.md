@@ -96,7 +96,8 @@ provisional (D-041) until the owner's morning review.
 ## 11. Slice definition of done
 
 All acceptance criteria evidenced; documents updated; owner confirmation
-of D-041 plus walkthrough approval.
+of D-041 plus walkthrough approval. **Met 2026-08-13**: D-041 confirmed
+and the owner walked the app and approved. SLICE-004 is Done.
 
 ## 12. What this unlocks
 
