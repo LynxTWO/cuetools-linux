@@ -1,0 +1,50 @@
+---
+name: manual-pages
+
+# Builds the user manual site (D-038/D-050) from docs/manual/notes/ via
+# eng/build-manual.py and deploys it to GitHub Pages. Runs only when the
+# notes, evidence, or generator change on master. Actions are pinned to
+# immutable commits per the project's workflow discipline.
+#
+# One-time owner step: Settings -> Pages -> Source: "GitHub Actions".
+
+# yamllint disable-line rule:truthy
+on:
+  push:
+    branches: [master]
+    paths:
+      - 'docs/manual/**'
+      - 'docs/evidence/**'
+      - 'eng/build-manual.py'
+      - '.github/workflows/manual-pages.yml'
+  workflow_dispatch:
+
+permissions:
+  contents: read
+  pages: write
+  id-token: write
+
+concurrency:
+  group: manual-pages
+  cancel-in-progress: true
+
+jobs:
+  build-and-deploy:
+    runs-on: ubuntu-latest
+    environment:
+      name: github-pages
+      url: ${{ steps.deployment.outputs.page_url }}
+    steps:
+      - uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1 # v7.0.1
+
+      - name: Build the manual site from the notes
+        run: python3 eng/build-manual.py
+
+      - uses: actions/configure-pages@45bfe0192ca1faeb007ade9deae92b16b8254a0d # v6.0.0
+
+      - uses: actions/upload-pages-artifact@fc324d3547104276b827a68afc52ff2a11cc49c9 # v5.0.0
+        with:
+          path: docs/site
+
+      - id: deployment
+        uses: actions/deploy-pages@cd2ce8fcbc39b97be8ca5fce6e763baed58fa128 # v5.0.0
