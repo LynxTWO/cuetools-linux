@@ -494,6 +494,24 @@ owner walkthrough approval; both now exist.
 OPTIONS CONSIDERED: None needed; closure follows the slice brief's DoD.
 REVISIT WHEN: The expansion loop reconvenes for the next slice.
 
+DECISION: D-040 SLICE-003 is Convert
+STATUS: Confirmed
+CHOICE: The owner selected Convert for SLICE-003 on 2026-08-12: the
+classic CUETools conversion path (cue or album folder in, re-encoded
+tracks out, cue fidelity kept) with the codec picker, encoder settings,
+and the CodecScope/ConvertScope visualizations. First increment is
+all-managed (Flake FLAC, ALAC, WAV encoders already compiled in). The
+owner also granted overnight autonomy: keep working one slice at a time;
+owner-facing rows queue for morning.
+BECAUSE: Highest user value per effort; no native runtime work blocks a
+first increment; builds the encoder-settings surface the codec-runtime
+slice later plugs into. The convert closure in the fork is portable
+(ConvertService, EncoderCatalog, CodecCatalogModels carry no WPF
+dependencies; ConvertViewModel needs only the existing dispatcher seam).
+OPTIONS CONSIDERED: Codec runtime (closes A-003, more plumbing); rip
+foundations (largest lift); enrichment backfill (smallest).
+REVISIT WHEN: SLICE-003 closes; the expansion loop reconvenes.
+
 ---
 
 ## Slice growth tally
