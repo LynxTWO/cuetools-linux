@@ -150,6 +150,25 @@ window management, and per-sector accounting are proven; what remains
 is the calibration prerequisite chain (capability refresh, proven flush
 size, complete-or-explicit eviction) and its WPF service extraction.
 
+## 8. Increment 3 extraction inventory (scouted 2026-08-13, pending)
+
+The calibration and rip services have no WPF API coupling - the plan is
+the proven M2 pattern (move to CUETools.App.Core, namespaces stay
+CUETools.Wpf.*). Scouted set:
+
+- CUETools.Wpf/Accuracy: AdaptiveSpeedController (59), CacheDefeatSearch
+  (43), DriveCalibration (97), DriveCalibrationService (228),
+  ReadOffsetProbe (98), TestAndCopyLog (120), TestAndCopyResolver (115).
+- CUETools.Wpf/Services: IDriveService (55), DriveService (509),
+  RipService incl. IRipService (2936), LevelMeteringRipper (107).
+- CUETools.Wpf/Models: DiscInfo, DriveDetails, ReleaseMatch, TrackItem.
+
+IDiagnosticLog already lives in App.Core. App.Core gains project
+references to CUETools.Ripper.SCSI and Bwg.Scsi - possible now because
+increment 1 gave both a neutral net8.0 TargetFramework. RipViewModel
+(2,290 lines, 27 WPF/Dispatcher touches) stays put: that is the D-054
+RipView parity surface, increment 5, behind the usual dispatcher seams.
+
 ---
 
 *Interview answered by: Daniel Boyd, 2026-08-13 (D-053..D-056).*
