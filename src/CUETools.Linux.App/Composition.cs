@@ -21,12 +21,29 @@ public static class Composition
     /// manifest-gated plugin directory). WAV is registered by the engine
     /// itself; Flake adds FLAC, and ALAC adds m4a.
     /// </summary>
+    /// <remarks>
+    /// The engine's plugin registries are static Lists and CUEConfig's
+    /// constructor iterates them, so every registration and every config
+    /// construction serializes on one lock. The app registers once at
+    /// startup; the parallel test host is where writer-vs-reader races were
+    /// real (observed once in CI: "Collection was modified" inside
+    /// CUEToolsCodecsConfig.Init).
+    /// </remarks>
+    private static readonly object CodecRegistryLock = new();
+    private static bool _managedCodecsRegistered;
+
     public static void RegisterManagedCodecs()
     {
-        CUEProcessorPlugins.decs.Add(new CUETools.Codecs.Flake.DecoderSettings());
-        CUEProcessorPlugins.encs.Add(new CUETools.Codecs.Flake.EncoderSettings());
-        CUEProcessorPlugins.decs.Add(new CUETools.Codecs.ALAC.DecoderSettings());
-        CUEProcessorPlugins.encs.Add(new CUETools.Codecs.ALAC.EncoderSettings());
+        lock (CodecRegistryLock)
+        {
+            if (_managedCodecsRegistered)
+                return;
+            _managedCodecsRegistered = true;
+            CUEProcessorPlugins.decs.Add(new CUETools.Codecs.Flake.DecoderSettings());
+            CUEProcessorPlugins.encs.Add(new CUETools.Codecs.Flake.EncoderSettings());
+            CUEProcessorPlugins.decs.Add(new CUETools.Codecs.ALAC.DecoderSettings());
+            CUEProcessorPlugins.encs.Add(new CUETools.Codecs.ALAC.EncoderSettings());
+        }
     }
 
     /// <summary>
@@ -40,6 +57,8 @@ public static class Composition
         var loader = new NativeCodecLoader();
         loader.LoadAll(log);
 
+        lock (CodecRegistryLock)
+        {
         if (loader.IsReady("libFLAC_dynamic"))
         {
             loader.BindResolver(typeof(CUETools.Codecs.libFLAC.DecoderSettings).Assembly);
@@ -66,7 +85,22 @@ public static class Composition
             CUEProcessorPlugins.encs.Add(new CUETools.Codecs.libmp3lame.CBREncoderSettings());
             CUEProcessorPlugins.encs.Add(new CUETools.Codecs.libmp3lame.VBREncoderSettings());
         }
+        }
         return loader;
+    }
+
+    /// <summary>
+    /// Constructs a bare CUEConfig under the registry lock. Every config
+    /// construction reads the static plugin lists, so it must serialize
+    /// against registration; tests that want an unconfigured engine config
+    /// use this instead of calling the constructor directly.
+    /// </summary>
+    internal static CUEConfig CreateEngineConfig()
+    {
+        lock (CodecRegistryLock)
+        {
+            return new CUEConfig();
+        }
     }
 
     /// <summary>
@@ -76,15 +110,13 @@ public static class Composition
     /// </summary>
     public static CUEConfig CreateDefaultConfig()
     {
-        var config = new CUEConfig
-        {
-            detectHDCD = true,
-            decodeHDCD = false,
-            decodeHDCDto24bit = false,
-            maxAlbumArtSize = 1500,
-            writeArTagsOnEncode = true,
-            CopyAlbumArt = false,
-        };
+        CUEConfig config = CreateEngineConfig();
+        config.detectHDCD = true;
+        config.decodeHDCD = false;
+        config.decodeHDCDto24bit = false;
+        config.maxAlbumArtSize = 1500;
+        config.writeArTagsOnEncode = true;
+        config.CopyAlbumArt = false;
         config.advanced.CreateTOC = true;
         config.advanced.DetailedCTDBLog = true;
         config.advanced.coversSearch = CUEConfigAdvanced.CTDBCoversSearch.Extensive;
