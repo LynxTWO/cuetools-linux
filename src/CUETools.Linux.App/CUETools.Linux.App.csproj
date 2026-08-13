@@ -33,6 +33,7 @@
     <ProjectReference Include="..\..\extern\cuetools_2026\CUETools.Codecs.libFLAC\CUETools.Codecs.libFLAC.csproj" />
     <ProjectReference Include="..\..\extern\cuetools_2026\CUETools.Codecs.libwavpack\CUETools.Codecs.libwavpack.csproj" />
     <ProjectReference Include="..\..\extern\cuetools_2026\CUETools.Codecs.MACLib\CUETools.Codecs.MACLib.csproj" />
+    <ProjectReference Include="..\..\extern\cuetools_2026\CUETools.Codecs.libmp3lame\CUETools.Codecs.libmp3lame.csproj" />
   </ItemGroup>
 
   <ItemGroup>
@@ -51,6 +52,7 @@
     <TrimmerRootAssembly Include="CUETools.Codecs.libFLAC" />
     <TrimmerRootAssembly Include="CUETools.Codecs.libwavpack" />
     <TrimmerRootAssembly Include="CUETools.Codecs.MACLib" />
+    <TrimmerRootAssembly Include="CUETools.Codecs.libmp3lame" />
     <TrimmerRootAssembly Include="CUETools.CTDB" />
     <TrimmerRootAssembly Include="CUETools.CTDB.Types" />
     <TrimmerRootAssembly Include="CUETools.AccurateRip" />

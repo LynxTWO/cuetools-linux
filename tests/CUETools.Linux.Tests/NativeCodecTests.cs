@@ -125,11 +125,61 @@ public class NativeCodecTests
     }
 
     [Fact]
+    public void Mp3EncodesAValidStream()
+    {
+        // MP3 is lossy, so no bit-exact round trip; the contract here is
+        // initialize, write, finalize, and a real MPEG audio stream on disk.
+        Assert.True(Loader.IsReady("libmp3lame"),
+            "vendored LAME missing - run eng/build-native-codecs.sh");
+        int count = 44100;
+        int[,] samples = MakeSamples(count);
+        string path = Path.Combine(
+            Path.GetTempPath(), $"cuetools-native-{Guid.NewGuid():N}.mp3");
+        try
+        {
+            var settings = new CUETools.Codecs.libmp3lame.VBREncoderSettings { PCM = Cd };
+            IAudioDest encoder = new CUETools.Codecs.libmp3lame.AudioEncoder(settings, path);
+            encoder.Write(new AudioBuffer(Cd, samples, count));
+            encoder.Close();
+
+            using (FileStream stream = File.OpenRead(path))
+            {
+                Assert.True(stream.Length > 4096, "MP3 output implausibly small");
+                // An ID3v2 tag may precede the first frame; its size is a
+                // syncsafe 28-bit integer at bytes 6-9. Skip it, then demand
+                // the MPEG frame sync (0xFF Ex/Fx) right where audio begins.
+                byte[] head = new byte[10];
+                Assert.Equal(10, stream.Read(head, 0, 10));
+                long audioStart = 0;
+                if (head[0] == (byte)'I' && head[1] == (byte)'D' && head[2] == (byte)'3')
+                {
+                    audioStart = 10 +
+                        ((head[6] & 0x7F) << 21) + ((head[7] & 0x7F) << 14) +
+                        ((head[8] & 0x7F) << 7) + (head[9] & 0x7F);
+                }
+                stream.Position = audioStart;
+                byte[] frame = new byte[4096];
+                int read = stream.Read(frame, 0, frame.Length);
+                bool sync = false;
+                for (int i = 0; i < read - 1; i++)
+                {
+                    if (frame[i] == 0xFF && (frame[i + 1] & 0xE0) == 0xE0) { sync = true; break; }
+                }
+                Assert.True(sync, "no MPEG frame sync found after the ID3 tag");
+            }
+        }
+        finally
+        {
+            File.Delete(path);
+        }
+    }
+
+    [Fact]
     public void EveryManifestLibraryReportsAState()
     {
         // Readiness honesty: each manifest entry is either validated-and-
         // loaded or carries the reason it is not; nothing is silent.
-        Assert.Equal(3, Loader.States.Count);
+        Assert.Equal(4, Loader.States.Count);
         foreach (NativeCodecLoader.LibraryState state in Loader.States)
         {
             Assert.False(string.IsNullOrWhiteSpace(state.Detail));

@@ -86,7 +86,7 @@ public sealed class NativeCodecLoader
     }
 
     private static readonly string[] KnownDllNames =
-        { "libFLAC_dynamic", "wavpackdll", "MACLibDll" };
+        { "libFLAC_dynamic", "wavpackdll", "MACLibDll", "libmp3lame" };
 
     /// <summary>Bind a wrapper assembly's DllImport names to the validated,
     /// already-loaded libraries. A KNOWN codec name that failed validation

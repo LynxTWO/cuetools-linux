@@ -62,7 +62,19 @@ cmake -S "$MACSRC" -B "$BUILD/mac" -DCMAKE_BUILD_TYPE=Release \
 cmake --build "$BUILD/mac" -j"$JOBS" >/dev/null
 cp "$(readlink -f "$BUILD/mac/libMAC.so")" "$OUT/MACLibDll.so"
 
-strip --strip-unneeded "$OUT/libFLAC_dynamic.so" "$OUT/wavpackdll.so" "$OUT/MACLibDll.so"
+echo "== LAME (pinned lame-3.100 archive, fork ThirdParty)"
+LAMESRC=$BUILD/lame-src
+if [ ! -e "$LAMESRC/.built" ]; then
+  rm -rf "$LAMESRC"
+  mkdir -p "$LAMESRC"
+  tar xzf "$FORK/ThirdParty/lame/lame-3.100.tar.gz" -C "$LAMESRC" --strip-components=1
+  (cd "$LAMESRC" && ./configure --disable-static --enable-shared \
+     --disable-frontend --disable-decoder --quiet >/dev/null && make -j"$JOBS" >/dev/null)
+  touch "$LAMESRC/.built"
+fi
+cp "$(readlink -f "$LAMESRC/libmp3lame/.libs/libmp3lame.so")" "$OUT/libmp3lame.so"
+
+strip --strip-unneeded "$OUT/libFLAC_dynamic.so" "$OUT/wavpackdll.so" "$OUT/MACLibDll.so" "$OUT/libmp3lame.so"
 
 python3 - <<'PYEOF'
 import hashlib, json, os
