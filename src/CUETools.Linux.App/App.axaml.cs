@@ -97,7 +97,43 @@ public partial class App : Application
                 string[] paths = args
                     .Where(arg => File.Exists(arg) || Directory.Exists(arg))
                     .ToArray();
-                if (args.Contains("--queue"))
+                if (args.Contains("--enrich"))
+                {
+                    // --enrich is explicit command-line consent (the --repair
+                    // precedent): the proposal's diff is applied without the
+                    // interactive approval dialog, and the consent is logged.
+                    string? source = paths.FirstOrDefault();
+                    if (source != null)
+                    {
+                        graph.Log.Info("enrich",
+                            "--enrich: diff auto-approved by command-line consent");
+                        _ = Task.Run(() =>
+                        {
+                            try
+                            {
+                                var proposal = graph.Enrichment.Propose(source);
+                                if (proposal is { HasChanges: true })
+                                {
+                                    int files = graph.Enrichment.Apply(proposal);
+                                    graph.Log.Info("enrich",
+                                        $"--enrich applied {proposal.Changes.Count} change(s) across {files} file(s) from {proposal.Provider}");
+                                }
+                                else
+                                {
+                                    graph.Log.Info("enrich",
+                                        proposal == null
+                                            ? "--enrich: no database release found"
+                                            : "--enrich: album already matches the database");
+                                }
+                            }
+                            catch (Exception ex)
+                            {
+                                graph.Log.Warn("enrich", "--enrich failed: " + ex.GetType().Name);
+                            }
+                        });
+                    }
+                }
+                else if (args.Contains("--queue"))
                 {
                     // --queue enqueues every path argument under the current
                     // action defaults and lands on the Queue page; --queue-run
