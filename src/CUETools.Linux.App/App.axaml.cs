@@ -220,6 +220,16 @@ public static class Program
         {
             Environment.Exit(Services.RipDiagnostic.Run());
         }
+        // --rip-tc <letter>: the full secure Test & Copy transaction against
+        // one drive into a scratch directory (increment 4 evidence).
+        int tcIndex = Array.IndexOf(args, "--rip-tc");
+        if (tcIndex >= 0)
+        {
+            char letter = tcIndex + 1 < args.Length && args[tcIndex + 1].Length == 1
+                ? char.ToUpperInvariant(args[tcIndex + 1][0])
+                : 'A';
+            Environment.Exit(Services.RipDiagnostic.RunTestCopy(letter));
+        }
 #endif
         AppBuilder.Configure<App>()
             .UsePlatformDetect()
