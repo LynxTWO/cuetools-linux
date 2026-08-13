@@ -100,7 +100,7 @@ No new app-owned entities. Repair evidence uses the engine's formats.
       finding: the walkthrough exposed and fixed a real AOT serialization
       bug in evidence sealing (fork PR #13) plus a retry-loop bug in the
       --repair driver (one-attempt-per-disc guard, pinned by test).
-- [ ] EDD section 17 per-change checklist per change.
+- [x] EDD section 17 per-change checklist per change (PRs #13, #14, #16).
 
 ## 10. Agent guardrails for this build
 
@@ -111,7 +111,9 @@ the owner in parallel.
 ## 11. Slice definition of done
 
 All acceptance criteria evidenced; documents updated; owner walkthrough
-approval.
+approval. **Met 2026-08-12**: S2-001..S2-006 evidenced (section 9), and
+the owner ran the program against the real repaired walkthrough and
+approved (D-039). SLICE-002 is Done.
 
 ## 12. What this unlocks
 
@@ -120,4 +122,4 @@ approval.
 
 ---
 
-*Approved for build by: Daniel Boyd, 2026-08-12 (slice selection).* 
+*Approved for build by: Daniel Boyd, 2026-08-12 (slice selection).*
