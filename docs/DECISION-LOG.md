@@ -480,6 +480,20 @@ surface still moves).
 REVISIT WHEN: The port surface stabilizes enough to design the HTML
 manual's structure; that assembly is its own planned piece of work.
 
+DECISION: D-039 SLICE-002 closed with owner walkthrough approval
+STATUS: Confirmed
+CHOICE: SLICE-002 (Repair) is Done. All acceptance rows S2-001..S2-006
+are evidenced; the owner ran the program against the real repaired
+walkthrough on 2026-08-12 and approved. The real-disc run also hardened
+the stack: fork PR #13 (source-generated repair receipt JSON so evidence
+sealing works under the AOT runtime), the --repair driver's
+one-attempt-per-disc guard, and the AvaloniaFact threading rule for
+view-model-driving tests.
+BECAUSE: The slice's definition of done required evidenced criteria plus
+owner walkthrough approval; both now exist.
+OPTIONS CONSIDERED: None needed; closure follows the slice brief's DoD.
+REVISIT WHEN: The expansion loop reconvenes for the next slice.
+
 ---
 
 ## Slice growth tally
