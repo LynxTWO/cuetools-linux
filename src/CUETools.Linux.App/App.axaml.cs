@@ -37,7 +37,7 @@ public partial class App : Application
                 _ = new AutoRepairDriver(verify, line => graph.Log.Info("repair", line));
             }
 
-            var window = new MainWindow(theme, verify);
+            var window = new MainWindow(theme, verify, graph.Convert, graph);
             windowRef = window;
             window.Opened += (_, _) =>
             {
@@ -60,11 +60,36 @@ public partial class App : Application
                 // Existing paths on the command line load into Verify at
                 // startup; --verify also starts the run. Useful for desktop
                 // file-manager integration and headless evidence runs.
-                string[] paths = (desktop.Args ?? Array.Empty<string>())
+                // --convert routes the path to the Convert page instead and
+                // starts the conversion (--convert-out <dir> sets the output
+                // folder; default is the page's usual Music/CUETools layout).
+                string[] args = desktop.Args ?? Array.Empty<string>();
+                string[] paths = args
                     .Where(arg => File.Exists(arg) || Directory.Exists(arg))
                     .ToArray();
-                if (paths.Length > 0 && verify.LoadSources(paths) &&
-                    (desktop.Args!.Contains("--verify") || autoRepair))
+                if (args.Contains("--convert"))
+                {
+                    int outIndex = Array.IndexOf(args, "--convert-out");
+                    string? outDir = outIndex >= 0 && outIndex + 1 < args.Length
+                        ? args[outIndex + 1]
+                        : null;
+                    int toIndex = Array.IndexOf(args, "--convert-to");
+                    string? format = toIndex >= 0 && toIndex + 1 < args.Length
+                        ? args[toIndex + 1]
+                        : null;
+                    if (format != null && graph.Convert.Formats.Contains(format))
+                    {
+                        graph.Convert.SelectedFormat = format;
+                    }
+                    string? source = paths.FirstOrDefault(p => p != outDir);
+                    if (source != null && graph.Convert.LoadSource(source, outDir))
+                    {
+                        window.ShowConvertPage();
+                        graph.Convert.ConvertCommand.Execute(null);
+                    }
+                }
+                else if (paths.Length > 0 && verify.LoadSources(paths) &&
+                    (args.Contains("--verify") || autoRepair))
                 {
                     verify.VerifyCommand.Execute(null);
                 }
