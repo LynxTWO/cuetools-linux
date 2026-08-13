@@ -107,6 +107,42 @@ public static class Composition
         AppSettings Settings,
         SettingsStore SettingsStore);
 
+    private static IReadOnlyDictionary<string, string> LoadPackagedEncoderHashes(
+        IDiagnosticLog log)
+    {
+        var hashes = new Dictionary<string, string>(StringComparer.OrdinalIgnoreCase);
+        string manifestPath = Path.Combine(
+            AppContext.BaseDirectory, "encoders", "linux-encoders.json");
+        try
+        {
+            if (File.Exists(manifestPath))
+            {
+                var manifest = System.Text.Json.JsonSerializer.Deserialize(
+                    File.ReadAllBytes(manifestPath),
+                    Services.LinuxEncoderManifestJsonContext.Default.LinuxEncoderManifest);
+                foreach (Services.LinuxEncoderEntry entry in manifest?.Encoders ?? new())
+                {
+                    if (!string.IsNullOrWhiteSpace(entry.File) &&
+                        !string.IsNullOrWhiteSpace(entry.Sha256))
+                    {
+                        hashes[entry.File!] = entry.Sha256!;
+                    }
+                }
+                log.Info("encoders", $"packaged encoder table: {hashes.Count} entries");
+            }
+            else
+            {
+                log.Info("encoders", "no packaged encoder manifest; curated command encoders unavailable");
+            }
+        }
+        catch (Exception ex)
+        {
+            log.Warn("encoders", "packaged encoder manifest unreadable: " + ex.GetType().Name);
+            hashes.Clear();
+        }
+        return hashes;
+    }
+
     public static AppGraph CreateAppGraph(
         IFileDialogService dialogs, IUserPrompt prompts, IUiDispatcher dispatcher)
     {
@@ -141,8 +177,17 @@ public static class Composition
         var backfill = new VerificationBackfillService(engineVerify, journal);
 
         // Convert stack: catalog + service + page, built on the LOADED
-        // settings so saved codec selections and format types apply.
-        var catalog = new EncoderCatalog(log, appSettings);
+        // settings so saved codec selections and format types apply. The
+        // catalog gets this platform's packaged-encoder trust table (the
+        // hash manifest the pinned-source CLI encoder build generated,
+        // D-047); a missing manifest means an empty table and the curated
+        // command encoders simply stay unavailable with the reason shown.
+        var catalog = new EncoderCatalog(
+            log,
+            appSettings,
+            Path.Combine(AppContext.BaseDirectory, "encoders"),
+            LoadPackagedEncoderHashes(log));
+        catalog.EnsureRegistered(config);
         IConvertService convert = new ConvertService(config, catalog, appSettings);
         var convertViewModel = new ConvertViewModel(
             convert, catalog, config, dialogs, dispatcher);

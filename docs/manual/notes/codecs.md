@@ -11,6 +11,20 @@
 - **Monkey's Audio (APE, .ape)** - native, vendored.
 - **MP3 (.mp3)** - native, vendored LAME 3.100; output only (CBR and
   VBR), no MP3 input.
+- **Opus (.opus)** - curated command-line encoder built from the pinned
+  opus-tools 0.2 / libopus 1.6.1 sources with the CUETools patches;
+  output only.
+- **Ogg Vorbis (.ogg)** - curated command-line encoder, official
+  vorbis-tools 1.4.2; output only.
+- **Musepack (.mpc)** - curated command-line encoder, the CUETools
+  r495 source build; output only.
+
+The command-line encoders live under encoders/ inside the app, ship
+with a manifest of their SHA-256 hashes, versions, and licenses, and a
+binary that does not match its manifest hash is refused - the format
+row explains why instead of running unapproved bytes. A file you
+import yourself (Settings, later) overrides the packaged copy under the
+same receipt discipline as Windows.
 
 ## Where the native libraries come from (and why not your distro's)
 

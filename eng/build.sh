@@ -31,6 +31,9 @@ pwsh -NoProfile -File "$SUB/eng/ci/Prepare-VendorSources.ps1" \
 # The app layout and tests consume obj/native through the csproj payload.
 ./eng/build-native-codecs.sh
 
+# Curated CLI encoders (D-047): pinned-source ELF builds + hash manifest.
+./eng/build-cli-encoders.sh
+
 dotnet build src/CUETools.Linux.App/CUETools.Linux.App.csproj \
   -c "$CONFIG" --nologo "${LOCKFLAGS[@]}"
 dotnet build tests/CUETools.Linux.Tests/CUETools.Linux.Tests.csproj \
