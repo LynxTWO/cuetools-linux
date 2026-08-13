@@ -9,6 +9,8 @@
 - **Apple Lossless (ALAC, .m4a)** - managed, compiled in.
 - **WavPack (.wv)** - native, vendored.
 - **Monkey's Audio (APE, .ape)** - native, vendored.
+- **MP3 (.mp3)** - native, vendored LAME 3.100; output only (CBR and
+  VBR), no MP3 input.
 
 ## Where the native libraries come from (and why not your distro's)
 
