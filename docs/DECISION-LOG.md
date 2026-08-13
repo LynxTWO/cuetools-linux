@@ -654,6 +654,48 @@ OPTIONS CONSIDERED: v0.x preview series; date-based versions; attached
 corresponding-source tarballs.
 REVISIT WHEN: First release planning (D-044 reopens).
 
+DECISION: D-053 Rip development may use a dev-only diagnostic read
+STATUS: Confirmed
+CHOICE: A --rip-diagnostic capability, compiled out of release builds
+entirely, provides raw labeled reads for calibrating against real drives
+and collecting the evidence the secure engine needs. Users can never see
+or invoke it; D-046's full-secure-or-nothing shipping rule is untouched.
+BECAUSE: Owner selected it 2026-08-13 (rip mini-interview round).
+OPTIONS CONSIDERED: No reads of any kind until the secure engine exists.
+REVISIT WHEN: The secure engine replaces the last diagnostic use.
+
+DECISION: D-054 The rip slice targets full RipView parity
+STATUS: Confirmed
+CHOICE: The slice's UI definition of done is the complete WPF Rip page:
+live telemetry with CodecScope, release/metadata pickers, artwork, Test
+& Copy evidence rows, and the drive panel - built incrementally, but the
+slice does not close on a reduced page.
+BECAUSE: Owner selected it 2026-08-13; matches the parity ethos.
+OPTIONS CONSIDERED: A focused first UI with richness as a later slice.
+REVISIT WHEN: Practically never; this defines the slice.
+
+DECISION: D-055 Test & Copy belongs to the first secure milestone
+STATUS: Confirmed
+CHOICE: The two-pass CRC-compared rip ships with the secure engine, not
+after it, so the held-state, phase-evidence, and tie-break invariants
+shape the engine rather than being retrofitted.
+BECAUSE: Owner selected it 2026-08-13.
+OPTIONS CONSIDERED: Single-pass secure first, T&C on top.
+REVISIT WHEN: The milestone plan proves T&C must stage later anyway.
+
+DECISION: D-056 The WH16NS40 joins early, during calibration
+STATUS: Confirmed
+CHOICE: The desktop's HL-DT-ST BD-RE WH16NS40 (the drive the fork's
+3E/02 and 08/0A carve-outs were written on) connects to the laptop
+during calibration design, so both drives shape the abstractions from
+the start. The laptop's own PLDS DVD-RW DU8A5SH (firmware BU51,
+/dev/sr0 + /dev/sg1, cdrom group access already in place) is matrix
+drive #1. Owner handles the physical logistics and will connect it.
+BECAUSE: Owner selected early involvement over a later consolidated
+session, accepting the swapping cost to reduce abstraction rework.
+OPTIONS CONSIDERED: After the laptop-drive milestone; on-demand timing.
+REVISIT WHEN: The second drive is connected (owner will say).
+
 ---
 
 ## Slice growth tally
