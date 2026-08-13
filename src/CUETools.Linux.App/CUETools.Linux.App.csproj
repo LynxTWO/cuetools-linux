@@ -66,6 +66,17 @@
     <TrimmerRootAssembly Include="DeviceId" />
   </ItemGroup>
 
+  <!-- Curated CLI encoders (D-047): eng/build-cli-encoders.sh produces
+       obj/encoders; the app layout carries them under encoders/ beside the
+       manifest the catalog's packaged hash table is built from. -->
+  <ItemGroup>
+    <None Include="..\..\obj\encoders\*.exe;..\..\obj\encoders\linux-encoders.json"
+          Condition="Exists('..\..\obj\encoders\linux-encoders.json')"
+          CopyToOutputDirectory="PreserveNewest"
+          CopyToPublishDirectory="PreserveNewest"
+          Link="encoders\%(Filename)%(Extension)" />
+  </ItemGroup>
+
   <!-- Vendored native codecs (D-042): eng/build-native-codecs.sh produces
        obj/native; the app layout carries them under native/ beside the
        hash manifest the loader validates against. Absent items are fine -
