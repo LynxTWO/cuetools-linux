@@ -150,10 +150,13 @@ public class ConvertFlowTests
 
         string target = settingsViewModel.Modes[^1];
         settingsViewModel.SelectedMode = target;
-        var entry = config.Encoders.First(e =>
+        // More than one implementation can serve flac (Flake managed, native
+        // libFLAC when its vendored library is present); the dialog edits the
+        // SELECTED implementation, so assert that one of them persisted the
+        // mode rather than guessing which entry the dialog was bound to.
+        Assert.Contains(config.Encoders, e =>
             e.Extension == "flac" && e.Settings != null &&
-            (e.Settings.SupportedModes ?? "").Split(' ').Contains(target));
-        Assert.Equal(target, entry.Settings!.EncoderMode);
+            e.Settings.EncoderMode == target);
     }
 
     [AvaloniaFact]

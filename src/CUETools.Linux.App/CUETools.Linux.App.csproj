@@ -30,6 +30,9 @@
     <ProjectReference Include="..\..\extern\cuetools_2026\CUETools.App.Core\CUETools.App.Core.csproj" />
     <ProjectReference Include="..\..\extern\cuetools_2026\CUETools.Codecs.Flake\CUETools.Codecs.Flake.csproj" />
     <ProjectReference Include="..\..\extern\cuetools_2026\CUETools.Codecs.ALAC\CUETools.Codecs.ALAC.csproj" />
+    <ProjectReference Include="..\..\extern\cuetools_2026\CUETools.Codecs.libFLAC\CUETools.Codecs.libFLAC.csproj" />
+    <ProjectReference Include="..\..\extern\cuetools_2026\CUETools.Codecs.libwavpack\CUETools.Codecs.libwavpack.csproj" />
+    <ProjectReference Include="..\..\extern\cuetools_2026\CUETools.Codecs.MACLib\CUETools.Codecs.MACLib.csproj" />
   </ItemGroup>
 
   <ItemGroup>
@@ -45,6 +48,9 @@
     <TrimmerRootAssembly Include="CUETools.Codecs" />
     <TrimmerRootAssembly Include="CUETools.Codecs.Flake" />
     <TrimmerRootAssembly Include="CUETools.Codecs.ALAC" />
+    <TrimmerRootAssembly Include="CUETools.Codecs.libFLAC" />
+    <TrimmerRootAssembly Include="CUETools.Codecs.libwavpack" />
+    <TrimmerRootAssembly Include="CUETools.Codecs.MACLib" />
     <TrimmerRootAssembly Include="CUETools.CTDB" />
     <TrimmerRootAssembly Include="CUETools.CTDB.Types" />
     <TrimmerRootAssembly Include="CUETools.AccurateRip" />
@@ -56,6 +62,18 @@
     <TrimmerRootAssembly Include="TagLibSharp" />
     <TrimmerRootAssembly Include="Newtonsoft.Json" />
     <TrimmerRootAssembly Include="DeviceId" />
+  </ItemGroup>
+
+  <!-- Vendored native codecs (D-042): eng/build-native-codecs.sh produces
+       obj/native; the app layout carries them under native/ beside the
+       hash manifest the loader validates against. Absent items are fine -
+       the app runs managed-only and says so per codec. -->
+  <ItemGroup>
+    <None Include="..\..\obj\native\*.so;..\..\obj\native\native-codecs.json"
+          Condition="Exists('..\..\obj\native\native-codecs.json')"
+          CopyToOutputDirectory="PreserveNewest"
+          CopyToPublishDirectory="PreserveNewest"
+          Link="native\%(Filename)%(Extension)" />
   </ItemGroup>
 
 </Project>
