@@ -167,6 +167,11 @@
                                 IsVisible="{Binding CanRepair}"
                                 Command="{Binding #VerifyRoot.((vm:VerifyViewModel)DataContext).RepairDiscCommand}"
                                 CommandParameter="{Binding}" />
+                        <Button Content="Enrich metadata..." Margin="0,8,0,0" Padding="13,7"
+                                IsVisible="{Binding HasResult}"
+                                Click="OnEnrichClick"
+                                Tag="{Binding}"
+                                ToolTip.Tip="Look this album up in the databases and preview every metadata change before anything is written (tags only; audio bytes are never touched)." />
                       </StackPanel>
                       <StackPanel>
                         <TextBlock Text="{Binding AlbumText}" FontFamily="{StaticResource Serif}"
