@@ -1,7 +1,9 @@
 #if RIP_DIAGNOSTIC
 using CUETools.Ripper;
 using CUETools.Ripper.SCSI;
+using CUETools.Wpf;
 using CUETools.Wpf.Accuracy;
+using CUETools.Wpf.Services;
 
 namespace CUETools.Linux.App.Services;
 
@@ -139,6 +141,82 @@ internal static class RipDiagnostic
             }
         }
         return failures;
+    }
+
+    /// <summary>
+    /// Increment 4 evidence run: the full secure Test &amp; Copy transaction
+    /// (RipService.RunTestAndCopy - calibration prerequisite, cache-defeated
+    /// Test read, staged Copy read, checksum resolution, phase evidence, and
+    /// commit or held state) against one drive, into a scratch output
+    /// directory. Dev-only like everything in this file (D-053).
+    /// </summary>
+    internal static int RunTestCopy(char letter)
+    {
+        Composition.RegisterManagedCodecs();
+        var nativeLines = new List<string>();
+        var loader = Composition.RegisterNativeCodecs(nativeLines.Add);
+        var log = new ConsoleDiagLog();
+        foreach (string line in nativeLines)
+            log.Info("codecs", line);
+
+        var config = Composition.CreateDefaultConfig();
+        var app = new CUETools.Wpf.Services.AppSettings();
+        // Empty packaged-hash table: curated CLI encoders stay unavailable,
+        // which is fine - this evidence run encodes FLAC through the
+        // hash-validated native codec.
+        var catalog = new EncoderCatalog(
+            log, app,
+            Path.Combine(AppContext.BaseDirectory, "encoders"),
+            new Dictionary<string, string>());
+        catalog.EnsureRegistered(config);
+
+        string scratchRoot = Path.Combine(Path.GetTempPath(), "cuetools-rip-tc");
+        Directory.CreateDirectory(scratchRoot);
+        string calDir = Path.Combine(Path.GetTempPath(), "cuetools-rip-diagnostic-cal");
+        Directory.CreateDirectory(calDir);
+        var calStore = new DriveCalibrationStore(Path.Combine(calDir, "calibration.json.gz"));
+        var history = new VerifyHistoryStore(Path.Combine(calDir, "verify-history.json.gz"));
+        var calService = new DriveCalibrationService(log, calStore);
+        var rip = new RipService(config, log, app, catalog, calStore, history, calService);
+
+        Console.WriteLine($"rip-tc: drive {letter} -> {scratchRoot} (secure Test & Copy, FLAC)");
+        double lastFrac = -1;
+        string lastMsg = "";
+        var result = rip.RunTestAndCopy(
+            letter,
+            cq: 1,
+            format: "flac",
+            metadata: null,
+            outputBaseDir: scratchRoot,
+            onProgress: (frac, msg) =>
+            {
+                // Console throttle: whole-percent steps or a phase change.
+                if (msg != lastMsg || frac - lastFrac >= 0.05 || frac >= 1.0)
+                {
+                    lastFrac = frac;
+                    lastMsg = msg;
+                    Console.WriteLine($"  [{frac,6:P1}] {msg}");
+                }
+            },
+            onReadVerdict: v => Console.WriteLine(
+                $"  verdict[{v.ReadIndex}:{v.ReadKind}] AR {v.ArConfidence}/{v.ArTotal}, " +
+                $"CTDB {v.CtdbConfidence}/{v.CtdbTotal}, accurate={v.Accurate}"),
+            onCrcEvidence: crcs => Console.WriteLine(
+                $"  crc-evidence: {crcs.Length} track(s) published"));
+
+        Console.WriteLine($"rip-tc result: ok={result.Ok} outcome={result.Outcome} readsUsed={result.ReadsUsed}");
+        if (!result.Ok)
+            Console.WriteLine($"  error: {result.Error}");
+        if (result.HoldReason.Length != 0 || result.HeldTracks.Length != 0)
+            Console.WriteLine($"  HELD: reason=[{result.HoldReason}] tracks=[{string.Join(",", result.HeldTracks)}] staging={result.CopyStagingDir}");
+        if (result.OutputDir.Length != 0)
+            Console.WriteLine($"  output: {result.FileCount} file(s) in {result.OutputDir}");
+        Console.WriteLine(
+            $"  databases: AR {result.ArConfidence}/{result.ArTotal}, CTDB {result.CtdbConfidence}/{result.CtdbTotal}, " +
+            $"accurate={result.Accurate}, failedWindows={result.FailedWindows}");
+        Console.WriteLine(
+            $"  history: recorded={result.HistoryRecorded} known={result.HistoryKnown} matches={result.HistoryMatches} priorReads={result.HistoryPriorReads}");
+        return result.Ok ? 0 : 1;
     }
 
     /// <summary>Console sink for the calibration service's diagnostic log.
