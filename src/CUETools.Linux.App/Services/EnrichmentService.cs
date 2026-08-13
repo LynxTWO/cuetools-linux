@@ -27,7 +27,11 @@ public sealed class EnrichmentProposal
 public interface IEnrichmentService
 {
     /// <summary>Look the album up and diff the best database release against
-    /// its current metadata. Null when no database release was found.</summary>
+    /// its current metadata. Null when no database release was found. Offline
+    /// (both database endpoints unreachable), the request journals as an
+    /// enrichment-pending entry (D-010's second lane) and
+    /// <see cref="EnrichmentOfflineException"/> is thrown so the caller can
+    /// say so honestly.</summary>
     EnrichmentProposal? Propose(string path);
 
     /// <summary>Write the approved changes into the audio files' tags. The
@@ -44,19 +48,51 @@ public interface IEnrichmentService
 /// album-level fields only; their track titles live in the cue text, which
 /// this increment does not rewrite.
 /// </summary>
+/// <summary>Thrown when an enrichment lookup could not run because the
+/// databases are unreachable; the request has been journaled.</summary>
+public sealed class EnrichmentOfflineException : Exception
+{
+    public EnrichmentOfflineException()
+        : base("The databases are unreachable. The lookup was journaled and " +
+               "will be offered again on an online launch.") { }
+}
+
 public sealed class EnrichmentService : IEnrichmentService
 {
     private readonly CUEConfig _config;
     private readonly IDiagnosticLog _log;
+    private readonly Journal.JournalStore? _journal;
+    private readonly Func<bool> _isOnline;
 
-    public EnrichmentService(CUEConfig config, IDiagnosticLog log)
+    public EnrichmentService(
+        CUEConfig config,
+        IDiagnosticLog log,
+        Journal.JournalStore? journal = null,
+        Func<bool>? isOnline = null)
     {
         _config = config;
         _log = log;
+        _journal = journal;
+        _isOnline = isOnline ?? Journal.ConnectivityProbe.IsOnline;
     }
 
     public EnrichmentProposal? Propose(string path)
     {
+        if (_journal != null && !_isOnline())
+        {
+            // Same double-check discipline as the verify lane: journal only
+            // when the direct endpoint probe says offline, so a server error
+            // does not masquerade as being offline.
+            bool alreadyPending = _journal.ReadPending(Journal.BackfillLane.Enrichment)
+                .Any(entry => string.Equals(entry.SourcePath, path, StringComparison.Ordinal));
+            if (!alreadyPending)
+            {
+                _journal.CreatePending(Journal.BackfillLane.Enrichment, path, "");
+                _log.Info("enrich", "offline: enrichment lookup journaled");
+            }
+            throw new EnrichmentOfflineException();
+        }
+
         var cue = new CUESheet(_config);
         try
         {
