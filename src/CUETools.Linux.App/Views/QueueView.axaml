@@ -1,0 +1,99 @@
+<UserControl xmlns="https://github.com/avaloniaui"
+             xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
+             xmlns:vm="using:CUETools.Wpf.ViewModels"
+             xmlns:model="using:CUETools.Wpf.Models"
+             x:Class="CUETools.Linux.App.Views.QueueView"
+             x:DataType="vm:QueueViewModel">
+  <Grid RowDefinitions="Auto,*,Auto" Background="{DynamicResource Ground}">
+
+    <!-- add bar -->
+    <Border Grid.Row="0" Background="{DynamicResource Panel}"
+            BorderBrush="{DynamicResource Line}" BorderThickness="0,0,0,1"
+            Padding="16,11">
+      <DockPanel LastChildFill="False">
+        <TextBlock DockPanel.Dock="Left" Text="Action"
+                   Foreground="{DynamicResource Muted}" FontSize="11"
+                   VerticalAlignment="Center" Margin="0,0,8,0" />
+        <ComboBox DockPanel.Dock="Left" Width="100" VerticalAlignment="Center"
+                  ItemsSource="{Binding Actions}"
+                  SelectedItem="{Binding SelectedAction, Mode=TwoWay}" />
+        <Button DockPanel.Dock="Left" Width="220" MinWidth="140"
+                VerticalAlignment="Center" Margin="8,0,0,0"
+                Click="OnCodecPickerClick"
+                IsEnabled="{Binding CodecPickerEnabled}"
+                ToolTip.Tip="{Binding SelectedCodecTooltip}"
+                AutomationProperties.Name="Choose output codec">
+          <TextBlock Text="{Binding SelectedCodecLabel}"
+                     TextTrimming="CharacterEllipsis" TextWrapping="NoWrap" />
+        </Button>
+        <Button DockPanel.Dock="Left" Content="Add file(s)..."
+                Command="{Binding AddFilesCommand}" Padding="12,6"
+                Margin="14,0,0,0" VerticalAlignment="Center" />
+        <Button DockPanel.Dock="Left" Content="Add folder..."
+                Command="{Binding AddFolderCommand}" Padding="12,6"
+                Margin="8,0,0,0" VerticalAlignment="Center" />
+
+        <Button DockPanel.Dock="Right" Content="Run all"
+                Command="{Binding RunAllCommand}" Classes="accent"
+                Padding="16,6" Margin="8,0,0,0" VerticalAlignment="Center" />
+        <Button DockPanel.Dock="Right" Content="Clear"
+                Command="{Binding ClearCommand}" Padding="12,6"
+                VerticalAlignment="Center" />
+      </DockPanel>
+    </Border>
+
+    <!-- queue list -->
+    <Grid Grid.Row="1">
+      <TextBlock VerticalAlignment="Center" HorizontalAlignment="Center"
+                 Foreground="{DynamicResource Muted}"
+                 FontFamily="{StaticResource Serif}" FontSize="18"
+                 Text="Queue is empty - add album folders or .cue files above."
+                 IsVisible="{Binding !Items.Count}" />
+
+      <ScrollViewer Margin="12">
+        <ItemsControl ItemsSource="{Binding Items}">
+          <ItemsControl.ItemTemplate>
+            <DataTemplate x:DataType="model:QueueItem">
+              <Border Background="{DynamicResource Face}"
+                      BorderBrush="{DynamicResource Line}" BorderThickness="1"
+                      CornerRadius="8" Padding="12,9" Margin="0,0,0,6">
+                <Grid ColumnDefinitions="3*,90,110,4*">
+                  <TextBlock Grid.Column="0" Text="{Binding Display}"
+                             Foreground="{DynamicResource Ink}" FontSize="12.5"
+                             TextTrimming="CharacterEllipsis"
+                             ToolTip.Tip="{Binding Source}" />
+                  <TextBlock Grid.Column="1" Text="{Binding Action}"
+                             Foreground="{DynamicResource Muted}"
+                             FontFamily="{StaticResource Mono}" FontSize="11" />
+                  <TextBlock Grid.Column="2" Text="{Binding Status}"
+                             Foreground="{DynamicResource InkDim}"
+                             FontFamily="{StaticResource Mono}" FontSize="11" />
+                  <TextBlock Grid.Column="3" Text="{Binding Result}"
+                             Foreground="{DynamicResource Muted}" FontSize="11.5"
+                             TextTrimming="CharacterEllipsis"
+                             ToolTip.Tip="{Binding Result}" />
+                </Grid>
+              </Border>
+            </DataTemplate>
+          </ItemsControl.ItemTemplate>
+        </ItemsControl>
+      </ScrollViewer>
+    </Grid>
+
+    <!-- progress bar -->
+    <Border Grid.Row="2" Background="{DynamicResource Panel}"
+            BorderBrush="{DynamicResource Line}" BorderThickness="0,1,0,0"
+            Padding="16,10">
+      <StackPanel VerticalAlignment="Center">
+        <TextBlock Text="{Binding StatusText}"
+                   Foreground="{DynamicResource InkDim}" FontSize="12"
+                   TextTrimming="CharacterEllipsis" />
+        <ProgressBar Height="4" Margin="0,7,0,0" Minimum="0" Maximum="1"
+                     Value="{Binding Progress, Mode=OneWay}"
+                     Background="{DynamicResource Glass}"
+                     Foreground="{DynamicResource StatusAccent}"
+                     BorderThickness="0" />
+      </StackPanel>
+    </Border>
+  </Grid>
+</UserControl>

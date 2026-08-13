@@ -67,7 +67,19 @@ public partial class App : Application
                 string[] paths = args
                     .Where(arg => File.Exists(arg) || Directory.Exists(arg))
                     .ToArray();
-                if (args.Contains("--convert"))
+                if (args.Contains("--queue"))
+                {
+                    // --queue enqueues every path argument under the current
+                    // action defaults and lands on the Queue page; --queue-run
+                    // additionally starts the batch.
+                    window.ShowQueuePage();
+                    int queued = paths.Count(p => graph.Queue.EnqueuePath(p));
+                    if (queued > 0 && args.Contains("--queue-run"))
+                    {
+                        graph.Queue.RunAllCommand.Execute(null);
+                    }
+                }
+                else if (args.Contains("--convert"))
                 {
                     int outIndex = Array.IndexOf(args, "--convert-out");
                     string? outDir = outIndex >= 0 && outIndex + 1 < args.Length

@@ -19,6 +19,7 @@ public partial class MainWindow : Window
         VerifyPage.DataContext = verify;
         ConvertPage.DataContext = convert;
         ConvertPage.Init(graph.Config, graph.Catalog);
+        QueuePage.DataContext = graph.Queue;
         UpdateToggleText();
     }
 
@@ -29,20 +30,26 @@ public partial class MainWindow : Window
     }
 
     /// <summary>Startup navigation for the --convert launch flag.</summary>
-    public void ShowConvertPage() => ShowPage(verify: false);
+    public void ShowConvertPage() => ShowPage(ConvertPage, ConvertNav);
+
+    /// <summary>Startup navigation for the --queue launch flag.</summary>
+    public void ShowQueuePage() => ShowPage(QueuePage, QueueNav);
 
     private void OnVerifyNavPressed(object? sender, PointerPressedEventArgs e)
-        => ShowPage(verify: true);
+        => ShowPage(VerifyPage, VerifyNav);
 
     private void OnConvertNavPressed(object? sender, PointerPressedEventArgs e)
-        => ShowPage(verify: false);
+        => ShowPage(ConvertPage, ConvertNav);
 
-    private void ShowPage(bool verify)
+    private void OnQueueNavPressed(object? sender, PointerPressedEventArgs e)
+        => ShowPage(QueuePage, QueueNav);
+
+    private void ShowPage(Control page, Border nav)
     {
-        VerifyPage.IsVisible = verify;
-        ConvertPage.IsVisible = !verify;
-        StyleNav(VerifyNav, verify);
-        StyleNav(ConvertNav, !verify);
+        foreach (Control candidate in new Control[] { VerifyPage, ConvertPage, QueuePage })
+            candidate.IsVisible = ReferenceEquals(candidate, page);
+        foreach (Border candidate in new[] { VerifyNav, ConvertNav, QueueNav })
+            StyleNav(candidate, ReferenceEquals(candidate, nav));
     }
 
     private void StyleNav(Border nav, bool active)
