@@ -572,6 +572,88 @@ OPTIONS CONSIDERED: Plan now; plan after the next slice.
 REVISIT WHEN: The owner says so, or the slice cadence produces a surface
 the owner wants public.
 
+DECISION: D-045 Rip evidence matrix is two drives
+STATUS: Confirmed
+CHOICE: The Linux rip evidence matrix is the laptop's optical drive plus
+the 5950X desktop's drive. The desktop drive produces Linux evidence by
+being temporarily connected to the Linux laptop (USB enclosure or swap)
+for evidence sessions; the desktop stays a Windows machine.
+BECAUSE: Owner selected both drives and the move-when-needed mechanism,
+2026-08-13. Two drives keep drive-specific quirk handling honest.
+OPTIONS CONSIDERED: Laptop-only matrix; live-USB Linux boots on the
+desktop.
+REVISIT WHEN: The rip slice starts and the second drive's first
+evidence session is scheduled.
+
+DECISION: D-046 Rip is full-secure-or-nothing, direct SG_IO
+STATUS: Confirmed
+CHOICE: No rip capability ships on Linux until the complete WPF
+invariant set (calibration, cache defeat, held-state, flagged
+vote/retry policy) works there. The backend is direct SCSI (READ CD via
+SG_IO) from the first line; no GStreamer interim rip.
+BECAUSE: Owner chose the strict staging and the direct backend,
+2026-08-13. Only one kind of rip claim will ever exist on Linux, and
+the backend is built once.
+OPTIONS CONSIDERED: Foundations-first with a plainly-labeled non-secure
+rip (D8-B precedent); GStreamer interim backend.
+REVISIT WHEN: Practically never; this sets the rip slice's definition.
+
+DECISION: D-047 External command encoders come to Linux soon
+STATUS: Confirmed
+CHOICE: A Linux curated-encoder slice (lame, oggenc-class ELF builds
+with a Linux manifest: pinned sources/archives, hashes, license and
+source obligations per encoder) is in scope, planned after settings
+persistence (SLICE-006).
+BECAUSE: Owner selected "in scope soon", 2026-08-13.
+OPTIONS CONSIDERED: Defer until asked; never on Linux.
+REVISIT WHEN: The slice is scheduled; each encoder's license review is
+its own gate.
+
+DECISION: D-048 Enrichment apply flow is preview-diff per album
+STATUS: Confirmed
+CHOICE: Enrichment backfill proposals present a before/after diff of
+every proposed change per album (tags, artwork, names) with one
+approve/reject per album.
+BECAUSE: Owner selected it, 2026-08-13. Fast review, no surprise edits.
+OPTIONS CONSIDERED: Per-field approval; auto-apply for safe fields.
+REVISIT WHEN: The enrichment slice's design phase.
+
+DECISION: D-049 Artwork policy is embed plus folder.jpg with size cap
+STATUS: Confirmed
+CHOICE: Fetched covers are embedded in tags AND written as folder.jpg,
+honoring the existing maxAlbumArtSize cap.
+BECAUSE: Owner selected it, 2026-08-13; matches player expectations.
+OPTIONS CONSIDERED: Embed-only; folder.jpg-only.
+REVISIT WHEN: A size/quality complaint or player-compat finding.
+
+DECISION: D-050 Manual ships as a GitHub Pages site
+STATUS: Confirmed
+CHOICE: The assembled user manual (D-038) becomes a GitHub Pages site
+built from the manual notes, with proper navigation.
+BECAUSE: Owner selected Pages over in-repo single-page, 2026-08-13.
+OPTIONS CONSIDERED: In-repo single-page HTML shipped with releases.
+REVISIT WHEN: Manual assembly begins.
+
+DECISION: D-051 Distro floor is tested, not best-effort
+STATUS: Confirmed
+CHOICE: The AppImage's older-glibc claim gets real verification (e.g. a
+CI or manual check against Ubuntu 22.04 / Debian 12 class glibc), not a
+best-effort disclaimer.
+BECAUSE: Owner selected the tested floor, 2026-08-13.
+OPTIONS CONSIDERED: Ubuntu 24.04-only claims with best-effort AppImage.
+REVISIT WHEN: The verification lane is designed (release-adjacent work).
+
+DECISION: D-052 Versioning matches the fork lineage; GPL by repo links
+STATUS: Confirmed
+CHOICE: When releases start (still deferred, D-044), versions track the
+fork's 2.2.x lineage so engine and app read as one family. GPL
+source-correspondence is satisfied by release notes linking the exact
+tagged app source, fork pin, and vendor submodule pins.
+BECAUSE: Owner selected both, 2026-08-13.
+OPTIONS CONSIDERED: v0.x preview series; date-based versions; attached
+corresponding-source tarballs.
+REVISIT WHEN: First release planning (D-044 reopens).
+
 ---
 
 ## Slice growth tally
