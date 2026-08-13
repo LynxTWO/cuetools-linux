@@ -512,6 +512,26 @@ OPTIONS CONSIDERED: Codec runtime (closes A-003, more plumbing); rip
 foundations (largest lift); enrichment backfill (smallest).
 REVISIT WHEN: SLICE-003 closes; the expansion loop reconvenes.
 
+DECISION: D-041 SLICE-004 is the batch Queue (provisional)
+STATUS: Proposed
+CHOICE: Under the owner's overnight grant ("keep working autonomously one
+slice at a time as long as you can", 2026-08-12 night), the agent selected
+the batch Queue page for SLICE-004: stack album folders or cue sheets,
+choose Verify or Convert per batch, run them in one sitting with honest
+per-item status. Owner confirms or vetoes in the morning; this entry
+flips to Confirmed or Superseded then.
+BECAUSE: It is the strongest dependency-free candidate. The codec-runtime
+slice needs new native libraries, a D-028 stop-list item that stays with
+the owner even under autonomy. The queue builds directly on the convert
+stack shipped hours earlier, serves the mass-convert-a-collection use
+case, and its WPF surface (QueueViewModel, 250 lines, one dispatcher
+touchpoint) extracts by the established recipe.
+OPTIONS CONSIDERED: Codec runtime (blocked on native dependency
+approval); enrichment backfill (D-011 extension point, but its apply
+flow mutates user files and deserves owner input on the UX); rip
+foundations (largest lift, owner-heavy invariants).
+REVISIT WHEN: The owner reviews this selection in the morning.
+
 ---
 
 ## Slice growth tally
