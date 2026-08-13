@@ -1,6 +1,7 @@
 <UserControl xmlns="https://github.com/avaloniaui"
              xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
              xmlns:vm="using:CUETools.Wpf.ViewModels"
+             xmlns:ctl="using:CUETools.Linux.App.Controls"
              x:Class="CUETools.Linux.App.Views.ConvertView"
              x:DataType="vm:ConvertViewModel"
              x:Name="ConvertRoot">
@@ -80,24 +81,25 @@
                    Foreground="{DynamicResource Muted}" FontSize="10.5"
                    HorizontalAlignment="Center" Margin="0,6,0,0" />
 
-        <!-- the educational round-trip panel; the CodecScope/ConvertScope
-             visualizations land in a following increment (slice brief allows
-             the simpler presentation with this note) -->
+        <!-- educational: the round trip when a source is chosen
+             (source -> PCM -> target), or just what the target codec does
+             before you pick one - same pairing as the WPF page -->
         <Border Background="{DynamicResource Glass}"
                 BorderBrush="{DynamicResource GlassLine}" BorderThickness="1"
                 CornerRadius="11" Padding="16,13" Margin="0,22,0,0"
                 MinWidth="560">
-          <StackPanel Spacing="6">
-            <TextBlock Text="{Binding ScopeCodec, StringFormat='target codec: {0}'}"
-                       FontFamily="{StaticResource Mono}" FontSize="11"
-                       Foreground="{DynamicResource InkDim}"
-                       HorizontalAlignment="Center" />
-            <TextBlock Text="{Binding SourceCodec, StringFormat='source -> PCM -> target ({0} in)'}"
-                       FontFamily="{StaticResource Mono}" FontSize="11"
-                       Foreground="{DynamicResource Muted}"
-                       HorizontalAlignment="Center"
-                       IsVisible="{Binding HasSource}" />
-          </StackPanel>
+          <Grid>
+            <ctl:CodecScope Height="118"
+                            Codec="{Binding ScopeCodec}"
+                            Active="{Binding IsBusy}"
+                            IsVisible="{Binding !HasSource}" />
+            <ctl:ConvertScope Height="150"
+                              SourceCodec="{Binding SourceCodec}"
+                              TargetCodec="{Binding ScopeCodec}"
+                              Active="{Binding IsBusy}"
+                              Samples="{Binding SampleWindow}"
+                              IsVisible="{Binding HasSource}" />
+          </Grid>
         </Border>
       </StackPanel>
 
