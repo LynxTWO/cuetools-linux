@@ -172,7 +172,45 @@ GzJson now resolves through a source-generated StoreJsonContext - the
 same cure as RepairEvidence.ToJson - and the calibration record
 (version 2026.2.0) saves and reloads.
 
-## 9. Increment 3 extraction inventory (executed 2026-08-13, fork PR #24)
+## 9. Increment 4 receipt, first pass (2026-08-13)
+
+**The complete secure Test & Copy transaction ran end to end on Linux
+and committed a published output set.** Receipt: fork PR #25 plus the
+--rip-tc run below (drive B, the ASUS BW-16D1HT), exit 0.
+
+    verdict[0:Test] AR 29/71, CTDB 105/107, accurate=True
+    verdict[1:Copy] AR 29/71, CTDB 105/107, accurate=True
+    rip-tc result: ok=True outcome=Passed readsUsed=2
+    output: 12 file(s) committed
+    history: recorded=True
+
+Engineer detail, measured:
+
+- Two independent cache-defeated secure reads, ~264 s and ~275 s, with
+  the drive's Confirmed 786,432-byte flush forced before every secure
+  re-read. Matching checksums on all 12 tracks; both reads verified by
+  both databases; slip analysis found the reads aligned; zero failed
+  windows, zero communication retries, 1785 extended-timeout reads
+  absorbed by the engine's timeout policy.
+- The committed set carries the full output contract: 12 track FLACs,
+  sanitized artist/album-stem cue, rip log, AccurateRip report and TOC,
+  the machine-readable rip.verify, and .cuetools-complete written last
+  (18 items). Identity strings stay out of this document per the
+  scrubbed-logging rule.
+- Three Linux blockers surfaced and fixed at their intended seams (fork
+  PR #25): keep-awake degrades honestly, tray control speaks the CDROM
+  ioctls through the same gated funnel, and the last reflection-STJ
+  site (VerifyHistoryStore.ToJson, in the commit path) moved to the
+  source-generated context. The first failing commit ALSO proved the
+  held-state contract live: both verified staged reads were kept and
+  reported.
+
+Remaining for increment 4: the tie-break third read on a disagreeing
+disc (needs damaged media), Held-state user surface, and CTDB repair
+evidence flow on Test & Copy outputs - the user-facing halves land
+with RipView parity (increment 5).
+
+## 10. Increment 3 extraction inventory (executed 2026-08-13, fork PR #24)
 
 The calibration and rip services have no WPF API coupling - the plan is
 the proven M2 pattern (move to CUETools.App.Core, namespaces stay
