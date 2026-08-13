@@ -62,9 +62,13 @@ None new. SLICE-001's stubs stand.
 ## 6. Modules touched
 
 Desktop shell (VerifyView repair blocks, RepairScope port), Shared app
-core (consumed; no fork changes expected for the flow itself), Job
-orchestration (journal untouched; repair is online-interactive by design:
-parity requires the database, so an offline repair simply is not offered).
+core (consumed; no fork changes were expected for the flow itself, but
+the real-disc walkthrough found one: RepairEvidence.ToJson used
+reflection-based System.Text.Json, which the AOT runtime rejects at
+evidence sealing. Fixed in the fork with a source-generated
+JsonSerializerContext, fork PR #13), Job orchestration (journal
+untouched; repair is online-interactive by design: parity requires the
+database, so an offline repair simply is not offered).
 
 ## 7. Data subset
 
@@ -83,9 +87,19 @@ No new app-owned entities. Repair evidence uses the engine's formats.
 
 ## 9. Verification evidence required
 
-- [ ] Headless tests for S2-003/S2-004/S2-005 passing in CI.
-- [ ] A corrupted-fixture repair evidence run for S2-001/S2-002 (requires
-      a CTDB-covered TOC; the owner's collection supplies one).
+- [x] Headless tests for S2-003/S2-004/S2-005 passing in CI.
+- [x] A real damaged-disc repair evidence run for S2-001/S2-002/S2-006
+      (owner-provided scratched CD, 2026-08-12). Receipt: repair published
+      with 7,150 samples corrected in 129 sectors, worst stripe 4 of 4
+      correctable errors used, AccurateRip confidence 29/82 and CTDB
+      207/235 on the repaired copy, all 25 source files SHA-256 unchanged
+      (snapshot taken before the first attempt, re-checked after
+      publication). Screenshots:
+      docs/evidence/2026-08-12-repair-real-disc-repairing.png,
+      docs/evidence/2026-08-12-repair-real-disc-verified.png. Bonus
+      finding: the walkthrough exposed and fixed a real AOT serialization
+      bug in evidence sealing (fork PR #13) plus a retry-loop bug in the
+      --repair driver (one-attempt-per-disc guard, pinned by test).
 - [ ] EDD section 17 per-change checklist per change.
 
 ## 10. Agent guardrails for this build
