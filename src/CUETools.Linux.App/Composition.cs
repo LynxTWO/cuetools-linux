@@ -58,6 +58,14 @@ public static class Composition
             CUEProcessorPlugins.decs.Add(new CUETools.Codecs.MACLib.DecoderSettings());
             CUEProcessorPlugins.encs.Add(new CUETools.Codecs.MACLib.EncoderSettings());
         }
+        if (loader.IsReady("libmp3lame"))
+        {
+            // Encoder-only: MP3 output (CBR and VBR faces); decode is not part
+            // of the lame wrapper.
+            loader.BindResolver(typeof(CUETools.Codecs.libmp3lame.LameEncoderSettings).Assembly);
+            CUEProcessorPlugins.encs.Add(new CUETools.Codecs.libmp3lame.CBREncoderSettings());
+            CUEProcessorPlugins.encs.Add(new CUETools.Codecs.libmp3lame.VBREncoderSettings());
+        }
         return loader;
     }
 
