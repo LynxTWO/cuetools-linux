@@ -513,7 +513,7 @@ foundations (largest lift); enrichment backfill (smallest).
 REVISIT WHEN: SLICE-003 closes; the expansion loop reconvenes.
 
 DECISION: D-041 SLICE-004 is the batch Queue (provisional)
-STATUS: Proposed
+STATUS: Confirmed (owner confirmed 2026-08-13, morning review)
 CHOICE: Under the owner's overnight grant ("keep working autonomously one
 slice at a time as long as you can", 2026-08-12 night), the agent selected
 the batch Queue page for SLICE-004: stack album folders or cue sheets,
@@ -531,6 +531,46 @@ approval); enrichment backfill (D-011 extension point, but its apply
 flow mutates user files and deserves owner input on the UX); rip
 foundations (largest lift, owner-heavy invariants).
 REVISIT WHEN: The owner reviews this selection in the morning.
+
+DECISION: D-042 Codec runtime approved with vendored pinned natives
+STATUS: Confirmed
+CHOICE: SLICE-005 is the codec runtime: native codec libraries (libFLAC,
+WavPack, Monkey's Audio) join the Linux app. Sourcing model: vendored
+pinned builds - the .so files are compiled from the fork's staged,
+pinned vendor sources (the same obj/vendor-sources discipline the
+Windows side uses), hash-recorded, and shipped in the packages. Not
+distro packages: no version drift underneath the engine's assurance
+claims, and the AppImage needs bundling regardless.
+BECAUSE: Owner selected vendored pinned builds 2026-08-13, explicitly
+approving the new-native-dependency stop-list item (D-028) for this
+slice. Byte-pinned provenance matches the project's evidence discipline;
+size cost is accepted.
+OPTIONS CONSIDERED: Distro packages (smaller, auto-patched, but
+unpinned); deferring the slice.
+REVISIT WHEN: A security advisory against a vendored codec forces a
+faster patch channel than a pin bump.
+
+DECISION: D-043 Settings persistence follows as SLICE-006
+STATUS: Confirmed
+CHOICE: After the codec runtime, the next slice is settings persistence:
+the Linux app keeps output folders, naming scheme, selected codecs, and
+encoder settings across launches (the WPF head's SettingsStore role,
+implemented against the app-core AppSettings).
+BECAUSE: Owner selected it 2026-08-13. Linux currently forgets
+everything between launches and the gap grows with every page shipped.
+OPTIONS CONSIDERED: Rip foundations (needs the hardware ground-rules
+interview first); enrichment backfill (needs the apply-UX
+mini-interview).
+REVISIT WHEN: SLICE-005 closes.
+
+DECISION: D-044 First public release deferred
+STATUS: Confirmed
+CHOICE: No v0.x preview release yet; keep building. Releases and tags
+remain owner-gated (D-028).
+BECAUSE: Owner answered "not yet" on 2026-08-13.
+OPTIONS CONSIDERED: Plan now; plan after the next slice.
+REVISIT WHEN: The owner says so, or the slice cadence produces a surface
+the owner wants public.
 
 ---
 
