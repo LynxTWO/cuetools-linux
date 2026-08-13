@@ -77,6 +77,23 @@ SLICE-001-verify.md (D-010/D-011 journal design).
       at approval time and resolves each entry as applied, declined,
       already-matching, or unresolvable. Test: suite 47/47. Evidence:
       docs/evidence/2026-08-13-enrich-pending-rail.png.
+- [x] Increment C (2026-08-13): artwork per D-049. Propose offers a
+      front cover only when the album has none (no embedded pictures, no
+      folder/cover.jpg) and the release carries one; cover URLs follow
+      the WPF artwork policy exactly (http upgrades to https,
+      default-port HTTPS to the cover-art hosts only, local addresses
+      rejected). Apply fetches with a bounded HTTPS-only download, caps
+      to the engine's maxAlbumArtSize (1500) via SkiaSharp (already in
+      the Avalonia closure - no new dependency), embeds a FrontCover
+      picture in every track file, and writes folder.jpg exactly once.
+      Evidence: the walkthrough album fetched its real release cover -
+      "applied 1 change(s) across 24 file(s)" (only the cover proposed:
+      the run also proved diff idempotency, with the audio files' tags
+      as the diff basis), folder.jpg 1500x1483 JPEG capped from the
+      larger original, FLAC PICTURE blocks embedded. Three real-run
+      bugs fixed on the way: the cue/tags pseudo-releases masking real
+      providers, the http-scheme cover URIs, and the cue-text diff
+      basis re-proposing applied tags forever.
 - [ ] EDD section 17 per-change checklist per change.
 
 ---

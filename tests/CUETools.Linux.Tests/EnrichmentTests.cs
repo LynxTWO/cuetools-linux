@@ -114,6 +114,78 @@ public class EnrichmentTests
         }
     }
 
+    private static byte[] MakePng(int width, int height)
+    {
+        using var bitmap = new SkiaSharp.SKBitmap(width, height);
+        using (var canvas = new SkiaSharp.SKCanvas(bitmap))
+            canvas.Clear(new SkiaSharp.SKColor(30, 160, 140));
+        using var image = SkiaSharp.SKImage.FromBitmap(bitmap);
+        using var data = image.Encode(SkiaSharp.SKEncodedImageFormat.Png, 100);
+        return data.ToArray();
+    }
+
+    [Fact]
+    public void PrepareCoverCapsOversizedImagesAndKeepsSmallJpegs()
+    {
+        var service = new EnrichmentService(Composition.CreateDefaultConfig(), new NullLog());
+
+        byte[] big = service.PrepareCover(MakePng(4000, 2000));
+        using (var codec = SkiaSharp.SKCodec.Create(new MemoryStream(big)))
+        {
+            Assert.Equal(SkiaSharp.SKEncodedImageFormat.Jpeg, codec!.EncodedFormat);
+            Assert.True(codec.Info.Width <= 1500 && codec.Info.Height <= 1500);
+            Assert.Equal(2.0, (double)codec.Info.Width / codec.Info.Height, 1);
+        }
+
+        byte[] smallJpeg;
+        using (var bitmap = SkiaSharp.SKBitmap.Decode(MakePng(600, 600)))
+        using (var image = SkiaSharp.SKImage.FromBitmap(bitmap))
+        using (var data = image.Encode(SkiaSharp.SKEncodedImageFormat.Jpeg, 90))
+            smallJpeg = data.ToArray();
+        Assert.Same(smallJpeg, service.PrepareCover(smallJpeg)); // untranscoded
+    }
+
+    [Fact]
+    public void ApplyEmbedsApprovedCoverAndWritesFolderJpgOnce()
+    {
+        string dir = WriteFlacAlbum(2);
+        try
+        {
+            byte[] png = MakePng(800, 800);
+            var service = new EnrichmentService(
+                Composition.CreateDefaultConfig(), new NullLog(),
+                fetchBytes: _ => png);
+            var proposal = new EnrichmentProposal
+            {
+                Source = Path.Combine(dir, "album.cue"),
+                CoverUrl = "https://example.invalid/cover.png",
+                Changes = new[]
+                {
+                    new EnrichmentChange("Front cover", 0, "(none)", "800x800 image from the release"),
+                },
+            };
+            int written = service.Apply(proposal);
+            Assert.Equal(2, written);
+
+            using (var one = TagLib.File.Create(Path.Combine(dir, "track01.flac")))
+            {
+                Assert.Single(one.Tag.Pictures);
+                Assert.Equal(TagLib.PictureType.FrontCover, one.Tag.Pictures[0].Type);
+            }
+            string folderJpg = Path.Combine(dir, "folder.jpg");
+            Assert.True(File.Exists(folderJpg));
+
+            // an existing folder.jpg is never overwritten
+            byte[] before = File.ReadAllBytes(folderJpg);
+            service.Apply(proposal);
+            Assert.Equal(before, File.ReadAllBytes(folderJpg));
+        }
+        finally
+        {
+            Directory.Delete(dir, recursive: true);
+        }
+    }
+
     [Fact]
     public void ApplyWithNoChangesWritesNothing()
     {
