@@ -1,3 +1,4 @@
+using Avalonia.Headless.XUnit;
 using CUETools.Linux.App.Services;
 using CUETools.Wpf.Services;
 using CUETools.Wpf.ViewModels;
@@ -6,8 +7,16 @@ using Xunit;
 namespace CUETools.Linux.Tests;
 
 // The --repair flag's driver: after an idle-with-results transition, each
-// repairable disc is repaired in turn until none remain; discs that were
-// never repairable are untouched.
+// repairable disc is repaired in turn until none remain; discs whose
+// repair failed are not retried.
+//
+// AvaloniaFact, not Fact: RelayCommands register on the static RequeryHub
+// for the process lifetime, so a requery broadcast reaches Buttons created
+// by earlier headless UI tests. Driving the view model from a plain xunit
+// worker thread makes that broadcast cross-thread and Avalonia throws
+// (observed on CI). On the headless UI thread, awaits return to the
+// dispatcher and every broadcast happens where the Buttons live - the
+// same threading the real app has.
 public class AutoRepairDriverTests
 {
     private sealed class ScriptedService : IVerifyService
@@ -86,7 +95,7 @@ public class AutoRepairDriverTests
         return dir;
     }
 
-    [Fact]
+    [AvaloniaFact]
     public async Task RepairsEveryRepairableDiscAfterVerify()
     {
         string dir = WriteFixtureAlbum();
@@ -125,7 +134,7 @@ public class AutoRepairDriverTests
         }
     }
 
-    [Fact]
+    [AvaloniaFact]
     public async Task DoesNotRetryADiscWhoseRepairFailed()
     {
         string dir = WriteFixtureAlbum();
