@@ -74,7 +74,23 @@ the largest remaining Windows-parity surface outside rip.
       validated library), 24 files published atomically, 91 MB for
       1:08:22 of audio. Screenshot:
       docs/evidence/2026-08-13-mp3-convert-complete.png.
-- [ ] S7-003: increment B.
+- [x] S7-003 (2026-08-13): all three curated encoders built from pinned
+      sources as self-contained ELF binaries under the catalog's
+      cross-head identities (opusenc.exe: opus-tools 0.2 with the
+      CUETools opus/libopusenc patches; mpcenc.exe: Musepack r495 with
+      the CUETools patch, announcing "CUETools source build r495";
+      oggenc.exe: official vorbis-tools 1.4.2 - the recorded Linux
+      stand-in for the MSVC-only rarewares oggenc2 drop, using only the
+      engine template's standard flags). eng/build-cli-encoders.sh
+      verifies every archive against its pin before use and emits
+      linux-encoders.json with hashes, versions, and licenses; the
+      catalog receives that table through the packaged-host constructor
+      (fork PR #22) and refuses hash-mismatched binaries (pinned by
+      test). Five CliEncoderTests; suite 44/44. Evidence: the repaired
+      album converted to Opus in-app, 24 files published atomically
+      (docs/evidence/2026-08-13-opus-convert-complete.png).
+- [x] Size gates with the encoder payload (2026-08-13): .deb 17 MB
+      download / 50 MB installed, AppImage 20 MB - within D-025.
 - [ ] EDD section 17 per-change checklist per change.
 
 ---
