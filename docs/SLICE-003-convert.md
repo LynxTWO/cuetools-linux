@@ -103,9 +103,15 @@ processing and the config's output-path templates.
       ALACWriter's thread-time statistic (fork PR #16 guards it; ALAC is
       the only codec that defines INTEROP).
 - [ ] EDD section 17 per-change checklist per change.
-- [ ] CodecScope/ConvertScope visualization port (the page ships the
-      simpler text presentation the brief allows, with this note as the
-      log).
+- [x] CodecScope/ConvertScope visualization port (2026-08-13): both
+      scopes render on Linux with the shared CodecMath/LossyMath doing the
+      real predictor and masking work. Evidence: CodecScope idle showing
+      the FLAC pipeline at 5.1 bits/sample ~32% of PCM
+      (docs/evidence/2026-08-13-codecscope-idle.png), ConvertScope live
+      during an ALAC -> FLAC round trip with real decoded audio flowing
+      and both sides at 9.0 bits/sample
+      (docs/evidence/2026-08-13-convertscope-live.png). The rip-telemetry
+      sample feed for CodecScope arrives with the rip slice.
 
 ## 10. Agent guardrails for this build
 

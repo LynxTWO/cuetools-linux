@@ -45,10 +45,21 @@ conversion is bit-exact and the databases can prove it. Screenshots:
 - `--convert-out <dir>` - output folder; default is the page's usual
   Music/CUETools/Artist - Album layout.
 
+## Reading the scopes
+
+Before a source is chosen, CodecScope shows what the target codec does:
+the real four-stage pipeline (signal -> predict -> residual -> pack) run
+each frame by the codec family's actual predictor, with the live
+bits/sample and percent-of-PCM computed from the real residual - a
+better predictor genuinely earns a smaller number. With a source chosen,
+ConvertScope shows the round trip: the source unpacking to PCM (the
+shared currency), and the target re-packing it, each side at its real
+compactness. During a conversion the middle card carries the real
+decoded audio. Screenshots: 2026-08-13-codecscope-idle.png (FLAC at 5.1
+bits/sample, ~32% of PCM), 2026-08-13-convertscope-live.png (ALAC ->
+PCM -> FLAC mid-conversion, both sides 9.0 bits/sample - two Rice-family
+codecs packing the same audio the same size, shown honestly).
+
 ## Not yet written
 
-- The CodecScope/ConvertScope round-trip visualizations (the WPF page
-  shows the source unpacking to PCM and re-packing into the target with
-  real bits-per-sample; the Linux page currently shows a text summary,
-  logged as the slice brief allows).
 - Encoder settings tour (the tune dialog) with real screenshots.

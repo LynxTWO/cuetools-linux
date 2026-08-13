@@ -81,10 +81,12 @@ public partial class App : Application
                     {
                         graph.Convert.SelectedFormat = format;
                     }
+                    // --convert always lands on the Convert page; a valid
+                    // source additionally starts the conversion.
+                    window.ShowConvertPage();
                     string? source = paths.FirstOrDefault(p => p != outDir);
                     if (source != null && graph.Convert.LoadSource(source, outDir))
                     {
-                        window.ShowConvertPage();
                         graph.Convert.ConvertCommand.Execute(null);
                     }
                 }
