@@ -1,0 +1,137 @@
+<UserControl xmlns="https://github.com/avaloniaui"
+             xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
+             xmlns:vm="using:CUETools.Wpf.ViewModels"
+             x:Class="CUETools.Linux.App.Views.ConvertView"
+             x:DataType="vm:ConvertViewModel"
+             x:Name="ConvertRoot">
+  <Grid RowDefinitions="Auto,*,Auto" Background="{DynamicResource Ground}">
+
+    <!-- source + format bar -->
+    <Border Grid.Row="0" Background="{DynamicResource Panel}"
+            BorderBrush="{DynamicResource Line}" BorderThickness="0,0,0,1"
+            Padding="16,11">
+      <DockPanel LastChildFill="True">
+        <TextBlock DockPanel.Dock="Left" Text="Source"
+                   Foreground="{DynamicResource Muted}" FontSize="11"
+                   VerticalAlignment="Center" Margin="0,0,12,0" />
+        <Button DockPanel.Dock="Right" Content="Convert"
+                Command="{Binding ConvertCommand}"
+                Classes="accent" Padding="16,7" Margin="8,0,0,0"
+                VerticalAlignment="Center" />
+        <Button DockPanel.Dock="Right" Content="tune"
+                FontFamily="{StaticResource Mono}" FontSize="11"
+                Padding="9,6" Margin="6,0,0,0" VerticalAlignment="Center"
+                Click="OnEncoderSettingsClick"
+                IsEnabled="{Binding CodecUnlocked}"
+                ToolTip.Tip="Encoder settings for the selected format: compression / quality mode and every advanced option the codec exposes, each with an explanation." />
+        <Button DockPanel.Dock="Right" Width="230" MinWidth="150"
+                VerticalAlignment="Center" Margin="8,0,0,0"
+                Click="OnCodecPickerClick" IsEnabled="{Binding CodecUnlocked}"
+                ToolTip.Tip="{Binding SelectedCodecTooltip}"
+                AutomationProperties.Name="Choose output codec">
+          <TextBlock Text="{Binding SelectedCodecLabel}"
+                     TextTrimming="CharacterEllipsis" TextWrapping="NoWrap" />
+        </Button>
+        <TextBlock DockPanel.Dock="Right" Text="to"
+                   Foreground="{DynamicResource Muted}" FontSize="11"
+                   VerticalAlignment="Center" Margin="10,0,0,0" />
+        <Button DockPanel.Dock="Right" Content="Folder..."
+                Command="{Binding BrowseFolderCommand}" Padding="12,7"
+                Margin="8,0,0,0" VerticalAlignment="Center" />
+        <Button DockPanel.Dock="Right" Content="File..."
+                Command="{Binding BrowseFileCommand}" Padding="12,7"
+                VerticalAlignment="Center" />
+        <Border Background="{DynamicResource Glass}"
+                BorderBrush="{DynamicResource GlassLine}" BorderThickness="1"
+                CornerRadius="6" Padding="10,6" VerticalAlignment="Center">
+          <TextBlock Text="{Binding SourcePath}"
+                     Foreground="{DynamicResource InkDim}"
+                     FontFamily="{StaticResource Mono}" FontSize="11.5"
+                     TextTrimming="CharacterEllipsis" />
+        </Border>
+      </DockPanel>
+    </Border>
+
+    <!-- body -->
+    <Grid Grid.Row="1">
+      <!-- instruction state -->
+      <StackPanel VerticalAlignment="Center" HorizontalAlignment="Center"
+                  MaxWidth="600" IsVisible="{Binding !HasResult}">
+        <TextBlock Text="Convert a rip you already have"
+                   FontFamily="{StaticResource Serif}" FontSize="22"
+                   Foreground="{DynamicResource Muted}"
+                   HorizontalAlignment="Center" />
+        <TextBlock TextAlignment="Center" TextWrapping="Wrap"
+                   Foreground="{DynamicResource Muted}" FontSize="12.5"
+                   Margin="0,8,0,0"
+                   Text="Pick a .cue, an album folder, or a file with an embedded cue, choose an output format, and CUETools re-encodes every track. Only formats with a working encoder in this build are offered." />
+        <StackPanel Orientation="Horizontal" HorizontalAlignment="Center"
+                    Margin="0,16,0,0" Spacing="8">
+          <TextBlock Text="Output:" Foreground="{DynamicResource Muted}"
+                     FontSize="11.5" VerticalAlignment="Center" />
+          <Button Content="Choose folder..."
+                  Command="{Binding BrowseOutputCommand}" Padding="12,6" />
+          <TextBlock Text="{Binding OutputDir}"
+                     Foreground="{DynamicResource InkDim}"
+                     FontFamily="{StaticResource Mono}" FontSize="11"
+                     VerticalAlignment="Center" />
+        </StackPanel>
+        <TextBlock Text="(default: Music/CUETools/Artist - Album)"
+                   Foreground="{DynamicResource Muted}" FontSize="10.5"
+                   HorizontalAlignment="Center" Margin="0,6,0,0" />
+
+        <!-- the educational round-trip panel; the CodecScope/ConvertScope
+             visualizations land in a following increment (slice brief allows
+             the simpler presentation with this note) -->
+        <Border Background="{DynamicResource Glass}"
+                BorderBrush="{DynamicResource GlassLine}" BorderThickness="1"
+                CornerRadius="11" Padding="16,13" Margin="0,22,0,0"
+                MinWidth="560">
+          <StackPanel Spacing="6">
+            <TextBlock Text="{Binding ScopeCodec, StringFormat='target codec: {0}'}"
+                       FontFamily="{StaticResource Mono}" FontSize="11"
+                       Foreground="{DynamicResource InkDim}"
+                       HorizontalAlignment="Center" />
+            <TextBlock Text="{Binding SourceCodec, StringFormat='source -> PCM -> target ({0} in)'}"
+                       FontFamily="{StaticResource Mono}" FontSize="11"
+                       Foreground="{DynamicResource Muted}"
+                       HorizontalAlignment="Center"
+                       IsVisible="{Binding HasSource}" />
+          </StackPanel>
+        </Border>
+      </StackPanel>
+
+      <!-- result state -->
+      <StackPanel VerticalAlignment="Center" HorizontalAlignment="Center"
+                  MaxWidth="620" IsVisible="{Binding HasResult}">
+        <Ellipse Width="70" Height="70" HorizontalAlignment="Center"
+                 Fill="{DynamicResource Good}" />
+        <TextBlock Text="Conversion complete"
+                   FontFamily="{StaticResource Serif}" FontSize="22"
+                   Foreground="{DynamicResource Ink}"
+                   HorizontalAlignment="Center" Margin="0,14,0,0" />
+        <TextBlock Text="{Binding ResultText}"
+                   Foreground="{DynamicResource InkDim}"
+                   FontFamily="{StaticResource Mono}" FontSize="11.5"
+                   HorizontalAlignment="Center" TextAlignment="Center"
+                   TextWrapping="Wrap" Margin="0,8,0,0" />
+      </StackPanel>
+    </Grid>
+
+    <!-- progress bar -->
+    <Border Grid.Row="2" Background="{DynamicResource Panel}"
+            BorderBrush="{DynamicResource Line}" BorderThickness="0,1,0,0"
+            Padding="16,10">
+      <StackPanel VerticalAlignment="Center">
+        <TextBlock Text="{Binding StatusText}"
+                   Foreground="{DynamicResource InkDim}" FontSize="12"
+                   TextTrimming="CharacterEllipsis" />
+        <ProgressBar Height="4" Margin="0,7,0,0" Minimum="0" Maximum="1"
+                     Value="{Binding Progress, Mode=OneWay}"
+                     Background="{DynamicResource Glass}"
+                     Foreground="{DynamicResource StatusAccent}"
+                     BorderThickness="0" />
+      </StackPanel>
+    </Border>
+  </Grid>
+</UserControl>

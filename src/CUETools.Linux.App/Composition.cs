@@ -57,8 +57,11 @@ public static class Composition
 
     public sealed record AppGraph(
         VerifyViewModel Verify,
+        ConvertViewModel Convert,
         VerificationBackfillService Backfill,
-        IDiagnosticLog Log);
+        IDiagnosticLog Log,
+        CUEConfig Config,
+        EncoderCatalog Catalog);
 
     public static AppGraph CreateAppGraph(
         IFileDialogService dialogs, IUserPrompt prompts, IUiDispatcher dispatcher)
@@ -79,6 +82,16 @@ public static class Composition
         // happens to race a network drop must not journal a duplicate of the
         // entry it is resolving.
         var backfill = new VerificationBackfillService(engineVerify, journal);
-        return new AppGraph(viewModel, backfill, log);
+
+        // Convert stack: catalog + service + page. Settings persistence is a
+        // later slice; a fresh AppSettings carries the modern defaults, same
+        // stance as CreateDefaultConfig above.
+        var appSettings = new AppSettings();
+        var catalog = new EncoderCatalog(log, appSettings);
+        IConvertService convert = new ConvertService(config, catalog, appSettings);
+        var convertViewModel = new ConvertViewModel(
+            convert, catalog, config, dialogs, dispatcher);
+
+        return new AppGraph(viewModel, convertViewModel, backfill, log, config, catalog);
     }
 }
