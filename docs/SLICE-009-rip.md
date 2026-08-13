@@ -112,6 +112,29 @@ Engineer detail, measured on this host:
 S9-001 is **verified** for INQUIRY and TOC; payload reads (READ CD) are
 increment 2.
 
+## 7. Increment 2 receipt, part 1 (2026-08-13)
+
+**Real READ CD payload transfers work on all three drives: the fork's
+read-command matrix probe ran unchanged over SG_IO and every drive
+chose the BEh command with C2 pointers on its first candidate.**
+Receipt: the extended --rip-diagnostic run below, exit 0.
+
+    A /dev/sg1 PLDS DU8A5SH      read-command: BEh, 12h, 42h, 16 blocks at a time  ar-offset: +6 samples
+    B /dev/sg2 ASUS BW-16D1HT    read-command: BEh, 12h, 42h, 16 blocks at a time  ar-offset: +6 samples
+    C /dev/sg3 HL-DT-ST WH16NS40 read-command: BEh, 12h, 42h, 16 blocks at a time  ar-offset: +6 samples
+
+Engineer detail: the probe is TestReadCommand in CDDriveReader - the
+BEh/D8h x C2-mode x main-channel matrix with the three-region damage
+sweep - so a Success verdict means multi-sector audio payloads plus C2
+data crossed the transport and passed the engine's own checks. Probe
+times: 2.3-2.9 s cold, 16-38 ms once the drive spun up. The 16-block
+window is the engine's own NSECTORS design maximum, not a transport
+limit. Drive read offsets resolve through the same HTTPS-fetched
+AccurateRip DriveOffsets.bin the WPF head uses; all three drives are
+known +6-sample models. Remaining for increment 2: exercise the
+paranoid/secure read entry points per drive and record their sense
+behavior for the calibration work in increment 3.
+
 ---
 
 *Interview answered by: Daniel Boyd, 2026-08-13 (D-053..D-056).*

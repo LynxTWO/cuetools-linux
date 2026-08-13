@@ -36,6 +36,26 @@ internal static class RipDiagnostic
                     Console.WriteLine(
                         $"  {letter} {node} identity=[{reader.ARName}] " +
                         $"tracks={reader.TOC.TrackCount} audioSectors={reader.TOC.AudioLength}");
+
+                    // Increment 2: run the fork's read-command matrix probe
+                    // (BEh/D8h x C2 modes x main-channel modes) - real READ CD
+                    // payload transfers through the transport. The probe
+                    // decides drive capability; its result string is the
+                    // evidence.
+                    string detect = reader.AutoDetectReadCommand;
+                    Console.WriteLine($"    read-command: {reader.CurrentReadCommand}");
+                    foreach (string line in detect.Split('\n', StringSplitOptions.RemoveEmptyEntries))
+                        Console.WriteLine($"    probe: {line.TrimEnd()}");
+
+                    // Drive read offset from the AccurateRip drive table (the
+                    // same HTTPS-fetched, 10-day-cached DriveOffsets.bin the
+                    // WPF head uses). Lookup evidence only; the rip flow
+                    // applies it in a later increment.
+                    bool known = CUETools.AccurateRip.AccurateRipVerify
+                        .FindDriveReadOffset(reader.ARName, out int arOffset);
+                    Console.WriteLine(known
+                        ? $"    ar-offset: {arOffset:+0;-0;+0} samples (AccurateRip drive table)"
+                        : "    ar-offset: not found in the AccurateRip drive table");
                 }
                 finally
                 {
