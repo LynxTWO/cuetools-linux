@@ -1,0 +1,55 @@
+<Window xmlns="https://github.com/avaloniaui"
+        xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
+        xmlns:svc="using:CUETools.Wpf.Services"
+        x:Class="CUETools.Linux.App.Views.CodecPickerWindow"
+        Title="Choose output codec"
+        Width="560" Height="480"
+        WindowStartupLocation="CenterOwner"
+        Background="{DynamicResource Ground}">
+  <Grid RowDefinitions="Auto,*,Auto" Margin="20,16,20,18">
+
+    <StackPanel Grid.Row="0" Spacing="4">
+      <TextBlock Text="Output codec"
+                 FontFamily="{StaticResource Serif}" FontSize="20"
+                 Foreground="{DynamicResource Ink}" />
+      <TextBlock Text="Every implementation this build knows for every format. Rows that cannot run right now say why and cannot be chosen - an extension alone is not implementation identity."
+                 Foreground="{DynamicResource Muted}" FontSize="11.5"
+                 TextWrapping="Wrap" />
+    </StackPanel>
+
+    <ListBox Grid.Row="1" x:Name="ChoiceList" Margin="0,12,0,0"
+             Background="{DynamicResource Panel}"
+             SelectionMode="Single">
+      <ListBox.ItemTemplate>
+        <DataTemplate x:DataType="svc:CodecChoice">
+          <StackPanel Margin="2,4" Spacing="2">
+            <DockPanel LastChildFill="False">
+              <TextBlock DockPanel.Dock="Left" Text="{Binding CompactLabel}"
+                         Foreground="{DynamicResource Ink}" FontSize="13" />
+              <TextBlock DockPanel.Dock="Right" Text="{Binding Implementation}"
+                         FontFamily="{StaticResource Mono}" FontSize="11"
+                         Foreground="{DynamicResource InkDim}" />
+            </DockPanel>
+            <TextBlock Text="{Binding HealthDetail}"
+                       Foreground="{DynamicResource Muted}" FontSize="10.5"
+                       TextWrapping="Wrap" />
+          </StackPanel>
+        </DataTemplate>
+      </ListBox.ItemTemplate>
+      <ListBox.Styles>
+        <!-- unavailable rows are explanatory, never selectable -->
+        <Style Selector="ListBoxItem" x:DataType="svc:CodecChoice">
+          <Setter Property="IsEnabled" Value="{Binding CanSelect}" />
+        </Style>
+      </ListBox.Styles>
+    </ListBox>
+
+    <DockPanel Grid.Row="2" Margin="0,14,0,0" LastChildFill="False">
+      <Button DockPanel.Dock="Right" Content="Use this codec" Classes="accent"
+              Padding="16,7" Margin="8,0,0,0" x:Name="OkButton"
+              Click="OnOkClick" />
+      <Button DockPanel.Dock="Right" Content="Cancel" Padding="14,7"
+              Click="OnCancelClick" />
+    </DockPanel>
+  </Grid>
+</Window>

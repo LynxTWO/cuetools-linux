@@ -1,0 +1,129 @@
+<Window xmlns="https://github.com/avaloniaui"
+        xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
+        xmlns:vm="using:CUETools.Wpf.ViewModels"
+        x:Class="CUETools.Linux.App.Views.EncoderSettingsWindow"
+        x:DataType="vm:EncoderSettingsViewModel"
+        Title="Encoder settings"
+        Width="520" Height="600"
+        WindowStartupLocation="CenterOwner"
+        Background="{DynamicResource Ground}">
+  <ScrollViewer VerticalScrollBarVisibility="Auto">
+    <StackPanel Margin="20,16,20,18">
+      <TextBlock Text="{Binding Title}" FontFamily="{StaticResource Serif}"
+                 FontSize="20" Foreground="{DynamicResource Ink}" />
+      <TextBlock Text="{Binding Subtitle}" Foreground="{DynamicResource Muted}"
+                 FontSize="11.5" TextWrapping="Wrap" Margin="0,4,0,0" />
+
+      <!-- TYPE: only for two-faced formats. Switching persists the choice and
+           rebuilds this dialog around the other encoder. -->
+      <StackPanel IsVisible="{Binding HasTypeChoice}">
+        <TextBlock Text="TYPE" FontSize="10" FontWeight="Bold"
+                   Foreground="{StaticResource Teal}" Margin="0,14,0,6" />
+        <Border Background="{DynamicResource Panel}"
+                BorderBrush="{DynamicResource Line}" BorderThickness="1"
+                CornerRadius="9" Padding="12,9">
+          <StackPanel Orientation="Horizontal" Spacing="22">
+            <RadioButton Content="Lossless" IsChecked="{Binding TypeLossless}"
+                         GroupName="fmtType"
+                         Foreground="{DynamicResource Ink}"
+                         ToolTip.Tip="Bit-exact archival encoding. The format moves to the lossless list." />
+            <RadioButton Content="Lossy" IsChecked="{Binding TypeLossy}"
+                         GroupName="fmtType"
+                         Foreground="{DynamicResource Ink}"
+                         ToolTip.Tip="Perceptual encoding at the quality mode below. The format moves to the lossy list." />
+          </StackPanel>
+        </Border>
+      </StackPanel>
+
+      <!-- ENCODER: shown when more than one runnable implementation serves the
+           selected format face. -->
+      <StackPanel IsVisible="{Binding HasEncoderChoice}">
+        <TextBlock Text="ENCODER" FontSize="10" FontWeight="Bold"
+                   Foreground="{StaticResource Teal}" Margin="0,14,0,6" />
+        <Border Background="{DynamicResource Panel}"
+                BorderBrush="{DynamicResource Line}" BorderThickness="1"
+                CornerRadius="9" Padding="12,10">
+          <StackPanel>
+            <ComboBox ItemsSource="{Binding Encoders}"
+                      SelectedItem="{Binding SelectedEncoder}" Width="260"
+                      HorizontalAlignment="Left"
+                      ToolTip.Tip="Choose the concrete encoder used for this format." />
+            <TextBlock Text="Only encoders that can run now are listed. The selection is saved with the format."
+                       Foreground="{DynamicResource Muted}" FontSize="11"
+                       TextWrapping="Wrap" Margin="0,8,0,0" />
+          </StackPanel>
+        </Border>
+      </StackPanel>
+
+      <!-- COMMON: the compression / quality mode -->
+      <StackPanel IsVisible="{Binding HasModes}">
+        <TextBlock Text="COMPRESSION / QUALITY" FontSize="10" FontWeight="Bold"
+                   Foreground="{StaticResource Teal}" Margin="0,16,0,6" />
+        <Border Background="{DynamicResource Panel}"
+                BorderBrush="{DynamicResource Line}" BorderThickness="1"
+                CornerRadius="9" Padding="12,10">
+          <StackPanel>
+            <ComboBox ItemsSource="{Binding Modes}"
+                      SelectedItem="{Binding SelectedMode}" Width="180"
+                      HorizontalAlignment="Left"
+                      ToolTip.Tip="{Binding ModeHint}" />
+            <TextBlock Text="{Binding ModeHint}"
+                       Foreground="{DynamicResource Muted}" FontSize="11"
+                       TextWrapping="Wrap" Margin="0,8,0,0" />
+          </StackPanel>
+        </Border>
+      </StackPanel>
+
+      <!-- ADVANCED: everything the encoder exposes, straight from the codec -->
+      <StackPanel IsVisible="{Binding HasAdvanced}">
+        <TextBlock Text="ADVANCED" FontSize="10" FontWeight="Bold"
+                   Foreground="{StaticResource Amber}" Margin="0,16,0,6" />
+        <Border Background="{DynamicResource Panel}"
+                BorderBrush="{DynamicResource Line}" BorderThickness="1"
+                CornerRadius="9" Padding="12,4">
+          <ItemsControl ItemsSource="{Binding Advanced}">
+            <ItemsControl.ItemTemplate>
+              <DataTemplate x:DataType="vm:EncoderSettingRow">
+                <StackPanel Margin="0,7" ToolTip.Tip="{Binding Tooltip}">
+                  <DockPanel LastChildFill="False">
+                    <TextBlock DockPanel.Dock="Left" Text="{Binding Name}"
+                               Foreground="{DynamicResource InkDim}"
+                               FontSize="12.5" VerticalAlignment="Center"
+                               MinWidth="150" />
+                    <ToggleSwitch DockPanel.Dock="Right"
+                                  IsChecked="{Binding BoolValue}"
+                                  IsVisible="{Binding IsBool}" />
+                    <ComboBox DockPanel.Dock="Right"
+                              ItemsSource="{Binding EnumValues}"
+                              SelectedItem="{Binding TextValue}" MinWidth="130"
+                              IsVisible="{Binding IsEnum}" />
+                    <TextBox DockPanel.Dock="Right"
+                             Text="{Binding TextValue}" MinWidth="220"
+                             MaxWidth="290" IsVisible="{Binding IsText}"
+                             Background="{DynamicResource Glass}"
+                             Foreground="{DynamicResource Ink}"
+                             BorderBrush="{DynamicResource Line}" />
+                  </DockPanel>
+                  <TextBlock Text="{Binding ValidationError}"
+                             Foreground="{StaticResource Amber}"
+                             FontSize="10.5" TextAlignment="Right"
+                             Margin="0,3,0,0"
+                             IsVisible="{Binding HasValidationError}" />
+                </StackPanel>
+              </DataTemplate>
+            </ItemsControl.ItemTemplate>
+          </ItemsControl>
+        </Border>
+      </StackPanel>
+
+      <DockPanel Margin="0,16,0,0" LastChildFill="False">
+        <TextBlock DockPanel.Dock="Left"
+                   Text="Hover any setting for what it does."
+                   Foreground="{DynamicResource Muted}" FontSize="10.5"
+                   VerticalAlignment="Center" />
+        <Button DockPanel.Dock="Right" Content="Close" Padding="18,6"
+                Click="OnCloseClick" />
+      </DockPanel>
+    </StackPanel>
+  </ScrollViewer>
+</Window>

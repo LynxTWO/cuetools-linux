@@ -87,9 +87,25 @@ processing and the config's output-path templates.
 
 ## 9. Verification evidence required
 
-- [ ] Headless tests for S3-003/S3-004/S3-005 passing in CI.
-- [ ] A real conversion evidence run for S3-001/S3-002.
+- [x] Headless tests for S3-003/S3-004/S3-005 passing in CI (five
+      ConvertFlowTests, including a real fixture conversion through the
+      production ConvertService; suite 28/28).
+- [x] A real conversion evidence run for S3-001/S3-002 (2026-08-13): the
+      repaired album from SLICE-002's walkthrough (24 FLAC tracks)
+      converted to Apple Lossless on Linux, published atomically with
+      `.cuetools-complete`, and the converted set verifies **AccurateRip
+      accurate confidence 29 / CTDB 207** - the identical verdict to its
+      source, proving the round trip bit-exact by the databases
+      themselves. Screenshots:
+      docs/evidence/2026-08-13-convert-alac-complete.png,
+      docs/evidence/2026-08-13-convert-alac-verified.png. Bonus finding:
+      the first ALAC encode on Linux exposed a kernel32 P/Invoke in
+      ALACWriter's thread-time statistic (fork PR #16 guards it; ALAC is
+      the only codec that defines INTEROP).
 - [ ] EDD section 17 per-change checklist per change.
+- [ ] CodecScope/ConvertScope visualization port (the page ships the
+      simpler text presentation the brief allows, with this note as the
+      log).
 
 ## 10. Agent guardrails for this build
 
