@@ -1,4 +1,5 @@
 using CUETools.Linux.App.Journal;
+using CUETools.Linux.App.Services;
 using CUETools.Processor;
 using CUETools.Wpf.Services;
 using CUETools.Wpf.ViewModels;
@@ -26,6 +27,38 @@ public static class Composition
         CUEProcessorPlugins.encs.Add(new CUETools.Codecs.Flake.EncoderSettings());
         CUEProcessorPlugins.decs.Add(new CUETools.Codecs.ALAC.DecoderSettings());
         CUEProcessorPlugins.encs.Add(new CUETools.Codecs.ALAC.EncoderSettings());
+    }
+
+    /// <summary>
+    /// Validates and loads the vendored native codec libraries (D-042), then
+    /// registers each codec whose library is ready. Codec readiness rule: a
+    /// codec whose .so failed validation is simply not registered - never a
+    /// selectable lie - and the reason is logged per library.
+    /// </summary>
+    public static NativeCodecLoader RegisterNativeCodecs(Action<string> log)
+    {
+        var loader = new NativeCodecLoader();
+        loader.LoadAll(log);
+
+        if (loader.IsReady("libFLAC_dynamic"))
+        {
+            loader.BindResolver(typeof(CUETools.Codecs.libFLAC.DecoderSettings).Assembly);
+            CUEProcessorPlugins.decs.Add(new CUETools.Codecs.libFLAC.DecoderSettings());
+            CUEProcessorPlugins.encs.Add(new CUETools.Codecs.libFLAC.EncoderSettings());
+        }
+        if (loader.IsReady("wavpackdll"))
+        {
+            loader.BindResolver(typeof(CUETools.Codecs.libwavpack.DecoderSettings).Assembly);
+            CUEProcessorPlugins.decs.Add(new CUETools.Codecs.libwavpack.DecoderSettings());
+            CUEProcessorPlugins.encs.Add(new CUETools.Codecs.libwavpack.EncoderSettings());
+        }
+        if (loader.IsReady("MACLibDll"))
+        {
+            loader.BindResolver(typeof(CUETools.Codecs.MACLib.DecoderSettings).Assembly);
+            CUEProcessorPlugins.decs.Add(new CUETools.Codecs.MACLib.DecoderSettings());
+            CUEProcessorPlugins.encs.Add(new CUETools.Codecs.MACLib.EncoderSettings());
+        }
+        return loader;
     }
 
     /// <summary>
