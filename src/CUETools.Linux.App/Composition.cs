@@ -95,13 +95,28 @@ public static class Composition
         VerificationBackfillService Backfill,
         IDiagnosticLog Log,
         CUEConfig Config,
-        EncoderCatalog Catalog);
+        EncoderCatalog Catalog,
+        AppSettings Settings,
+        SettingsStore SettingsStore);
 
     public static AppGraph CreateAppGraph(
         IFileDialogService dialogs, IUserPrompt prompts, IUiDispatcher dispatcher)
     {
         CUEConfig config = CreateDefaultConfig();
         IDiagnosticLog log = new DiagnosticLog();
+
+        // Settings persistence (SLICE-006, D-043): the shared SettingsStore
+        // reads the same profile format the WPF head writes, at the
+        // ApplicationData CUETools2026 location (~/.config/CUETools2026 on
+        // Linux). Loading BEFORE the catalog and services are built means
+        // saved encoder choices, naming, and output settings shape the
+        // session; the shell saves on exit. Secrets are never persisted on
+        // this head (DecliningSecretProtector).
+        var appSettings = new AppSettings();
+        var settingsStore = new SettingsStore(
+            log, null, new DecliningSecretProtector());
+        settingsStore.Load(config, appSettings);
+
         var journal = new JournalStore();
         IVerifyService engineVerify = new VerifyService(config, log);
         IVerifyService journaledVerify = new JournalingVerifyService(engineVerify, journal);
@@ -117,10 +132,8 @@ public static class Composition
         // entry it is resolving.
         var backfill = new VerificationBackfillService(engineVerify, journal);
 
-        // Convert stack: catalog + service + page. Settings persistence is a
-        // later slice; a fresh AppSettings carries the modern defaults, same
-        // stance as CreateDefaultConfig above.
-        var appSettings = new AppSettings();
+        // Convert stack: catalog + service + page, built on the LOADED
+        // settings so saved codec selections and format types apply.
         var catalog = new EncoderCatalog(log, appSettings);
         IConvertService convert = new ConvertService(config, catalog, appSettings);
         var convertViewModel = new ConvertViewModel(
@@ -132,6 +145,7 @@ public static class Composition
             journaledVerify, convert, catalog, config, dialogs, dispatcher);
 
         return new AppGraph(
-            viewModel, convertViewModel, queueViewModel, backfill, log, config, catalog);
+            viewModel, convertViewModel, queueViewModel, backfill, log, config,
+            catalog, appSettings, settingsStore);
     }
 }
