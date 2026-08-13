@@ -89,4 +89,8 @@
           Link="native\%(Filename)%(Extension)" />
   </ItemGroup>
 
+  <ItemGroup>
+    <InternalsVisibleTo Include="CUETools.Linux.Tests" />
+  </ItemGroup>
+
 </Project>
