@@ -1,8 +1,7 @@
 # CUETools Linux Slice Brief: SLICE-004 Queue
 
-Version: 0.1 Draft. Date: 2026-08-13. Status: Proposed (agent-selected
-under the owner's overnight autonomy grant, D-041; owner confirms or
-vetoes in the morning).
+Version: 0.2. Date: 2026-08-13. Status: Confirmed (owner confirmed the
+D-041 selection 2026-08-13; walkthrough sign-off S4-005 still pending).
 Companion documents: ARCHITECTURE.md, ENGINEERING.md, DECISION-LOG.md,
 SLICE-003-convert.md.
 
@@ -106,5 +105,5 @@ of D-041 plus walkthrough approval.
 
 ---
 
-*Selected provisionally under the overnight autonomy grant (D-041);
-owner review pending.*
+*Selection confirmed by: Daniel Boyd, 2026-08-13 (D-041). Walkthrough
+sign-off pending.*
