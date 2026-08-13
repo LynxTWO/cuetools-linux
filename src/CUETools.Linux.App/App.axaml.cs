@@ -19,12 +19,23 @@ public partial class App : Application
             var theme = new ThemeState();
             theme.Apply(theme.Current);
 
+            // --repair is explicit consent: confirmations auto-accept and
+            // every repairable disc is repaired after verification. The
+            // interactive prompt guards stray clicks, not scripted
+            // instructions.
+            bool autoRepair = desktop.Args?.Contains("--repair") == true;
+
             MainWindow? windowRef = null;
             Composition.AppGraph graph = Composition.CreateAppGraph(
                 new AvaloniaFileDialogService(() => windowRef),
-                new AvaloniaUserPrompt(() => windowRef),
+                autoRepair ? new AutoConfirmPrompt() : new AvaloniaUserPrompt(() => windowRef),
                 new AvaloniaUiDispatcher());
             var verify = graph.Verify;
+            if (autoRepair)
+            {
+                graph.Log.Info("repair", "--repair: confirmations auto-accepted by command-line consent");
+                _ = new AutoRepairDriver(verify, line => graph.Log.Info("repair", line));
+            }
 
             var window = new MainWindow(theme, verify);
             windowRef = window;
@@ -53,7 +64,7 @@ public partial class App : Application
                     .Where(arg => File.Exists(arg) || Directory.Exists(arg))
                     .ToArray();
                 if (paths.Length > 0 && verify.LoadSources(paths) &&
-                    desktop.Args!.Contains("--verify"))
+                    (desktop.Args!.Contains("--verify") || autoRepair))
                 {
                     verify.VerifyCommand.Execute(null);
                 }
