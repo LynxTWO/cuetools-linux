@@ -112,7 +112,7 @@ Engineer detail, measured on this host:
 S9-001 is **verified** for INQUIRY and TOC; payload reads (READ CD) are
 increment 2.
 
-## 7. Increment 2 receipt, part 1 (2026-08-13)
+## 7. Increment 2 receipt (2026-08-13)
 
 **Real READ CD payload transfers work on all three drives: the fork's
 read-command matrix probe ran unchanged over SG_IO and every drive
@@ -131,9 +131,24 @@ times: 2.3-2.9 s cold, 16-38 ms once the drive spun up. The 16-block
 window is the engine's own NSECTORS design maximum, not a transport
 limit. Drive read offsets resolve through the same HTTPS-fetched
 AccurateRip DriveOffsets.bin the WPF head uses; all three drives are
-known +6-sample models. Remaining for increment 2: exercise the
-paranoid/secure read entry points per drive and record their sense
-behavior for the calibration work in increment 3.
+known +6-sample models.
+
+**The secure multi-pass read engine itself also ran end to end on all
+three drives: one full PrefetchSector window each (2400 sectors,
+1,411,200 samples, ~32 s of audio) at the default correction quality,
+2 matching passes, 0 failed sectors, 0 communication retries.**
+Receipt: the same --rip-diagnostic run, secure-read lines, exit 0.
+
+    A PLDS DU8A5SH      secure-read: 1411200 samples ( 8401 ms window), passes=2, events=300, failedSectors=0, commRetries=0
+    B ASUS BW-16D1HT    secure-read: 1411200 samples ( 9587 ms window), passes=2, events=300, failedSectors=0, commRetries=0
+    C HL-DT-ST WH16NS40 secure-read: 1411200 samples (12116 ms window), passes=2, events=300, failedSectors=0, commRetries=0
+
+cacheDefeatBytes reads 0 on every drive - truthful per R113: no
+calibration transaction has established cache defeat yet. That is the
+increment 3 boundary, exactly where the brief drew it: the vote engine,
+window management, and per-sector accounting are proven; what remains
+is the calibration prerequisite chain (capability refresh, proven flush
+size, complete-or-explicit eviction) and its WPF service extraction.
 
 ---
 
