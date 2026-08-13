@@ -27,6 +27,10 @@ for f in "${LOCKFILES[@]}"; do rm -f "$SUB/$f"; done
 pwsh -NoProfile -File "$SUB/eng/ci/Prepare-VendorSources.ps1" \
   -RepositoryRoot "$PWD/$SUB"
 
+# Vendored native codecs (D-042): build once, then incrementally via cmake.
+# The app layout and tests consume obj/native through the csproj payload.
+./eng/build-native-codecs.sh
+
 dotnet build src/CUETools.Linux.App/CUETools.Linux.App.csproj \
   -c "$CONFIG" --nologo "${LOCKFLAGS[@]}"
 dotnet build tests/CUETools.Linux.Tests/CUETools.Linux.Tests.csproj \
