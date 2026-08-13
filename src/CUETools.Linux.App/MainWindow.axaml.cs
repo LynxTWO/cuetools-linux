@@ -17,6 +17,7 @@ public partial class MainWindow : Window
         _theme = theme;
         InitializeComponent();
         VerifyPage.DataContext = verify;
+        VerifyPage.InitEnrichment(graph.Enrichment);
         ConvertPage.DataContext = convert;
         ConvertPage.Init(graph.Config, graph.Catalog);
         QueuePage.DataContext = graph.Queue;
