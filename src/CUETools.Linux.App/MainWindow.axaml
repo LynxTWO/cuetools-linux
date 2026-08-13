@@ -108,6 +108,25 @@
                          Foreground="{DynamicResource Muted}" />
             </StackPanel>
           </Border>
+          <Border x:Name="EnrichPendingNav"
+                  Background="Transparent"
+                  BorderBrush="{DynamicResource Line}"
+                  BorderThickness="1"
+                  CornerRadius="6"
+                  Padding="12,9"
+                  Cursor="Hand"
+                  IsVisible="False"
+                  PointerPressed="OnEnrichPendingPressed">
+            <StackPanel>
+              <TextBlock x:Name="EnrichPendingTitle" Text="Enrichment pending"
+                         FontSize="13"
+                         Foreground="{DynamicResource Ink}" />
+              <TextBlock Text="Offline lookups ready to review"
+                         FontFamily="{StaticResource Mono}"
+                         FontSize="10.5"
+                         Foreground="{DynamicResource Muted}" />
+            </StackPanel>
+          </Border>
         </StackPanel>
       </Border>
 

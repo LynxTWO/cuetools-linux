@@ -51,7 +51,7 @@ SLICE-001-verify.md (D-010/D-011 journal design).
 | S8-002 | Apply writes exactly the approved fields to the audio files' tags and nothing else; declining writes nothing | Tests + evidence |
 | S8-003 | The dialog shows every change before any write (preview-diff per album, D-048) | UI + walkthrough |
 | S8-004 | A real album (the walkthrough's "Unknown Artist" set) enriches to its true metadata on Linux | Evidence run |
-| S8-005 | (B) Offline lookups journal and surface later | Increment B |
+| S8-005 | (B) Offline lookups journal and surface later | OfflineProposeJournalsOnceAndSaysSo + rail-card evidence (2026-08-13-enrich-pending-rail.png) |
 | S8-006 | Owner walkthrough | Owner sign-off |
 
 ## 4. Verification evidence required
@@ -69,6 +69,14 @@ SLICE-001-verify.md (D-010/D-011 journal design).
       record). Run under the --enrich command-line consent flag (the
       --repair precedent); the interactive path shows the
       EnrichmentDialog preview diff with one approve per album.
+- [x] Increment B (2026-08-13): an offline Propose journals one
+      enrichment-pending entry per album (idempotent; the endpoint probe
+      decides "offline", so a server error never masquerades as offline)
+      and tells the user so; pending entries surface as a SESSION rail
+      card ("Enrichment pending (N)") whose review flow re-proposes fresh
+      at approval time and resolves each entry as applied, declined,
+      already-matching, or unresolvable. Test: suite 47/47. Evidence:
+      docs/evidence/2026-08-13-enrich-pending-rail.png.
 - [ ] EDD section 17 per-change checklist per change.
 
 ---
