@@ -210,7 +210,19 @@ public static class Program
     internal static readonly Stopwatch Startup = Stopwatch.StartNew();
 
     [STAThread]
-    public static void Main(string[] args) => AppBuilder.Configure<App>()
-        .UsePlatformDetect()
-        .StartWithClassicDesktopLifetime(args);
+    public static void Main(string[] args)
+    {
+#if RIP_DIAGNOSTIC
+        // Dev-only (D-053): the rip transport proof runs before any UI
+        // exists and exits with the failed-drive count. Compiled out of
+        // Release builds, where the flag does not exist.
+        if (args.Contains("--rip-diagnostic"))
+        {
+            Environment.Exit(Services.RipDiagnostic.Run());
+        }
+#endif
+        AppBuilder.Configure<App>()
+            .UsePlatformDetect()
+            .StartWithClassicDesktopLifetime(args);
+    }
 }
