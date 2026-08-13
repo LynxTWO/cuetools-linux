@@ -58,6 +58,7 @@ public static class Composition
     public sealed record AppGraph(
         VerifyViewModel Verify,
         ConvertViewModel Convert,
+        QueueViewModel Queue,
         VerificationBackfillService Backfill,
         IDiagnosticLog Log,
         CUEConfig Config,
@@ -92,6 +93,12 @@ public static class Composition
         var convertViewModel = new ConvertViewModel(
             convert, catalog, config, dialogs, dispatcher);
 
-        return new AppGraph(viewModel, convertViewModel, backfill, log, config, catalog);
+        // The queue verifies through the journaled service, so offline batch
+        // verifies journal for backfill exactly like the Verify page's.
+        var queueViewModel = new QueueViewModel(
+            journaledVerify, convert, catalog, config, dialogs, dispatcher);
+
+        return new AppGraph(
+            viewModel, convertViewModel, queueViewModel, backfill, log, config, catalog);
     }
 }
