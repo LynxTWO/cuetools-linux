@@ -122,7 +122,8 @@ autonomy; mode separation; conflicts stop and surface. Owner rows
 ## 11. Slice definition of done
 
 All acceptance criteria evidenced; documents updated; owner walkthrough
-approval.
+approval. **Met 2026-08-13**: owner walked the app and approved
+(morning walkthrough covering slices 3-6). SLICE-003 is Done.
 
 ## 12. What this unlocks
 

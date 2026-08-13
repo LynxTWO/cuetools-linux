@@ -119,7 +119,8 @@ three libraries only; mode separation; conflicts stop and surface.
 ## 11. Slice definition of done
 
 All acceptance criteria evidenced; documents updated; owner walkthrough
-approval.
+approval. **Met 2026-08-13**: owner walked the app and approved.
+SLICE-005 is Done.
 
 ## 12. What this unlocks
 

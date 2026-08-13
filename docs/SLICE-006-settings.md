@@ -42,7 +42,7 @@ SLICE-005-codec-runtime.md.
 | S6-001 | Settings round-trip across store instances on Linux (config + app fields) | SettingsPersistenceTests |
 | S6-002 | Secrets never reach the profile; a foreign protected credential degrades to no-credential | SettingsPersistenceTests |
 | S6-003 | A real app run saves on SIGTERM and the next run loads the profile | Live evidence run |
-| S6-004 | Owner walkthrough | Owner sign-off (queued) |
+| S6-004 | Owner walkthrough | Owner sign-off (met 2026-08-13, morning walkthrough) |
 
 ## 4. Verification evidence
 
