@@ -112,6 +112,63 @@ Engineer detail, measured on this host:
 S9-001 is **verified** for INQUIRY and TOC; payload reads (READ CD) are
 increment 2.
 
+## 7. Increment 2 receipt (2026-08-13)
+
+**Real READ CD payload transfers work on all three drives: the fork's
+read-command matrix probe ran unchanged over SG_IO and every drive
+chose the BEh command with C2 pointers on its first candidate.**
+Receipt: the extended --rip-diagnostic run below, exit 0.
+
+    A /dev/sg1 PLDS DU8A5SH      read-command: BEh, 12h, 42h, 16 blocks at a time  ar-offset: +6 samples
+    B /dev/sg2 ASUS BW-16D1HT    read-command: BEh, 12h, 42h, 16 blocks at a time  ar-offset: +6 samples
+    C /dev/sg3 HL-DT-ST WH16NS40 read-command: BEh, 12h, 42h, 16 blocks at a time  ar-offset: +6 samples
+
+Engineer detail: the probe is TestReadCommand in CDDriveReader - the
+BEh/D8h x C2-mode x main-channel matrix with the three-region damage
+sweep - so a Success verdict means multi-sector audio payloads plus C2
+data crossed the transport and passed the engine's own checks. Probe
+times: 2.3-2.9 s cold, 16-38 ms once the drive spun up. The 16-block
+window is the engine's own NSECTORS design maximum, not a transport
+limit. Drive read offsets resolve through the same HTTPS-fetched
+AccurateRip DriveOffsets.bin the WPF head uses; all three drives are
+known +6-sample models.
+
+**The secure multi-pass read engine itself also ran end to end on all
+three drives: one full PrefetchSector window each (2400 sectors,
+1,411,200 samples, ~32 s of audio) at the default correction quality,
+2 matching passes, 0 failed sectors, 0 communication retries.**
+Receipt: the same --rip-diagnostic run, secure-read lines, exit 0.
+
+    A PLDS DU8A5SH      secure-read: 1411200 samples ( 8401 ms window), passes=2, events=300, failedSectors=0, commRetries=0
+    B ASUS BW-16D1HT    secure-read: 1411200 samples ( 9587 ms window), passes=2, events=300, failedSectors=0, commRetries=0
+    C HL-DT-ST WH16NS40 secure-read: 1411200 samples (12116 ms window), passes=2, events=300, failedSectors=0, commRetries=0
+
+cacheDefeatBytes reads 0 on every drive - truthful per R113: no
+calibration transaction has established cache defeat yet. That is the
+increment 3 boundary, exactly where the brief drew it: the vote engine,
+window management, and per-sector accounting are proven; what remains
+is the calibration prerequisite chain (capability refresh, proven flush
+size, complete-or-explicit eviction) and its WPF service extraction.
+
+## 8. Increment 3 extraction inventory (scouted 2026-08-13, pending)
+
+The calibration and rip services have no WPF API coupling - the plan is
+the proven M2 pattern (move to CUETools.App.Core, namespaces stay
+CUETools.Wpf.*). Scouted set:
+
+- CUETools.Wpf/Accuracy: AdaptiveSpeedController (59), CacheDefeatSearch
+  (43), DriveCalibration (97), DriveCalibrationService (228),
+  ReadOffsetProbe (98), TestAndCopyLog (120), TestAndCopyResolver (115).
+- CUETools.Wpf/Services: IDriveService (55), DriveService (509),
+  RipService incl. IRipService (2936), LevelMeteringRipper (107).
+- CUETools.Wpf/Models: DiscInfo, DriveDetails, ReleaseMatch, TrackItem.
+
+IDiagnosticLog already lives in App.Core. App.Core gains project
+references to CUETools.Ripper.SCSI and Bwg.Scsi - possible now because
+increment 1 gave both a neutral net8.0 TargetFramework. RipViewModel
+(2,290 lines, 27 WPF/Dispatcher touches) stays put: that is the D-054
+RipView parity surface, increment 5, behind the usual dispatcher seams.
+
 ---
 
 *Interview answered by: Daniel Boyd, 2026-08-13 (D-053..D-056).*
