@@ -44,6 +44,11 @@ in evidence (design detail for increment 1).
   the drive the fork's 3E/02 and 08/0A carve-outs were written on -
   joining EARLY during calibration design (owner connects it and says
   when).
+- Matrix update, 2026-08-13: the owner connected two external USB
+  drives with discs loaded, so the matrix is now THREE drives on one
+  host: the PLDS internal (/dev/sr0), an ASUS BW-16D1HT 3.11
+  (/dev/sr1), and the WH16NS40 1.05 itself (/dev/sr2). D-056's early
+  involvement is satisfied without the desktop hop.
 
 ## 4. Increments
 
@@ -71,6 +76,41 @@ in evidence (design detail for increment 1).
 | S9-003 | A real disc rips secure with Test & Copy evidence and database verification | Increment 4 walkthrough |
 | S9-004 | RipView parity | Increment 5 + owner walkthrough |
 | S9-005 | No shipped build exposes any read path before S9-001..S9-004 all hold | Release gating (D-046) |
+
+## 6. Increment 1 receipt (2026-08-13)
+
+**The SG_IO transport is live: all three matrix drives answered INQUIRY
+and READ TOC through the fork's unchanged command layer on the first
+run.** Receipt: fork PR #23 (feat(ripper): Linux SG_IO transport behind
+the WinDev seam) plus the --rip-diagnostic run below, exit 0.
+
+    rip-diagnostic: 3 drive(s) enumerated
+      A /dev/sg1 identity=[PLDS     - DVD-RW DU8A5SH] tracks=24 audioSectors=307668
+      B /dev/sg2 identity=[ASUS     - BW-16D1HT] tracks=12 audioSectors=203523
+      C /dev/sg3 identity=[HL-DT-ST - BD-RE  WH16NS40] tracks=7 audioSectors=180087
+
+Engineer detail, measured on this host:
+
+- The whole Windows transport is WinDev (the 190-line CreateFile handle
+  base) plus the SendCommand32/64 funnel in Device. The Linux side sits
+  behind that exact seam: LinuxSg.cs (sg_io_hdr interop), platform
+  splits in WinDev Open/Close/Control, and Device.SendCommandLinux
+  mirroring the SendCommand64 contract including the R112
+  identity-clearing rules and the actual-transfer write-back (from the
+  sg residual). No assurance code above the transport changed.
+- Letter mapping refinement over section 2's sorted-set sketch: letters
+  bind 1:1 to kernel sr numbers (A = /dev/sr0), a pure function both
+  CDDrivesList and LinuxSg derive independently; the sg node is
+  resolved via /sys/block/srN/device/scsi_generic and the true device
+  path is printed in evidence.
+- The dev flag is compiled out of Release per D-053, verified at byte
+  level: strings -el finds "rip-diagnostic" twice in the Debug assembly
+  and zero times in Release, and no ripper assemblies reach the Release
+  output.
+- Test suite after the change: 49/49 passed.
+
+S9-001 is **verified** for INQUIRY and TOC; payload reads (READ CD) are
+increment 2.
 
 ---
 
