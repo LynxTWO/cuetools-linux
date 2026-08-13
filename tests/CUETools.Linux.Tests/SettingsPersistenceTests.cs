@@ -1,4 +1,5 @@
 using CUETools.Processor;
+using CUETools.Linux.App;
 using CUETools.Linux.App.Services;
 using CUETools.Wpf.Services;
 using Xunit;
@@ -41,7 +42,7 @@ public class SettingsPersistenceTests
         var (store, dir, fakeApp) = CreateIsolatedStore();
         try
         {
-            var config = new CUEConfig();
+            var config = Composition.CreateEngineConfig();
             var app = new AppSettings
             {
                 OutputBaseDir = "/music/out",
@@ -55,7 +56,7 @@ public class SettingsPersistenceTests
 
             var freshStore = new SettingsStore(
                 new NullLog(), fakeApp, new DecliningSecretProtector());
-            var freshConfig = new CUEConfig();
+            var freshConfig = Composition.CreateEngineConfig();
             var freshApp = new AppSettings();
             freshStore.Load(freshConfig, freshApp);
 
@@ -77,7 +78,7 @@ public class SettingsPersistenceTests
         var (store, dir, _) = CreateIsolatedStore();
         try
         {
-            var config = new CUEConfig();
+            var config = Composition.CreateEngineConfig();
             config.advanced.ProxyPassword = "super-secret";
             store.Save(config, new AppSettings());
 
@@ -97,14 +98,14 @@ public class SettingsPersistenceTests
         var (store, dir, fakeApp) = CreateIsolatedStore();
         try
         {
-            store.Save(new CUEConfig(), new AppSettings());
+            store.Save(Composition.CreateEngineConfig(), new AppSettings());
             File.AppendAllText(
                 store.SettingsFilePath,
                 "WpfProxyPasswordProtected=dpapi-v1:AAAA\n");
 
             var freshStore = new SettingsStore(
                 new NullLog(), fakeApp, new DecliningSecretProtector());
-            var config = new CUEConfig();
+            var config = Composition.CreateEngineConfig();
             config.advanced.ProxyPassword = "stale-plaintext";
             freshStore.Load(config, new AppSettings());
 
