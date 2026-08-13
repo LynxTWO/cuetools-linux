@@ -17,6 +17,10 @@ public partial class App : Application
             Composition.RegisterManagedCodecs();
 
             var theme = new ThemeState();
+            // Native codec registration is logged through the app graph's
+            // diagnostic log once it exists; buffer the lines until then.
+            var nativeLog = new List<string>();
+            Composition.RegisterNativeCodecs(nativeLog.Add);
             theme.Apply(theme.Current);
 
             // --repair is explicit consent: confirmations auto-accept and
@@ -30,6 +34,7 @@ public partial class App : Application
                 new AvaloniaFileDialogService(() => windowRef),
                 autoRepair ? new AutoConfirmPrompt() : new AvaloniaUserPrompt(() => windowRef),
                 new AvaloniaUiDispatcher());
+            foreach (string line in nativeLog) graph.Log.Info("codecs", line);
             var verify = graph.Verify;
             if (autoRepair)
             {
