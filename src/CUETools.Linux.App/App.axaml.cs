@@ -1,4 +1,5 @@
 using System.Diagnostics;
+using System.Runtime.InteropServices;
 using Avalonia;
 using Avalonia.Controls.ApplicationLifetimes;
 using Avalonia.Markup.Xaml;
@@ -35,6 +36,30 @@ public partial class App : Application
                 autoRepair ? new AutoConfirmPrompt() : new AvaloniaUserPrompt(() => windowRef),
                 new AvaloniaUiDispatcher());
             foreach (string line in nativeLog) graph.Log.Info("codecs", line);
+
+            // A Linux session manager stops apps with SIGTERM (and a terminal
+            // with SIGINT); route both through the graceful lifetime shutdown
+            // so save-on-exit runs instead of the process dying mid-state.
+            PosixSignalRegistration? sigterm = null, sigint = null;
+            void RequestShutdown(PosixSignalContext context)
+            {
+                context.Cancel = true;
+                Avalonia.Threading.Dispatcher.UIThread.Post(() => desktop.TryShutdown());
+            }
+            sigterm = PosixSignalRegistration.Create(PosixSignal.SIGTERM, RequestShutdown);
+            sigint = PosixSignalRegistration.Create(PosixSignal.SIGINT, RequestShutdown);
+
+            // Settings persist on exit, mirroring the WPF head's
+            // load-once/save-on-exit contract (SLICE-006, D-043). Exit fires
+            // on every graceful path (window close, TryShutdown, Shutdown);
+            // ShutdownRequested does not cover the forced one.
+            desktop.Exit += (_, _) =>
+            {
+                graph.SettingsStore.Save(graph.Config, graph.Settings);
+                sigterm?.Dispose();
+                sigint?.Dispose();
+            };
+
             var verify = graph.Verify;
             if (autoRepair)
             {
