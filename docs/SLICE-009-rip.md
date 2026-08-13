@@ -150,7 +150,29 @@ window management, and per-sector accounting are proven; what remains
 is the calibration prerequisite chain (capability refresh, proven flush
 size, complete-or-explicit eviction) and its WPF service extraction.
 
-## 8. Increment 3 extraction inventory (scouted 2026-08-13, pending)
+## 8. Increment 3 receipt (2026-08-13)
+
+**The complete drive calibration transaction ran on all three drives:
+every drive demonstrated caching, the cache-defeat search confirmed a
+proven flush size on each, and the records persisted.** Receipt: fork
+PR #24 (the App.Core rip extraction) plus the --rip-diagnostic
+calibration lines below, exit 0.
+
+    A PLDS DU8A5SH      cacheDefeat=Flush:786432 (Confirmed)  offset=+6  overread in=False out=False  speed 44-4234 kbps
+    B ASUS BW-16D1HT    cacheDefeat=Flush:786432 (Confirmed)  offset=+6  overread in=True  out=False  speed 44-8467 kbps
+    C HL-DT-ST WH16NS40 cacheDefeat=Flush:786432 (Confirmed)  offset=+6  overread in=True  out=False  speed 44-8467 kbps
+
+Engineer detail: caching was demonstrated honestly per drive (first
+read of the probe region 108-204 ms, immediate re-read 1-5 ms), and the
+eviction search settled the same 786,432-byte proven flush size on all
+three. Overread capability differs per drive and is recorded, not
+assumed. Persistence initially failed with the known PublishAot
+landmine (reflection System.Text.Json disabled even in JIT builds);
+GzJson now resolves through a source-generated StoreJsonContext - the
+same cure as RepairEvidence.ToJson - and the calibration record
+(version 2026.2.0) saves and reloads.
+
+## 9. Increment 3 extraction inventory (executed 2026-08-13, fork PR #24)
 
 The calibration and rip services have no WPF API coupling - the plan is
 the proven M2 pattern (move to CUETools.App.Core, namespaces stay
