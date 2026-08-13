@@ -1,6 +1,7 @@
 #if RIP_DIAGNOSTIC
 using CUETools.Ripper;
 using CUETools.Ripper.SCSI;
+using CUETools.Wpf.Accuracy;
 
 namespace CUETools.Linux.App.Services;
 
@@ -102,8 +103,58 @@ internal static class RipDiagnostic
                 Console.WriteLine($"  {letter} {node} FAILED {ex.GetType().Name}: {ex.Message}");
                 failures++;
             }
+
+            // Increment 3: the real calibration transaction (the same
+            // DriveCalibrationService the WPF head runs before secure work) -
+            // cache-behavior probe, cache-defeat search, speed range, and
+            // lead-in/out probing, persisted to a diagnostic-scratch store so
+            // the future app-owned store stays untouched.
+            try
+            {
+                string calDir = Path.Combine(Path.GetTempPath(),
+                    "cuetools-rip-diagnostic-cal");
+                Directory.CreateDirectory(calDir);
+                var calService = new DriveCalibrationService(
+                    new ConsoleDiagLog(),
+                    new DriveCalibrationStore(Path.Combine(calDir, "calibration.json.gz")));
+                DriveCalibration? cal = calService.Calibrate(letter);
+                if (cal == null)
+                {
+                    Console.WriteLine($"    calibration: returned null (drive busy or no audio disc)");
+                    failures++;
+                }
+                else
+                {
+                    Console.WriteLine(
+                        $"    calibration: cacheDefeat={cal.CacheDefeat} ({cal.CacheConfidence}), " +
+                        $"offset={cal.ReadOffsetSamples:+0;-0;+0} (known={cal.ReadOffsetKnown}), " +
+                        $"overread in={cal.OverreadLeadIn} out={cal.OverreadLeadOut}, " +
+                        $"speed {cal.MinSpeedKbps}-{cal.MaxSpeedKbps} kbps, version={cal.RipperVersion}");
+                }
+            }
+            catch (Exception ex)
+            {
+                Console.WriteLine($"    calibration FAILED {ex.GetType().Name}: {ex.Message}");
+                failures++;
+            }
         }
         return failures;
+    }
+
+    /// <summary>Console sink for the calibration service's diagnostic log.
+    /// The diagnostic prints hardware metadata only, so Redact is a no-op
+    /// here; the app-owned DiagnosticLog handles real jobs.</summary>
+    private sealed class ConsoleDiagLog : CUETools.Wpf.Services.IDiagnosticLog
+    {
+        public void Info(string area, string message) =>
+            Console.WriteLine($"    [{area}] {message}");
+        public void Warn(string area, string message) =>
+            Console.WriteLine($"    [{area}] WARN {message}");
+        public void Error(string area, string message, Exception? ex = null) =>
+            Console.WriteLine($"    [{area}] ERROR {message}" +
+                (ex == null ? "" : $" ({ex.GetType().Name})"));
+        public void Redact(params string?[] sensitive) { }
+        public string LogPath => "(console)";
     }
 }
 #endif
