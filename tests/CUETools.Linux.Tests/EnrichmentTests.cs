@@ -86,6 +86,35 @@ public class EnrichmentTests
     }
 
     [Fact]
+    public void OfflineProposeJournalsOnceAndSaysSo()
+    {
+        string journalDir = Path.Combine(
+            Path.GetTempPath(), $"cuetools-enrich-journal-{Guid.NewGuid():N}");
+        string dir = WriteFlacAlbum(1);
+        try
+        {
+            var journal = new CUETools.Linux.App.Journal.JournalStore(journalDir);
+            var service = new EnrichmentService(
+                Composition.CreateDefaultConfig(), new NullLog(),
+                journal, isOnline: () => false);
+            string cue = Path.Combine(dir, "album.cue");
+
+            Assert.Throws<EnrichmentOfflineException>(() => service.Propose(cue));
+            Assert.Throws<EnrichmentOfflineException>(() => service.Propose(cue));
+
+            var pending = journal.ReadPending(
+                CUETools.Linux.App.Journal.BackfillLane.Enrichment);
+            Assert.Single(pending);   // idempotent: one entry per album
+            Assert.Equal(cue, pending[0].SourcePath);
+        }
+        finally
+        {
+            Directory.Delete(dir, recursive: true);
+            Directory.Delete(journalDir, recursive: true);
+        }
+    }
+
+    [Fact]
     public void ApplyWithNoChangesWritesNothing()
     {
         string dir = WriteFlacAlbum(1);

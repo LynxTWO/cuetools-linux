@@ -106,7 +106,8 @@ public static class Composition
         EncoderCatalog Catalog,
         AppSettings Settings,
         SettingsStore SettingsStore,
-        IEnrichmentService Enrichment);
+        IEnrichmentService Enrichment,
+        JournalStore Journal);
 
     private static IReadOnlyDictionary<string, string> LoadPackagedEncoderHashes(
         IDiagnosticLog log)
@@ -198,10 +199,10 @@ public static class Composition
         var queueViewModel = new QueueViewModel(
             journaledVerify, convert, catalog, config, dialogs, dispatcher);
 
-        IEnrichmentService enrichment = new EnrichmentService(config, log);
+        IEnrichmentService enrichment = new EnrichmentService(config, log, journal);
 
         return new AppGraph(
             viewModel, convertViewModel, queueViewModel, backfill, log, config,
-            catalog, appSettings, settingsStore, enrichment);
+            catalog, appSettings, settingsStore, enrichment, journal);
     }
 }
