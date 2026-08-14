@@ -219,6 +219,69 @@ internal static class RipDiagnostic
         return result.Ok ? 0 : 1;
     }
 
+    /// <summary>
+    /// Raw BEh read-shape probe (dev-only): issues cache-defeat-shaped reads
+    /// with varying sector counts at fixed LBAs to characterize a drive's
+    /// response to partial chunks. Prints status and sense per shape.
+    /// </summary>
+    internal static int RunReadShapeProbe(char letter)
+    {
+        var logger = new Bwg.Logging.Logger();
+        var reader = new CDDriveReader();
+        if (!reader.Open(letter))
+        {
+            Console.WriteLine("open failed");
+            return 1;
+        }
+        uint firstAudio = reader.TOC[reader.TOC.FirstAudio][0].Start;
+        uint audioLen = reader.TOC.AudioLength;
+        string detect = reader.AutoDetectReadCommand;
+        Console.WriteLine($"probe drive {letter}: [{reader.ARName}] audioLen={audioLen} readCmd={reader.CurrentReadCommand}");
+        reader.Close();
+
+        var dev = new Bwg.Scsi.Device(logger);
+        if (!dev.Open(letter))
+        {
+            Console.WriteLine("raw device open failed");
+            return 1;
+        }
+        try
+        {
+            int[] counts = { 16, 15, 14, 10, 8, 4, 2, 1, 16 };
+            uint[] bases = { audioLen / 10, audioLen / 2, audioLen * 8 / 10 };
+            const int perSector = 4 * 588 + 294;
+            IntPtr scratch = System.Runtime.InteropServices.Marshal.AllocHGlobal(16 * perSector);
+            try
+            {
+                foreach (uint rel in bases)
+                {
+                    foreach (int count in counts)
+                    {
+                        uint lba = firstAudio + rel;
+                        var st = dev.ReadCDAndSubChannel(
+                            Bwg.Scsi.Device.MainChannelSelection.UserData,
+                            Bwg.Scsi.Device.SubChannelMode.None,
+                            Bwg.Scsi.Device.C2ErrorMode.Mode294,
+                            1, false, lba, (uint)count, scratch, 30);
+                        string sense = st == Bwg.Scsi.Device.CommandStatus.Success
+                            ? ""
+                            : $" sense={dev.GetSenseKey()}/{dev.GetSenseAsc():X2}/{dev.GetSenseAscq():X2}";
+                        Console.WriteLine($"  rel={rel} count={count,2}: {st}{sense}");
+                    }
+                }
+            }
+            finally
+            {
+                System.Runtime.InteropServices.Marshal.FreeHGlobal(scratch);
+            }
+        }
+        finally
+        {
+            dev.Close();
+        }
+        return 0;
+    }
+
     /// <summary>Console sink for the calibration service's diagnostic log.
     /// The diagnostic prints hardware metadata only, so Redact is a no-op
     /// here; the app-owned DiagnosticLog handles real jobs.</summary>

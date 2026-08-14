@@ -239,7 +239,38 @@ Remaining for full D-054 parity: the live visuals (read map, VU,
 speed graph, re-read zoom), artwork browser, salvage/output-layout
 controls, recent-rips panel, and the held-state walkthrough evidence.
 
-## 11. Increment 3 extraction inventory (executed 2026-08-13, fork PR #24)
+## 11. Hardware finding and eviction fix (2026-08-13 night)
+
+**Driving the app's own secure verify surfaced a real firmware quirk,
+and the invariants caught it exactly as designed.** The internal PLDS
+DU8A5SH aborted the cache-defeat eviction's final partial chunk
+(ABORTED COMMAND 0B/00/00) twice at the identical sector, and the
+engine failed closed both times with the full scrubbed diagnostic
+identity. A dev read-shape probe (--rip-probe, D-053) characterized
+the cause in minutes: this drive deterministically aborts BEh+C2
+reads of exactly 15 or 2 sectors at any location, while both USB
+drives accept every probed count. Receipt: the fork's
+docs/review/2026-08-13-plds-partial-chunk-abort.md.
+
+The fix (fork PR #29) pads the eviction plan to whole chunks - at
+least the required bytes, never a partial-count tail, no sense
+classification touched. Proof: the same verify that failed twice ran
+to completion, 3,265 s including a long outer-rim deep-recovery grind
+(passes into the 30s at the floor speed, slip 0, errors converging to
+0), with zero cache-defeat retries across hundreds of padded flushes.
+The live visuals rendered throughout ("Verifying... 93%", disc map
+near the rim, controls locked, Stop armed).
+
+Open observation, honestly recorded: the completed verify reported AR
+0/82 and CTDB 0/235 - the disc ID is known to both databases but this
+read matched no pressing. Drive B's Test & Copy proved the stack
+byte-exact against both databases, so this is either a different
+mastering of this disc or a drive-A fidelity question. The
+discriminating experiment is an owner action: swap this disc into the
+ASUS or WH16NS40 and verify again. The remaining payload-tail batch
+question is the fork's D10 decision.
+
+## 12. Increment 3 extraction inventory (executed 2026-08-13, fork PR #24)
 
 The calibration and rip services have no WPF API coupling - the plan is
 the proven M2 pattern (move to CUETools.App.Core, namespaces stay

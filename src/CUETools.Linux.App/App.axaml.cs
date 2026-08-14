@@ -138,6 +138,27 @@ public partial class App : Application
                     // Land on the Rip page (desktop-integration parity with
                     // --queue / --convert).
                     window.ShowRipPage();
+#if RIP_DIAGNOSTIC
+                    // Dev-only evidence hook (D-053): --rip-verify starts a
+                    // verify once the inserted disc has been read.
+                    if (args.Contains("--rip-verify"))
+                    {
+                        var ripVm = graph.Rip;
+                        var autoVerify = new Avalonia.Threading.DispatcherTimer
+                        {
+                            Interval = TimeSpan.FromSeconds(1),
+                        };
+                        autoVerify.Tick += (_, _) =>
+                        {
+                            if (ripVm.IsDiscPresent && !ripVm.IsBusy && !ripVm.IsRipping)
+                            {
+                                autoVerify.Stop();
+                                ripVm.VerifyCommand.Execute(null);
+                            }
+                        };
+                        autoVerify.Start();
+                    }
+#endif
                 }
                 else if (args.Contains("--queue"))
                 {
@@ -228,6 +249,14 @@ public static class Program
         }
         // --rip-tc <letter>: the full secure Test & Copy transaction against
         // one drive into a scratch directory (increment 4 evidence).
+        int probeIndex = Array.IndexOf(args, "--rip-probe");
+        if (probeIndex >= 0)
+        {
+            char probeLetter = probeIndex + 1 < args.Length && args[probeIndex + 1].Length == 1
+                ? char.ToUpperInvariant(args[probeIndex + 1][0])
+                : 'A';
+            Environment.Exit(Services.RipDiagnostic.RunReadShapeProbe(probeLetter));
+        }
         int tcIndex = Array.IndexOf(args, "--rip-tc");
         if (tcIndex >= 0)
         {
