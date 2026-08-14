@@ -133,6 +133,12 @@ public partial class App : Application
                         });
                     }
                 }
+                else if (args.Contains("--rip-page"))
+                {
+                    // Land on the Rip page (desktop-integration parity with
+                    // --queue / --convert).
+                    window.ShowRipPage();
+                }
                 else if (args.Contains("--queue"))
                 {
                     // --queue enqueues every path argument under the current

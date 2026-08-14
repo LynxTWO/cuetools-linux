@@ -25,6 +25,8 @@ public partial class MainWindow : Window
         ConvertPage.DataContext = convert;
         ConvertPage.Init(graph.Config, graph.Catalog);
         QueuePage.DataContext = graph.Queue;
+        RipPage.DataContext = graph.Rip;
+        RipPage.Init(graph.Config, graph.Catalog);
         UpdateToggleText();
         RefreshEnrichPending();
     }
@@ -100,6 +102,12 @@ public partial class MainWindow : Window
     /// <summary>Startup navigation for the --queue launch flag.</summary>
     public void ShowQueuePage() => ShowPage(QueuePage, QueueNav);
 
+    /// <summary>Startup navigation for the --rip-page launch flag.</summary>
+    public void ShowRipPage() => ShowPage(RipPage, RipNav);
+
+    private void OnRipNavPressed(object? sender, PointerPressedEventArgs e)
+        => ShowPage(RipPage, RipNav);
+
     private void OnVerifyNavPressed(object? sender, PointerPressedEventArgs e)
         => ShowPage(VerifyPage, VerifyNav);
 
@@ -111,9 +119,9 @@ public partial class MainWindow : Window
 
     private void ShowPage(Control page, Border nav)
     {
-        foreach (Control candidate in new Control[] { VerifyPage, ConvertPage, QueuePage })
+        foreach (Control candidate in new Control[] { VerifyPage, ConvertPage, QueuePage, RipPage })
             candidate.IsVisible = ReferenceEquals(candidate, page);
-        foreach (Border candidate in new[] { VerifyNav, ConvertNav, QueueNav })
+        foreach (Border candidate in new[] { VerifyNav, ConvertNav, QueueNav, RipNav })
             StyleNav(candidate, ReferenceEquals(candidate, nav));
     }
 
