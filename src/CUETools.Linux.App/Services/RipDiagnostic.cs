@@ -220,6 +220,107 @@ internal static class RipDiagnostic
     }
 
     /// <summary>
+    /// Headless secure verify through RipService.RunVerify (dev-only): the
+    /// deterministic path for per-drive database experiments, with no UI
+    /// state involved.
+    /// </summary>
+    internal static int RunVerifyCli(char letter)
+    {
+        Composition.RegisterManagedCodecs();
+        var nativeLines = new List<string>();
+        Composition.RegisterNativeCodecs(nativeLines.Add);
+        var log = new ConsoleDiagLog();
+        var config = Composition.CreateDefaultConfig();
+        var app = new CUETools.Wpf.Services.AppSettings();
+        var catalog = new EncoderCatalog(
+            log, app,
+            Path.Combine(AppContext.BaseDirectory, "encoders"),
+            new Dictionary<string, string>());
+        catalog.EnsureRegistered(config);
+        var calStore = new DriveCalibrationStore();
+        var history = new VerifyHistoryStore();
+        var calService = new DriveCalibrationService(log, calStore);
+        var rip = new RipService(config, log, app, catalog, calStore, history, calService);
+        Console.WriteLine($"verify-cli: drive {letter} (secure)");
+        double last = -1;
+        var result = rip.RunVerify(letter, cq: 1, metadata: null,
+            onProgress: (frac, msg) =>
+            {
+                if (frac - last >= 0.10 || frac >= 1.0)
+                {
+                    last = frac;
+                    Console.WriteLine($"  [{frac,6:P0}] {msg}");
+                }
+            });
+        Console.WriteLine(
+            $"verify-cli result: ok={result.Ok} AR {result.ArConfidence}/{result.ArTotal}, " +
+            $"CTDB {result.CtdbConfidence}/{result.CtdbTotal}, accurate={result.Accurate}");
+        if (!result.Ok)
+            Console.WriteLine($"  error: {result.Error}");
+        return result.Ok ? 0 : 1;
+    }
+
+    /// <summary>
+    /// Sequence probe (dev-only): reproduces the in-verify eviction pattern -
+    /// optional SET CD SPEED, a near-LBA payload-shaped read, then far-LBA
+    /// eviction-shaped reads - to pin state-dependent rejections.
+    /// </summary>
+    internal static int RunSequenceProbe(char letter)
+    {
+        var logger = new Bwg.Logging.Logger();
+        var reader = new CDDriveReader();
+        if (!reader.Open(letter)) { Console.WriteLine("open failed"); return 1; }
+        uint firstAudio = reader.TOC[reader.TOC.FirstAudio][0].Start;
+        uint audioLen = reader.TOC.AudioLength;
+        string detect = reader.AutoDetectReadCommand;
+        Console.WriteLine($"seq-probe {letter}: [{reader.ARName}] audioLen={audioLen}");
+        reader.Close();
+
+        var dev = new Bwg.Scsi.Device(logger);
+        if (!dev.Open(letter)) { Console.WriteLine("raw open failed"); return 1; }
+        try
+        {
+            const int perSector = 4 * 588 + 294;
+            IntPtr scratch = System.Runtime.InteropServices.Marshal.AllocHGlobal(16 * perSector);
+            try
+            {
+                string Read(uint rel, int count)
+                {
+                    var st = dev.ReadCDAndSubChannel(
+                        Bwg.Scsi.Device.MainChannelSelection.UserData,
+                        Bwg.Scsi.Device.SubChannelMode.None,
+                        Bwg.Scsi.Device.C2ErrorMode.Mode294,
+                        1, false, firstAudio + rel, (uint)count, scratch, 30);
+                    return st == Bwg.Scsi.Device.CommandStatus.Success
+                        ? "ok"
+                        : $"{st} {dev.GetSenseKey()}/{dev.GetSenseAsc():X2}/{dev.GetSenseAscq():X2}";
+                }
+                foreach (bool setSpeed in new[] { false, true })
+                {
+                    if (setSpeed)
+                    {
+                        var sp = dev.SetCdSpeed(
+                            Bwg.Scsi.Device.RotationalControl.CLVandNonPureCav,
+                            (ushort)8467, (ushort)8467);
+                        Console.WriteLine($"  set-speed 8467: {sp}");
+                        System.Threading.Thread.Sleep(60);
+                    }
+                    Console.WriteLine($"  [speed-set={setSpeed}]");
+                    Console.WriteLine($"    near 100 x16 : {Read(100, 16)}");
+                    Console.WriteLine($"    far 30766 x16: {Read(30766, 16)}");
+                    Console.WriteLine($"    far 30766 x1 : {Read(30766, 1)}");
+                    Console.WriteLine($"    far 153834x16: {Read(153834, 16)}");
+                    Console.WriteLine($"    near 200 x16 : {Read(200, 16)}");
+                    Console.WriteLine($"    far 246134x16: {Read(246134, 16)}");
+                }
+            }
+            finally { System.Runtime.InteropServices.Marshal.FreeHGlobal(scratch); }
+        }
+        finally { dev.Close(); }
+        return 0;
+    }
+
+    /// <summary>
     /// Raw BEh read-shape probe (dev-only): issues cache-defeat-shaped reads
     /// with varying sector counts at fixed LBAs to characterize a drive's
     /// response to partial chunks. Prints status and sense per shape.
