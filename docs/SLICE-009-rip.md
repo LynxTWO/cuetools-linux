@@ -210,7 +210,36 @@ disc (needs damaged media), Held-state user surface, and CTDB repair
 evidence flow on Test & Copy outputs - the user-facing halves land
 with RipView parity (increment 5).
 
-## 10. Increment 3 extraction inventory (executed 2026-08-13, fork PR #24)
+## 10. Increment 5 receipt, first pass (2026-08-13)
+
+**The Rip page runs on Linux: the full RipViewModel composes over the
+SG_IO stack and the insert-and-it-reads flow worked on first launch.**
+Receipt: fork PR #26 (seams + move) plus this repo's rip-view change;
+live evidence on this host with three real drives.
+
+- Fork PR #26 moved RipViewModel (2,290 lines), AlbumArtService, the
+  artwork models, AppStatusService, and AppLaunchOptions to App.Core
+  behind five new platform seams (UI timers, artwork previews, display
+  capabilities, image transcoding, plus the existing dispatcher/prompt/
+  file-dialog seams). The WPF head keeps identical behavior through its
+  own implementations; 512 Wpf.Tests stayed green.
+- This head supplies Avalonia implementations: DispatcherTimer-backed
+  timers, decode-bounded Bitmap previews, a SkiaSharp transcoder with
+  the same passthrough-within-cap JPEG contract, and an honest
+  no-hardware-3D capability answer (the 2D read map renders).
+- Live: launched with --rip-page, drive A auto-selected with its
+  INQUIRY identity, the inserted disc read automatically (24 tracks,
+  68:22), five release matches arrived with the MusicBrainz release
+  selected, cover art fetched and displayed, and the run rail armed
+  (Rip / Test & Copy / Verify only). Suite 49/49. The evidence
+  screenshot stays local: it names the owner's disc, and this repo
+  stays scrubbed.
+
+Remaining for full D-054 parity: the live visuals (read map, VU,
+speed graph, re-read zoom), artwork browser, salvage/output-layout
+controls, recent-rips panel, and the held-state walkthrough evidence.
+
+## 11. Increment 3 extraction inventory (executed 2026-08-13, fork PR #24)
 
 The calibration and rip services have no WPF API coupling - the plan is
 the proven M2 pattern (move to CUETools.App.Core, namespaces stay

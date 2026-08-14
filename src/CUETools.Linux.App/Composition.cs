@@ -139,7 +139,8 @@ public static class Composition
         AppSettings Settings,
         SettingsStore SettingsStore,
         IEnrichmentService Enrichment,
-        JournalStore Journal);
+        JournalStore Journal,
+        RipViewModel Rip);
 
     private static IReadOnlyDictionary<string, string> LoadPackagedEncoderHashes(
         IDiagnosticLog log)
@@ -233,8 +234,42 @@ public static class Composition
 
         IEnrichmentService enrichment = new EnrichmentService(config, log, journal);
 
+        // Rip stack (SLICE-009 increment 5): the same services the WPF head
+        // composes, over the SG_IO transport. Calibration and verify history
+        // persist under the app-data profile like everything else.
+        var calStore = new CUETools.Wpf.Accuracy.DriveCalibrationStore();
+        var verifyHistory = new CUETools.Wpf.Accuracy.VerifyHistoryStore();
+        var calService = new CUETools.Wpf.Accuracy.DriveCalibrationService(log, calStore);
+        IDriveService drives = new DriveService(config, log);
+        IRipService ripService = new RipService(
+            config, log, appSettings, catalog, calStore, verifyHistory, calService);
+        IHistoryStore ripHistory = new HistoryStore(log);
+        IAlbumArtService albumArt = new AlbumArtService(
+            config, appSettings, log, new SkiaImageTranscoder());
+        var ripViewModel = new RipViewModel(
+            drives,
+            ripService,
+            engineVerify,
+            convert,
+            new ReportStore(log),
+            ripHistory,
+            config,
+            albumArt,
+            appSettings,
+            catalog,
+            new AppStatusService(),
+            settingsStore,
+            new AppLaunchOptions(),
+            log,
+            new AvaloniaUiTimerFactory(),
+            dispatcher,
+            prompts,
+            new AvaloniaArtworkPreviewFactory(),
+            new LinuxPlatformCapabilities(),
+            dialogs);
+
         return new AppGraph(
             viewModel, convertViewModel, queueViewModel, backfill, log, config,
-            catalog, appSettings, settingsStore, enrichment, journal);
+            catalog, appSettings, settingsStore, enrichment, journal, ripViewModel);
     }
 }

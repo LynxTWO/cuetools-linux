@@ -1,0 +1,282 @@
+<UserControl xmlns="https://github.com/avaloniaui"
+             xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
+             xmlns:vm="using:CUETools.Wpf.ViewModels"
+             xmlns:models="using:CUETools.Wpf.Models"
+             x:Class="CUETools.Linux.App.Views.RipView"
+             x:DataType="vm:RipViewModel">
+
+  <!-- Rip page (SLICE-009 increment 5): drive bar, disc identity + track
+       evidence grid, and the action rail. The live visuals (read map, VU,
+       speed graph) arrive in the parity pass; every number shown here is
+       the view model's own evidence. Bounded proportional layout per the
+       1200 px rule: the grid scrolls, the rail wraps, nothing clips. -->
+  <Grid RowDefinitions="Auto,*" Margin="18,14,18,16">
+
+    <!-- drive bar -->
+    <Border Grid.Row="0" Background="{DynamicResource Bar}"
+            BorderBrush="{DynamicResource Line}" BorderThickness="1"
+            CornerRadius="8" Padding="12,9" Margin="0,0,0,12">
+      <DockPanel>
+        <TextBlock DockPanel.Dock="Left" Text="DRIVE"
+                   FontFamily="{StaticResource Mono}" FontSize="11"
+                   Foreground="{DynamicResource Muted}"
+                   VerticalAlignment="Center" Margin="0,0,10,0" />
+        <ComboBox DockPanel.Dock="Left" MinWidth="70"
+                  ItemsSource="{Binding Drives}"
+                  SelectedItem="{Binding SelectedDrive}"
+                  IsEnabled="{Binding DriveSelectorEnabled}"
+                  VerticalAlignment="Center" />
+        <TextBlock DockPanel.Dock="Left" Text="{Binding DriveModel}"
+                   FontFamily="{StaticResource Mono}" FontSize="12"
+                   Foreground="{DynamicResource InkDim}"
+                   VerticalAlignment="Center" Margin="12,0,0,0" />
+        <Button DockPanel.Dock="Right" Content="{Binding EjectButtonText}"
+                Command="{Binding EjectCommand}"
+                ToolTip.Tip="{Binding EjectButtonTip}"
+                Padding="12,6" VerticalAlignment="Center" />
+        <Button DockPanel.Dock="Right" Content="Read disc"
+                Command="{Binding ReadDiscCommand}"
+                Padding="12,6" Margin="0,0,8,0" VerticalAlignment="Center" />
+        <TextBlock Text="{Binding StatusText}"
+                   Foreground="{DynamicResource Muted}" FontSize="12"
+                   VerticalAlignment="Center" Margin="14,0,10,0"
+                   TextTrimming="CharacterEllipsis" />
+      </DockPanel>
+    </Border>
+
+    <Grid Grid.Row="1" ColumnDefinitions="*,300">
+
+      <!-- disc + tracks -->
+      <Border Grid.Column="0" Background="{DynamicResource Panel}"
+              BorderBrush="{DynamicResource Line}" BorderThickness="1"
+              CornerRadius="8" Padding="14" Margin="0,0,12,0">
+        <Grid RowDefinitions="Auto,Auto,*,Auto">
+          <DockPanel Grid.Row="0">
+            <Border DockPanel.Dock="Right" Width="84" Height="84"
+                    CornerRadius="6" Background="{DynamicResource Glass}"
+                    IsVisible="{Binding HasArtPreview}">
+              <Image Source="{Binding ArtPreview}" Stretch="Uniform" />
+            </Border>
+            <StackPanel>
+              <TextBlock Text="{Binding AlbumTitle}"
+                         FontFamily="{StaticResource Serif}" FontSize="21"
+                         Foreground="{DynamicResource Ink}"
+                         TextTrimming="CharacterEllipsis">
+                <ToolTip.Tip>
+                  <TextBlock Text="{Binding AlbumTitle}" />
+                </ToolTip.Tip>
+              </TextBlock>
+              <TextBlock Text="{Binding AlbumArtist}"
+                         FontSize="13" Foreground="{DynamicResource InkDim}"
+                         TextTrimming="CharacterEllipsis" />
+              <TextBlock Text="{Binding DiscInfoText}"
+                         FontFamily="{StaticResource Mono}" FontSize="11"
+                         Foreground="{DynamicResource Muted}" Margin="0,3,0,0" />
+            </StackPanel>
+          </DockPanel>
+
+          <!-- release picker: which database identity names the output -->
+          <DockPanel Grid.Row="1" Margin="0,8,0,6"
+                     IsVisible="{Binding HasReleases}">
+            <TextBlock DockPanel.Dock="Left" Text="release"
+                       FontFamily="{StaticResource Mono}" FontSize="11"
+                       Foreground="{DynamicResource Muted}"
+                       VerticalAlignment="Center" Margin="0,0,8,0" />
+            <ComboBox ItemsSource="{Binding Releases}"
+                      SelectedItem="{Binding SelectedRelease}"
+                      HorizontalAlignment="Stretch">
+              <ComboBox.ItemTemplate>
+                <DataTemplate x:DataType="models:ReleaseMatch">
+                  <TextBlock TextTrimming="CharacterEllipsis">
+                    <Run Text="{Binding Source}" Foreground="{DynamicResource Muted}" /><Run Text="  " /><Run Text="{Binding Artist}" /><Run Text=" - " /><Run Text="{Binding Title}" /><Run Text="  " /><Run Text="{Binding Year}" Foreground="{DynamicResource Muted}" />
+                  </TextBlock>
+                </DataTemplate>
+              </ComboBox.ItemTemplate>
+            </ComboBox>
+          </DockPanel>
+
+          <ScrollViewer Grid.Row="2" VerticalScrollBarVisibility="Auto">
+            <ItemsControl ItemsSource="{Binding Tracks}">
+              <ItemsControl.ItemTemplate>
+                <DataTemplate x:DataType="models:TrackItem">
+                  <Border BorderBrush="{DynamicResource Line}"
+                          BorderThickness="0,0,0,1" Padding="4,5">
+                    <Grid ColumnDefinitions="30,*,58,66,66,84,84">
+                      <TextBlock Grid.Column="0" Text="{Binding Number}"
+                                 FontFamily="{StaticResource Mono}" FontSize="12"
+                                 Foreground="{DynamicResource Muted}" />
+                      <TextBlock Grid.Column="1" Text="{Binding Title}"
+                                 FontSize="12.5" Foreground="{DynamicResource Ink}"
+                                 TextTrimming="CharacterEllipsis" />
+                      <TextBlock Grid.Column="2" Text="{Binding Length}"
+                                 FontFamily="{StaticResource Mono}" FontSize="11.5"
+                                 Foreground="{DynamicResource Muted}" />
+                      <TextBlock Grid.Column="3" Text="{Binding ArResult}"
+                                 FontFamily="{StaticResource Mono}" FontSize="11.5"
+                                 Foreground="{DynamicResource InkDim}" />
+                      <TextBlock Grid.Column="4" Text="{Binding CtdbResult}"
+                                 FontFamily="{StaticResource Mono}" FontSize="11.5"
+                                 Foreground="{DynamicResource InkDim}" />
+                      <TextBlock Grid.Column="5" Text="{Binding TestCrc}"
+                                 FontFamily="{StaticResource Mono}" FontSize="11.5"
+                                 Foreground="{DynamicResource Muted}" />
+                      <TextBlock Grid.Column="6" Text="{Binding CopyCrc}"
+                                 FontFamily="{StaticResource Mono}" FontSize="11.5"
+                                 Foreground="{DynamicResource Muted}" />
+                    </Grid>
+                  </Border>
+                </DataTemplate>
+              </ItemsControl.ItemTemplate>
+            </ItemsControl>
+          </ScrollViewer>
+
+          <!-- verdict line -->
+          <StackPanel Grid.Row="3" Orientation="Horizontal" Spacing="16"
+                      Margin="0,8,0,0">
+            <TextBlock FontFamily="{StaticResource Mono}" FontSize="11.5"
+                       Foreground="{DynamicResource InkDim}">
+              <Run Text="AR " Foreground="{DynamicResource Muted}" /><Run Text="{Binding ArText}" />
+            </TextBlock>
+            <TextBlock FontFamily="{StaticResource Mono}" FontSize="11.5"
+                       Foreground="{DynamicResource InkDim}">
+              <Run Text="CTDB " Foreground="{DynamicResource Muted}" /><Run Text="{Binding CtdbText}" />
+            </TextBlock>
+            <TextBlock Text="{Binding HistoryText}"
+                       FontFamily="{StaticResource Mono}" FontSize="11.5"
+                       Foreground="{DynamicResource Muted}"
+                       TextTrimming="CharacterEllipsis" />
+          </StackPanel>
+        </Grid>
+      </Border>
+
+      <!-- action rail -->
+      <ScrollViewer Grid.Column="1" VerticalScrollBarVisibility="Auto">
+        <StackPanel Spacing="10">
+
+          <Border Background="{DynamicResource Panel}"
+                  BorderBrush="{DynamicResource Line}" BorderThickness="1"
+                  CornerRadius="8" Padding="12">
+            <StackPanel Spacing="8">
+              <TextBlock Text="OUTPUT" FontFamily="{StaticResource Mono}"
+                         FontSize="11" Foreground="{DynamicResource Muted}" />
+              <Button HorizontalAlignment="Stretch"
+                      Click="OnCodecPickerClick"
+                      IsEnabled="{Binding CodecUnlocked}"
+                      ToolTip.Tip="{Binding SelectedCodecTooltip}">
+                <TextBlock Text="{Binding SelectedCodecLabel}"
+                           TextTrimming="CharacterEllipsis" />
+              </Button>
+              <DockPanel>
+                <Button DockPanel.Dock="Right" Content="..."
+                        Command="{Binding BrowseOutputCommand}" Padding="10,5" />
+                <TextBox Text="{Binding OutputBaseDir}" FontSize="11.5"
+                         Margin="0,0,6,0" />
+              </DockPanel>
+              <StackPanel Orientation="Horizontal" Spacing="14">
+                <CheckBox Content="cue" IsChecked="{Binding CreateCue}"
+                          FontSize="12" />
+                <CheckBox Content="log" IsChecked="{Binding WriteLog}"
+                          FontSize="12" />
+              </StackPanel>
+              <DockPanel>
+                <TextBlock DockPanel.Dock="Left" Text="quality"
+                           FontFamily="{StaticResource Mono}" FontSize="11"
+                           Foreground="{DynamicResource Muted}"
+                           VerticalAlignment="Center" Margin="0,0,8,0" />
+                <ComboBox SelectedIndex="{Binding CorrectionQuality}"
+                          HorizontalAlignment="Stretch">
+                  <ComboBoxItem Content="Burst" />
+                  <ComboBoxItem Content="Secure" />
+                  <ComboBoxItem Content="Paranoid" />
+                </ComboBox>
+              </DockPanel>
+            </StackPanel>
+          </Border>
+
+          <Border Background="{DynamicResource Panel}"
+                  BorderBrush="{DynamicResource Line}" BorderThickness="1"
+                  CornerRadius="8" Padding="12">
+            <StackPanel Spacing="8">
+              <TextBlock Text="RUN" FontFamily="{StaticResource Mono}"
+                         FontSize="11" Foreground="{DynamicResource Muted}" />
+              <Button Content="Rip" Classes="accent"
+                      Command="{Binding RipCommand}"
+                      HorizontalAlignment="Stretch" />
+              <Button Content="Test &amp; Copy"
+                      Command="{Binding TestCopyCommand}"
+                      HorizontalAlignment="Stretch" />
+              <Button Content="Verify only"
+                      Command="{Binding VerifyCommand}"
+                      HorizontalAlignment="Stretch" />
+              <Button Content="Stop"
+                      Command="{Binding StopCommand}"
+                      HorizontalAlignment="Stretch" />
+              <ProgressBar Minimum="0" Maximum="1"
+                           Value="{Binding RipProgress}" Height="8" />
+              <TextBlock Text="{Binding SpeedText}"
+                         FontFamily="{StaticResource Mono}" FontSize="11.5"
+                         Foreground="{DynamicResource InkDim}" />
+              <Border Background="{DynamicResource Glass}" CornerRadius="6"
+                      Padding="8,6" IsVisible="{Binding RereadVisible}">
+                <StackPanel Spacing="2">
+                  <TextBlock Text="{Binding RereadText}"
+                             FontFamily="{StaticResource Mono}" FontSize="11"
+                             Foreground="{DynamicResource StatusWarn}" />
+                  <TextBlock FontFamily="{StaticResource Mono}" FontSize="11"
+                             Foreground="{DynamicResource Muted}">
+                    <Run Text="re-reads " /><Run Text="{Binding RereadCount}" /><Run Text=" errors " /><Run Text="{Binding RereadErrors}" />
+                  </TextBlock>
+                </StackPanel>
+              </Border>
+            </StackPanel>
+          </Border>
+
+          <Border Background="{DynamicResource Panel}"
+                  BorderBrush="{DynamicResource Line}" BorderThickness="1"
+                  CornerRadius="8" Padding="12"
+                  IsVisible="{Binding RipDone}">
+            <StackPanel Spacing="8">
+              <TextBlock Text="DONE" FontFamily="{StaticResource Mono}"
+                         FontSize="11" Foreground="{DynamicResource Muted}" />
+              <TextBlock Text="{Binding RipSummary}" FontSize="12"
+                         Foreground="{DynamicResource Ink}"
+                         TextWrapping="Wrap" />
+              <TextBlock Text="{Binding TestCopyText}" FontSize="11.5"
+                         Foreground="{DynamicResource InkDim}"
+                         TextWrapping="Wrap" />
+              <Button Content="Open folder"
+                      Command="{Binding OpenFolderCommand}"
+                      HorizontalAlignment="Stretch" />
+              <Button Content="{Binding RepairLastRipText}"
+                      Command="{Binding RepairLastRipCommand}"
+                      IsVisible="{Binding CanRepairLastRip}"
+                      HorizontalAlignment="Stretch" />
+              <Button Content="Dismiss"
+                      Command="{Binding DismissDoneCommand}"
+                      HorizontalAlignment="Stretch" />
+            </StackPanel>
+          </Border>
+
+          <Border Background="{DynamicResource Panel}"
+                  BorderBrush="{DynamicResource Line}" BorderThickness="1"
+                  CornerRadius="8" Padding="12"
+                  IsVisible="{Binding TestCopyHeld}">
+            <StackPanel Spacing="8">
+              <TextBlock Text="HELD" FontFamily="{StaticResource Mono}"
+                         FontSize="11" Foreground="{DynamicResource StatusWarn}" />
+              <TextBlock Text="{Binding TestCopyText}" FontSize="12"
+                         Foreground="{DynamicResource Ink}" TextWrapping="Wrap" />
+              <Button Content="Accept copy anyway"
+                      Command="{Binding AcceptCopyAnywayCommand}"
+                      HorizontalAlignment="Stretch" />
+              <Button Content="Discard held copy"
+                      Command="{Binding DiscardHeldCommand}"
+                      HorizontalAlignment="Stretch" />
+            </StackPanel>
+          </Border>
+
+        </StackPanel>
+      </ScrollViewer>
+    </Grid>
+  </Grid>
+</UserControl>
