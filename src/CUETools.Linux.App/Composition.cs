@@ -180,8 +180,10 @@ public static class Composition
     }
 
     public static AppGraph CreateAppGraph(
-        IFileDialogService dialogs, IUserPrompt prompts, IUiDispatcher dispatcher)
+        IFileDialogService dialogs, IUserPrompt prompts, IUiDispatcher dispatcher,
+        AppLaunchOptions? launchOptions = null)
     {
+        launchOptions ??= new AppLaunchOptions();
         CUEConfig config = CreateDefaultConfig();
         IDiagnosticLog log = new DiagnosticLog();
 
@@ -242,6 +244,17 @@ public static class Composition
         var verifyHistory = new CUETools.Wpf.Accuracy.VerifyHistoryStore();
         var calService = new CUETools.Wpf.Accuracy.DriveCalibrationService(log, calStore);
         IDriveService drives = new DriveService(config, log);
+        // Publish a requested drive before the rip view model is constructed
+        // (the WPF secondary-window pattern): pages then initialize against
+        // that hardware with no transient read of the first enumerated drive.
+        if (launchOptions.PreferredDrive != '\0')
+        {
+            if (drives.GetDrives().Contains(launchOptions.PreferredDrive))
+                drives.SelectedDrive = launchOptions.PreferredDrive;
+            else
+                log.Warn("app",
+                    $"requested drive {launchOptions.PreferredDrive}: is not attached");
+        }
         IRipService ripService = new RipService(
             config, log, appSettings, catalog, calStore, verifyHistory, calService);
         IHistoryStore ripHistory = new HistoryStore(log);
@@ -260,7 +273,7 @@ public static class Composition
             catalog,
             new AppStatusService(),
             settingsStore,
-            new AppLaunchOptions(),
+            launchOptions,
             log,
             new AvaloniaUiTimerFactory(),
             dispatcher,

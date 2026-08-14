@@ -30,11 +30,17 @@ public partial class App : Application
             // instructions.
             bool autoRepair = desktop.Args?.Contains("--repair") == true;
 
+            // Window role and validated drive letter arrive only through the
+            // launch arguments (the process-per-drive contract).
+            var launchOptions = CUETools.Wpf.Services.AppLaunchOptions.Parse(
+                desktop.Args ?? Array.Empty<string>());
+
             MainWindow? windowRef = null;
             Composition.AppGraph graph = Composition.CreateAppGraph(
                 new AvaloniaFileDialogService(() => windowRef),
                 autoRepair ? new AutoConfirmPrompt() : new AvaloniaUserPrompt(() => windowRef),
-                new AvaloniaUiDispatcher());
+                new AvaloniaUiDispatcher(),
+                launchOptions);
             foreach (string line in nativeLog) graph.Log.Info("codecs", line);
 
             // A Linux session manager stops apps with SIGTERM (and a terminal
@@ -55,7 +61,10 @@ public partial class App : Application
             // ShutdownRequested does not cover the forced one.
             desktop.Exit += (_, _) =>
             {
-                graph.SettingsStore.Save(graph.Config, graph.Settings);
+                // Secondary drive windows never publish shared settings; the
+                // primary window owns the durable profile.
+                if (!launchOptions.IsSecondaryDriveWindow)
+                    graph.SettingsStore.Save(graph.Config, graph.Settings);
                 sigterm?.Dispose();
                 sigint?.Dispose();
             };
@@ -68,6 +77,12 @@ public partial class App : Application
             }
 
             var window = new MainWindow(theme, verify, graph.Convert, graph);
+            if (launchOptions.IsSecondaryDriveWindow &&
+                launchOptions.PreferredDrive != '\0')
+            {
+                window.Title = $"CUETools Linux - Drive {launchOptions.PreferredDrive}";
+                window.ShowRipPage();
+            }
             windowRef = window;
             window.Opened += (_, _) =>
             {

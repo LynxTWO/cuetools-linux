@@ -290,7 +290,33 @@ Closure (2026-08-14, after the owner's disc swap and USB replug):
   experiments) and --rip-seq-probe <letter> (sequenced reads for
   state-dependent rejection hunting).
 
-## 12. Increment 3 extraction inventory (executed 2026-08-13, fork PR #24)
+## 12. Increment 6 receipt (2026-08-14)
+
+**Process-per-drive works on Linux, and proving it surfaced a real
+cross-process safety hole.** The drive lease's exclusion relied on
+Windows file-sharing violations, which .NET does not enforce between
+processes on Unix: a second process acquired a held drive and read it
+concurrently, observed live. The fork fix takes an explicit advisory
+lock on the lease file on Unix (Windows unchanged) and adds the Linux
+physical identity (the block device's MAJ:MIN), so both the letter and
+the mechanism collide before any hardware contact.
+
+Receipts on this host:
+
+- With a headless verify holding drive A, a second claim fails
+  instantly: "Drive A: is already in use by another CUETools job" -
+  before touching the hardware. Before the fix the second process
+  reached "Verifying..." on the same drive.
+- A --secondary-drive-window --drive B process launches titled for its
+  drive, lands on the Rip page with B pre-selected (published on the
+  drive service before the view model builds, the WPF pattern, so no
+  transient read of the first drive), reads B's disc, and shows the
+  verify-history x2 CRC evidence - all while A's job continues in the
+  other process. Each process writes its own collision-safe log.
+- Secondary windows never publish shared settings: the save-on-exit
+  hook is gated on the window role.
+
+## 13. Increment 3 extraction inventory (executed 2026-08-13, fork PR #24)
 
 The calibration and rip services have no WPF API coupling - the plan is
 the proven M2 pattern (move to CUETools.App.Core, namespaces stay
