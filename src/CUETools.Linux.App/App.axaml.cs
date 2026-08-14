@@ -141,16 +141,38 @@ public partial class App : Application
 #if RIP_DIAGNOSTIC
                     // Dev-only evidence hook (D-053): --rip-verify starts a
                     // verify once the inserted disc has been read.
-                    if (args.Contains("--rip-verify"))
+                    int verifyIndex = Array.IndexOf(args, "--rip-verify");
+                    if (verifyIndex >= 0)
                     {
                         var ripVm = graph.Rip;
+                        char wantedDrive = verifyIndex + 1 < args.Length && args[verifyIndex + 1].Length == 1
+                            ? char.ToUpperInvariant(args[verifyIndex + 1][0])
+                            : '\0';
+                        // Require several consecutive settled ticks so the
+                        // selected drive's own disc read has fully replaced any
+                        // earlier drive's state before the verify fires (the
+                        // engine's disc-mismatch guard refuses mixed state).
+                        int settled = 0;
                         var autoVerify = new Avalonia.Threading.DispatcherTimer
                         {
                             Interval = TimeSpan.FromSeconds(1),
                         };
                         autoVerify.Tick += (_, _) =>
                         {
-                            if (ripVm.IsDiscPresent && !ripVm.IsBusy && !ripVm.IsRipping)
+                            // Startup enumeration can override an early drive
+                            // selection; re-assert each tick until it holds
+                            // (the setter re-reads the disc on a real change),
+                            // then require the state to settle before firing.
+                            if (wantedDrive != '\0' && ripVm.SelectedDrive != wantedDrive)
+                            {
+                                ripVm.SelectedDrive = wantedDrive;
+                                settled = 0;
+                                return;
+                            }
+                            settled = ripVm.IsDiscPresent && !ripVm.IsBusy && !ripVm.IsRipping
+                                ? settled + 1
+                                : 0;
+                            if (settled >= 4)
                             {
                                 autoVerify.Stop();
                                 ripVm.VerifyCommand.Execute(null);
@@ -249,6 +271,22 @@ public static class Program
         }
         // --rip-tc <letter>: the full secure Test & Copy transaction against
         // one drive into a scratch directory (increment 4 evidence).
+        int verifyCliIndex = Array.IndexOf(args, "--rip-verify-cli");
+        if (verifyCliIndex >= 0)
+        {
+            char cliLetter = verifyCliIndex + 1 < args.Length && args[verifyCliIndex + 1].Length == 1
+                ? char.ToUpperInvariant(args[verifyCliIndex + 1][0])
+                : 'A';
+            Environment.Exit(Services.RipDiagnostic.RunVerifyCli(cliLetter));
+        }
+        int seqIndex = Array.IndexOf(args, "--rip-seq-probe");
+        if (seqIndex >= 0)
+        {
+            char seqLetter = seqIndex + 1 < args.Length && args[seqIndex + 1].Length == 1
+                ? char.ToUpperInvariant(args[seqIndex + 1][0])
+                : 'C';
+            Environment.Exit(Services.RipDiagnostic.RunSequenceProbe(seqLetter));
+        }
         int probeIndex = Array.IndexOf(args, "--rip-probe");
         if (probeIndex >= 0)
         {

@@ -270,6 +270,26 @@ discriminating experiment is an owner action: swap this disc into the
 ASUS or WH16NS40 and verify again. The remaining payload-tail batch
 question is the fork's D10 decision.
 
+Closure (2026-08-14, after the owner's disc swap and USB replug):
+
+- The mystery disc is a **pressing variant**. The ASUS read it
+  consistently to the same verdict (AR 0/82, CTDB 0/235, ok=True), so
+  two independent byte-exact drives agree and no database pressing
+  matches this mastering.
+- **All three drives are byte-exact through the full Linux stack**: the
+  PLDS, ASUS, and WH16NS40 each verified the same database-anchored
+  disc to the identical verdict (AR 29/71 accurate, CTDB 105/107).
+- The WH16NS40's 24/00-on-everything state (including the kernel's own
+  READ(10) and TOC reads) was a transient drive wedge, most plausibly
+  from processes killed mid-command during the racing UI experiments;
+  a USB replug cleared it and the drive calibrated, flushed, and
+  verified cleanly afterward. D10 was resolved drive-scoped (fork PR
+  #30) before this closure.
+- Dev tools added along the way: --rip-verify-cli <letter> (headless
+  RipService.RunVerify, the deterministic path for per-drive
+  experiments) and --rip-seq-probe <letter> (sequenced reads for
+  state-dependent rejection hunting).
+
 ## 12. Increment 3 extraction inventory (executed 2026-08-13, fork PR #24)
 
 The calibration and rip services have no WPF API coupling - the plan is
