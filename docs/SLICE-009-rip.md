@@ -272,19 +272,29 @@ question is the fork's D10 decision.
 
 Closure (2026-08-14, after the owner's disc swap and USB replug):
 
-- The mystery disc is a **pressing variant**. The ASUS read it
-  consistently to the same verdict (AR 0/82, CTDB 0/235, ok=True), so
-  two independent byte-exact drives agree and no database pressing
-  matches this mastering.
+- Corrected 2026-08-14 evening: the mystery disc is **the damaged
+  SLICE-002 reference disc**, not a pressing variant. Its database
+  identity (AR total 82, CTDB total 235) matches the scratched disc
+  exactly, and the owner's live Paranoid Test & Copy of it surfaced the
+  status text the earlier monitoring had truncated: CTDB "differs in
+  112 samples, confidence 207" - repairable damage, honestly detected.
+  The zero-exact-match verdicts on every drive are the damage, read
+  consistently. The three-drive byte-exact matrix below is unaffected:
+  that evidence used the clean 12-track disc.
 - **All three drives are byte-exact through the full Linux stack**: the
   PLDS, ASUS, and WH16NS40 each verified the same database-anchored
   disc to the identical verdict (AR 29/71 accurate, CTDB 105/107).
-- The WH16NS40's 24/00-on-everything state (including the kernel's own
-  READ(10) and TOC reads) was a transient drive wedge, most plausibly
-  from processes killed mid-command during the racing UI experiments;
-  a USB replug cleared it and the drive calibrated, flushed, and
-  verified cleanly afterward. D10 was resolved drive-scoped (fork PR
-  #30) before this closure.
+- The WH16NS40's 24/00-on-everything state was initially blamed on
+  processes killed mid-command; the owner's live walkthrough corrected
+  that: the ASUS entered the identical state organically during the
+  Paranoid Test & Copy of the damaged disc (Test complete with honest
+  give-ups; Copy failed closed at the eviction wall 20 minutes in).
+  Both incidents are USB-bridged drives under extended recovery
+  grinding on the damaged disc; the SATA internal drive survived a full
+  deep-recovery pass of the same disc. The pattern, receipts, and the
+  open recovery-strategy question live in the fork's
+  docs/review/2026-08-14-usb-wedge-finding.md and D11. D10 was resolved
+  drive-scoped (fork PR #30) before this closure.
 - Dev tools added along the way: --rip-verify-cli <letter> (headless
   RipService.RunVerify, the deterministic path for per-drive
   experiments) and --rip-seq-probe <letter> (sequenced reads for
