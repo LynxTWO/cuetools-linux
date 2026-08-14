@@ -2,6 +2,7 @@
              xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
              xmlns:vm="using:CUETools.Wpf.ViewModels"
              xmlns:models="using:CUETools.Wpf.Models"
+             xmlns:controls="using:CUETools.Linux.App.Controls"
              x:Class="CUETools.Linux.App.Views.RipView"
              x:DataType="vm:RipViewModel">
 
@@ -211,21 +212,34 @@
               <Button Content="Stop"
                       Command="{Binding StopCommand}"
                       HorizontalAlignment="Stretch" />
+              <controls:DiscReadMap Height="150"
+                                    Progress="{Binding RipProgress}"
+                                    Spinning="{Binding IsRipping}" />
               <ProgressBar Minimum="0" Maximum="1"
                            Value="{Binding RipProgress}" Height="8" />
+              <Grid ColumnDefinitions="*,*" Height="52">
+                <controls:VuMeter Grid.Column="0"
+                                  Active="{Binding IsRipping}"
+                                  LevelL="{Binding LevelL}"
+                                  LevelR="{Binding LevelR}" />
+                <controls:SpeedGraph Grid.Column="1" Margin="6,4,0,4"
+                                     Active="{Binding IsRipping}"
+                                     Level="{Binding SpeedLevel}" />
+              </Grid>
               <TextBlock Text="{Binding SpeedText}"
                          FontFamily="{StaticResource Mono}" FontSize="11.5"
                          Foreground="{DynamicResource InkDim}" />
               <Border Background="{DynamicResource Glass}" CornerRadius="6"
                       Padding="8,6" IsVisible="{Binding RereadVisible}">
                 <StackPanel Spacing="2">
+                  <controls:RereadScope Height="52"
+                                        Active="{Binding RereadActive}"
+                                        Count="{Binding RereadCount}"
+                                        Max="{Binding RereadMax}"
+                                        Errors="{Binding RereadErrors}" />
                   <TextBlock Text="{Binding RereadText}"
                              FontFamily="{StaticResource Mono}" FontSize="11"
-                             Foreground="{DynamicResource StatusWarn}" />
-                  <TextBlock FontFamily="{StaticResource Mono}" FontSize="11"
-                             Foreground="{DynamicResource Muted}">
-                    <Run Text="re-reads " /><Run Text="{Binding RereadCount}" /><Run Text=" errors " /><Run Text="{Binding RereadErrors}" />
-                  </TextBlock>
+                             Foreground="{DynamicResource Muted}" />
                 </StackPanel>
               </Border>
             </StackPanel>
