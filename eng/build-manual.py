@@ -23,6 +23,7 @@ OUT = ROOT / "docs" / "site"
 # is a conscious addition, not an accident.
 PAGES = [
     ("install", "Install & Run"),
+    ("rip", "Rip"),
     ("verify", "Verify"),
     ("repair", "Repair"),
     ("offline-and-backfill", "Offline & Backfill"),
