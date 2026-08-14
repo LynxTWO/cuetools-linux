@@ -140,7 +140,8 @@ public static class Composition
         SettingsStore SettingsStore,
         IEnrichmentService Enrichment,
         JournalStore Journal,
-        RipViewModel Rip);
+        RipViewModel Rip,
+        IAlbumArtService Art);
 
     private static IReadOnlyDictionary<string, string> LoadPackagedEncoderHashes(
         IDiagnosticLog log)
@@ -270,6 +271,7 @@ public static class Composition
 
         return new AppGraph(
             viewModel, convertViewModel, queueViewModel, backfill, log, config,
-            catalog, appSettings, settingsStore, enrichment, journal, ripViewModel);
+            catalog, appSettings, settingsStore, enrichment, journal, ripViewModel,
+            albumArt);
     }
 }

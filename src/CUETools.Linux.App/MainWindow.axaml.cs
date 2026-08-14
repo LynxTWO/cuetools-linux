@@ -26,7 +26,7 @@ public partial class MainWindow : Window
         ConvertPage.Init(graph.Config, graph.Catalog);
         QueuePage.DataContext = graph.Queue;
         RipPage.DataContext = graph.Rip;
-        RipPage.Init(graph.Config, graph.Catalog);
+        RipPage.Init(graph.Config, graph.Catalog, graph.Art);
         UpdateToggleText();
         RefreshEnrichPending();
     }

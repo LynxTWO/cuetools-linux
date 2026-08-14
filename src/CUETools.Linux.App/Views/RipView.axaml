@@ -47,10 +47,50 @@
 
     <Grid Grid.Row="1" ColumnDefinitions="*,300">
 
+      <!-- no-disc screen: hint + this machine's recent rips -->
+      <Border Grid.Column="0" Background="{DynamicResource Panel}"
+              BorderBrush="{DynamicResource Line}" BorderThickness="1"
+              CornerRadius="8" Padding="24" Margin="0,0,12,0"
+              IsVisible="{Binding !ShowDiscArea}">
+        <StackPanel Spacing="14" VerticalAlignment="Center">
+          <TextBlock Text="Insert an audio CD"
+                     FontFamily="{StaticResource Serif}" FontSize="22"
+                     Foreground="{DynamicResource Ink}"
+                     HorizontalAlignment="Center" />
+          <TextBlock Text="{Binding StatusText}"
+                     FontFamily="{StaticResource Mono}" FontSize="11.5"
+                     Foreground="{DynamicResource Muted}"
+                     HorizontalAlignment="Center" />
+          <TextBlock Text="RECENTLY RIPPED"
+                     FontFamily="{StaticResource Mono}" FontSize="11"
+                     Foreground="{DynamicResource Muted}" Margin="0,10,0,0"
+                     IsVisible="{Binding Recent.Count}" />
+          <ItemsControl ItemsSource="{Binding Recent}" MaxHeight="300">
+            <ItemsControl.ItemTemplate>
+              <DataTemplate x:DataType="models:RecentRip">
+                <Border BorderBrush="{DynamicResource Line}"
+                        BorderThickness="0,0,0,1" Padding="2,6">
+                  <DockPanel>
+                    <TextBlock DockPanel.Dock="Right" Text="{Binding Result}"
+                               FontFamily="{StaticResource Mono}" FontSize="11"
+                               Foreground="{DynamicResource Muted}" />
+                    <TextBlock FontSize="12.5" Foreground="{DynamicResource Ink}"
+                               TextTrimming="CharacterEllipsis">
+                      <Run Text="{Binding Artist}" /><Run Text=" - " /><Run Text="{Binding Title}" /><Run Text="   " /><Run Text="{Binding When}" Foreground="{DynamicResource Muted}" />
+                    </TextBlock>
+                  </DockPanel>
+                </Border>
+              </DataTemplate>
+            </ItemsControl.ItemTemplate>
+          </ItemsControl>
+        </StackPanel>
+      </Border>
+
       <!-- disc + tracks -->
       <Border Grid.Column="0" Background="{DynamicResource Panel}"
               BorderBrush="{DynamicResource Line}" BorderThickness="1"
-              CornerRadius="8" Padding="14" Margin="0,0,12,0">
+              CornerRadius="8" Padding="14" Margin="0,0,12,0"
+              IsVisible="{Binding ShowDiscArea}">
         <Grid RowDefinitions="Auto,Auto,*,Auto">
           <DockPanel Grid.Row="0">
             <Border DockPanel.Dock="Right" Width="84" Height="84"
@@ -185,12 +225,28 @@
                            Foreground="{DynamicResource Muted}"
                            VerticalAlignment="Center" Margin="0,0,8,0" />
                 <ComboBox SelectedIndex="{Binding CorrectionQuality}"
-                          HorizontalAlignment="Stretch">
+                          HorizontalAlignment="Stretch"
+                          ToolTip.Tip="Burst: fast, single pass - windows the vote flags still re-read up to 16 passes, but deep recovery never runs. Secure: read twice + compare, with deep recovery. Paranoid: deepest re-reads. Salvage: for defective-by-design discs - Test &amp; Copy at Burst quality with C2 off at minimum speed; agreement proves the drive's output is stable, and the result is labeled salvaged, never verified.">
                   <ComboBoxItem Content="Burst" />
                   <ComboBoxItem Content="Secure" />
                   <ComboBoxItem Content="Paranoid" />
+                  <ComboBoxItem Content="Salvage" />
                 </ComboBox>
               </DockPanel>
+              <DockPanel>
+                <TextBlock DockPanel.Dock="Left" Text="layout"
+                           FontFamily="{StaticResource Mono}" FontSize="11"
+                           Foreground="{DynamicResource Muted}"
+                           VerticalAlignment="Center" Margin="0,0,8,0" />
+                <ComboBox ItemsSource="{Binding OutputLayouts}"
+                          SelectedItem="{Binding SelectedOutputLayout}"
+                          HorizontalAlignment="Stretch"
+                          ToolTip.Tip="Tracks: one file per track. Image + embedded CUE: a single audio file with the cue sheet embedded." />
+              </DockPanel>
+              <Button Content="Artwork..."
+                      Click="OnArtworkClick"
+                      IsEnabled="{Binding IsDiscPresent}"
+                      HorizontalAlignment="Stretch" />
             </StackPanel>
           </Border>
 
