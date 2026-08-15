@@ -345,6 +345,48 @@ increment 1 gave both a neutral net8.0 TargetFramework. RipViewModel
 (2,290 lines, 27 WPF/Dispatcher touches) stays put: that is the D-054
 RipView parity surface, increment 5, behind the usual dispatcher seams.
 
+## 14. Damaged-disc session receipts (2026-08-14/15 night)
+
+The deliberate damaged-disc session on the ASUS (USB) banked two
+evidence rows and produced the complete D11 wedge characterization
+(fork `docs/review/2026-08-14-usb-wedge-finding.md`, decisions
+D-060..D-062, SLICE-011 brief).
+
+**Stuck-drive message, live (Paranoid Test & Copy, ~24 min in).** The
+run reproduced the wedge during eviction grinding; the engine failed
+closed and the drive bar carried the new guidance verbatim. The wedge
+was then probed while stuck (canned IllegalRequest/24/00 for every
+media command, kernel silent) and cured only by an enclosure power
+cycle; the guidance now leads with the power cycle (fork PR #38, pin
+PR #53).
+
+**StopOnUnrecoverable, live (verify, Stop on, 723 s).** Log receipt
+from the per-window diagnostic log, 2026-08-15 00:15:
+
+```
+00:15:01.187  rip.recovery  window=259200 pass=63 running=3 fresh=3/2400 speed=0x slip=0
+00:15:01.188  rip.reread    gave up on window at 85% unresolvedSectors=3 (unreadable by drive)
+00:15:01.190  rip           stop requested
+00:15:01.194  rip           stopped by user after 723s
+```
+
+Sixty-three passes over the damaged window at the recovery floor, the
+engine's give-up classification (3 sectors unreadable by drive, window
+abandoned at 85%), and the stop issued 2 ms after classification,
+never before it: the "applied only after the configured evidence and
+retry policy has classified a sector as unrecoverable" invariant,
+observed end to end. The drive released cleanly; the kernel logged
+nothing. (The "stopped by user" label is the shared stop path; the
+timestamps establish what pulled the trigger.)
+
+**Still unbanked:** the tie-break third read and the Held-state UX.
+Both need a damaged-disc Test & Copy completing both reads with a
+mismatch, which means Stop off and surviving roughly 50 minutes of
+grinding on hardware that has wedged at ~24 minutes twice. Next
+session's call: these rows either ride with SLICE-009 sign-off or
+transfer to the SLICE-011 live-evidence session, where a wedge
+mid-attempt is not a failure but the dialog's own test case.
+
 ---
 
 *Interview answered by: Daniel Boyd, 2026-08-13 (D-053..D-056).*
