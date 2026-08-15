@@ -1,6 +1,8 @@
 # CUETools Linux Slice Brief: SLICE-011 guided drive recovery
 
-Version: 0.1 Draft. Date: 2026-08-14. Status: Proposed.
+Version: 0.2. Date: 2026-08-14. Status: Approved for build
+(2026-08-15, D-064). Also carries the two evidence rows transferred
+from SLICE-009 (D-063): S11-007 and S11-008 below.
 Companion documents: ARCHITECTURE.md, ENGINEERING.md, DECISION-LOG.md,
 and the fork's `docs/review/2026-08-14-usb-wedge-finding.md` (the
 evidence this slice is built on).
@@ -104,6 +106,8 @@ content, hardware identity and counters only (scrub rule holds).
 | S11-004 | The failed operation is never resumed; "Retry now" starts a fresh calibrated run | Code inspection + live session |
 | S11-005 | An uncured ladder ends in the honest terminal state and records the incident as uncured | Headless test |
 | S11-006 | A payload-read wedge (outside cache defeat) reaches the same classification and dialog | Policy unit test |
+| S11-007 | Transferred from SLICE-009: a damaged-disc Test & Copy whose reads mismatch invokes the tie-break third read, with its CRC columns and resolution visible | Live session (Stop off) |
+| S11-008 | Transferred from SLICE-009: a post-Copy confirmation failure lands the staged set in the explicit Held state with both reads retained and paths reported | Live session, opportunistic |
 
 ## 9. Verification evidence required
 
@@ -137,5 +141,6 @@ content, hardware identity and counters only (scrub rule holds).
 
 ---
 
-*Approved for build by: pending (design approved by owner 2026-08-14).
-Until then, this brief is a proposal.*
+*Approved for build by: Daniel Boyd, 2026-08-15 (D-064). The live
+wedge session is owner-scheduled; everything before it builds under
+the standing autonomy grant.*

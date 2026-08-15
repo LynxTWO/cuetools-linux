@@ -1,9 +1,11 @@
 # CUETools Linux Slice Brief: SLICE-009 Rip
 
-Version: 0.1 Draft. Date: 2026-08-13. Status: Approved for build (the
-owner's rip mini-interview, D-053..D-056, answered every design
-question; built under the standing autonomy grant with hardware
-sessions owner-scheduled).
+Version: 1.0. Date: 2026-08-13. Status: Done with evidence (signed off
+by Daniel Boyd, 2026-08-15; built from the owner's rip mini-interview,
+D-053..D-056, under the standing autonomy grant with hardware sessions
+owner-scheduled). Two evidence rows (tie-break third read, Held-state
+UX) transferred to SLICE-011's live-evidence session by owner decision
+D-063; every other row is banked with receipts in sections 8-14.
 Companion documents: ARCHITECTURE.md, ENGINEERING.md, DECISION-LOG.md.
 
 ## 1. What the slice adds, and the shipping rule

@@ -796,6 +796,49 @@ OPTIONS CONSIDERED: Auto-resume the interrupted operation; resume with
 a re-verification pass; fresh run only (chosen).
 REVISIT WHEN: Never expected; supersede explicitly if doctrine changes.
 
+DECISION: D-063 SLICE-009 closed; two evidence rows transfer to
+SLICE-011
+STATUS: Confirmed
+CHOICE: SLICE-009 (rip) is Done with evidence, signed off 2026-08-15
+after the owner's extended live use of the rip surface across three
+drives, two published clean sets, and the damaged-disc session. The
+tie-break-third-read and Held-state-UX rows transfer to SLICE-011's
+live-evidence session as S11-007/S11-008.
+BECAUSE: Both rows need a ~50 minute damaged Test & Copy with Stop off
+on hardware that has wedged twice at ~24 minutes; inside SLICE-011's
+live session a mid-grind wedge is the recovery dialog's own test case
+instead of a lost run.
+OPTIONS CONSIDERED: Chase the rows the same night; leave the slice
+open.
+REVISIT WHEN: SLICE-011's live session closes (rows must be banked or
+explicitly re-dispositioned there).
+
+DECISION: D-064 Next slice is SLICE-011 guided drive recovery
+STATUS: Confirmed
+CHOICE: SLICE-011 is approved for build, selected over SLICE-010
+(progress visuals, stays Proposed and queued) and a settings page
+(candidate, needs its own mini-interview).
+BECAUSE: It completes the D11 story while the wedge knowledge is
+fresh, its mandatory live session doubles as the harvest for the
+transferred SLICE-009 rows, and most of it is testable without
+hardware.
+OPTIONS CONSIDERED: SLICE-010 progress visuals; settings page; pause
+building.
+REVISIT WHEN: SLICE-011 closes (SLICE-010 and the settings page are
+the standing candidates).
+
+DECISION: D-065 First Linux preview release waits for SLICE-011
+STATUS: Deferred
+CHOICE: The rip-slice completion trigger fired (D-063), and the owner
+chose to hold the first public preview until SLICE-011 lands, so the
+release ships with guided recovery rather than a known-unguided wedge
+behavior on USB drives.
+BECAUSE: Owner call 2026-08-15; supersedes the "after the rip slice
+completes" timing from 2026-08-14.
+OPTIONS CONSIDERED: Prepare the release immediately; revisit later
+with no named trigger.
+REVISIT WHEN: SLICE-011 section 11 closes with evidence.
+
 ---
 
 ## Slice growth tally

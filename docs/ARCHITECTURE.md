@@ -376,14 +376,25 @@ DECISION: D-025 Performance targets (see DECISION-LOG.md)
 
 ## 15. Current Build Boundary
 
-- **Current slice:** SLICE-002 Repair: CTDB parity repair inside the
-  Verify & Repair page (SLICE-002-repair.md). SLICE-001 is built and
-  evidenced except its two owner-side rows (S-007, S-008), which the owner
-  holds in parallel (D-036).
-- **Modules the slice touches:** Desktop shell (repair UI blocks,
-  RepairScope port), Shared app core (consumed).
-- **Modules the slice stubs:** none new; SLICE-001 stubs stand.
+- **Current slice:** SLICE-011 Guided drive recovery
+  (SLICE-011-guided-drive-recovery.md, approved for build 2026-08-15,
+  D-064). It also carries the two evidence rows transferred from
+  SLICE-009 (tie-break third read, Held-state UX; D-063).
+- **Modules the slice touches:** fork engine policy surfacing
+  (CUETools.Ripper.SCSI), shared app core (incident store, recovery
+  policy, RipViewModel hooks), desktop shell (recovery dialog,
+  re-enumeration watcher, TOC probe).
+- **Modules the slice stubs:** none.
+- **Built and closed:** SLICE-001 verify, SLICE-002 repair, SLICE-003
+  convert, SLICE-004 queue, SLICE-005 codec runtime, SLICE-006
+  settings persistence, SLICE-007 external encoders, SLICE-008
+  enrichment, SLICE-009 rip (signed off 2026-08-15; receipts in each
+  brief). SLICE-010 rip progress visuals is Proposed and queued.
 - **Everything else:** designed above, deliberately unbuilt.
+- **Housekeeping note (2026-08-15):** this section went stale between
+  SLICE-002 and SLICE-009 while the expansion loop ran fast; the
+  per-slice briefs stayed authoritative throughout. Corrected with the
+  SLICE-009 closure; keep updating it at every slice boundary.
 
 ---
 
