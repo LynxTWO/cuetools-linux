@@ -827,6 +827,62 @@ building.
 REVISIT WHEN: SLICE-011 closes (SLICE-010 and the settings page are
 the standing candidates).
 
+DECISION: D-066 The recovery probe lives in the fork's App.Core, not the
+Linux app
+STATUS: Confirmed
+CHOICE: IDriveRecoveryProbe, its Linux implementation, and the ladder
+state machine live in CUETools.App.Core in the fork. The brief's
+section 6 placed the watcher and TOC probe in the Linux app.
+BECAUSE: The drive-letter to sr-node mapping already exists twice in the
+fork, with comments in both places asking that the copies be kept in
+agreement (OpticalDriveLease and CUETools.Ripper.CDDrivesList). A third
+copy in a repository that cannot see the other two is exactly the drift
+this project exists to prevent. ARCHITECTURE.md section 5 also requires
+the interface in the fork regardless, and App.Core is plain net8.0, so
+the ladder is testable from both suites. PlatformInterfaces.cs was
+rejected as the home: it is a toolkit seam file whose single organizing
+idea is that the core never names a UI type, and a sysfs read names no
+UI type but is not a toolkit either.
+OPTIONS CONSIDERED: Linux app as the brief said; PlatformInterfaces.cs;
+fork App.Core in its own file (chosen).
+REVISIT WHEN: The owner rules, or WPF parity needs a different split.
+
+DECISION: D-067 A permissions failure records no incident
+STATUS: Confirmed
+CHOICE: When the probe cannot open the device for lack of permission,
+the ladder stops in its own terminal state and writes nothing to the
+incident store.
+BECAUSE: A permissions failure means no rung was ever tested. Recording
+it would write an incident with an empty curing rung, and an uncured
+incident breaks a drive's proven-cure streak, so a permissions problem
+would silently erase what the drive had already taught us.
+OPTIONS CONSIDERED: Record it as uncured; add a field distinguishing it
+(rejected: the incident type has no such field and adding one changes a
+persisted contract).
+REVISIT WHEN: Live evidence shows users hitting permissions often enough
+that the absence of a record hurts diagnosis.
+
+DECISION: D-068 The drive claim covers each probe, not the user's
+physical action
+STATUS: Confirmed
+CHOICE: The probe claims the drive before each TOC read and releases it
+immediately after. It does not hold the claim across the human rung
+(unplugging a cable, cutting power).
+BECAUSE: Two halves. Claiming at all is required - the probe opens the
+device and a TOC read moves the head, so probing a drive another window
+is ripping would corrupt that job's evidence; the CLAUDE.md rule to
+claim before querying identity applies. Not holding across the physical
+action is the departure from the same rule's "for the complete
+operation" wording: the lease is a file lock, not a device handle, so
+device disappearance never invalidates it. Holding it through an unplug
+would protect nothing while blocking the returning drive's legitimate
+owner, and both lease keys go stale anyway because the drive can return
+at a different node.
+OPTIONS CONSIDERED: Hold across the whole ladder (matches the wording,
+protects nothing, blocks a real owner); no claim at all (rejected: can
+corrupt another window's rip).
+REVISIT WHEN: The live session shows a claim conflict in practice.
+
 DECISION: D-065 First Linux preview release waits for SLICE-011
 STATUS: Deferred
 CHOICE: The rip-slice completion trigger fired (D-063), and the owner

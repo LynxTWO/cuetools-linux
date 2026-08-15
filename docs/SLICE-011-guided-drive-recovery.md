@@ -84,11 +84,16 @@ for the live pass; that gap, if taken, gets its own log entry.
 
 ## 6. Modules touched
 
-Fork: CUETools.Ripper.SCSI (signature surfacing), CUETools.App.Core
-(incident store, recovery policy, RipViewModel hooks). Linux app:
-recovery dialog + drive re-enumeration watcher (sysfs) + TOC probe
-(CDROM ioctl, unprivileged). All through existing seams; no engine
-retry-policy changes.
+Fork: CUETools.Ripper.SCSI (signature surfacing), Bwg.Scsi (one buffer
+ioctl helper), CUETools.App.Core (incident store, recovery policy,
+probe seam and its Linux implementation, ladder state machine,
+RipService detection, RipViewModel hooks). Linux app: the recovery
+dialog only. All through existing seams; no engine retry-policy
+changes.
+
+The probe and watcher moved from the Linux app to the fork after the
+increment-3 mapping pass; see decision D-066 for the reasoning and its
+Proposed status. The dialog itself remains Linux-side as planned.
 
 ## 7. Data subset
 
