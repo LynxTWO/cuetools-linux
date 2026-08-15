@@ -33,6 +33,25 @@ jobs:
       - name: Build, test, and verify submodule cleanliness
         run: ./eng/build.sh
 
+  # Advisory drift-prevention lane for the eventual macOS port (see
+  # docs/MACOS-ROADMAP.md): build the app and run the managed-only test
+  # subset on Apple silicon so the port starts from "compiles and the
+  # managed suite passes". Proves nothing about optical hardware, natives,
+  # or packaging; it is not a release lane and does not gate merges.
+  macos:
+    runs-on: macos-15
+    steps:
+      - uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1 # v7.0.1
+        with:
+          submodules: recursive
+
+      - uses: actions/setup-dotnet@a98b56852c35b8e3190ac28c8c2271da59106c68 # v6.0.0
+        with:
+          dotnet-version: '10.0.x'
+
+      - name: Build and test (managed-only)
+        run: ./eng/build.sh --managed-only
+
   package:
     runs-on: ubuntu-24.04
     steps:
