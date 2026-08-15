@@ -32,14 +32,19 @@ for arg in "$@"; do
   esac
 done
 
-mapfile -t LOCKFILES < <(git -C "$SUB" ls-files '*packages.lock.json')
+# No mapfile and no bare empty-array expansion here: macOS ships bash 3.2
+# and the macos CI lane runs this script with it (mapfile arrived in bash
+# 4; empty "${arr[@]}" trips set -u on 3.2).
+LOCKFILES=()
+while IFS= read -r f; do LOCKFILES+=("$f"); done \
+  < <(git -C "$SUB" ls-files '*packages.lock.json')
 restore_locks() {
   if [ "${#LOCKFILES[@]}" -gt 0 ]; then
-    git -C "$SUB" checkout --quiet -- "${LOCKFILES[@]}"
+    git -C "$SUB" checkout --quiet -- ${LOCKFILES[@]+"${LOCKFILES[@]}"}
   fi
 }
 trap restore_locks EXIT
-for f in "${LOCKFILES[@]}"; do rm -f "$SUB/$f"; done
+for f in ${LOCKFILES[@]+"${LOCKFILES[@]}"}; do rm -f "$SUB/$f"; done
 
 pwsh -NoProfile -File "$SUB/eng/ci/Prepare-VendorSources.ps1" \
   -RepositoryRoot "$PWD/$SUB"
