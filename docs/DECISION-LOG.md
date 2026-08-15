@@ -698,6 +698,55 @@ REVISIT WHEN: The second drive is connected (owner will say).
 
 ---
 
+DECISION: D-057 Rip progress lives on two surfaces plus the job bar
+STATUS: Confirmed
+CHOICE: Per-track progress renders in both the track grid (row fill with
+an active-track accent) and a new duration-proportional segmented track
+strip above the job bar; the job bar itself gains phase chip, mode chip,
+and a pass lane. Track boundaries come from the TOC, so Image + Embedded
+Cue behaves identically to per-track layouts.
+BECAUSE: Redundant on purpose: the strip is glanceable from across the
+room, the grid carries detail up close. AI recommendation differed (grid
+fill only); owner chose both surfaces.
+OPTIONS CONSIDERED: Grid row fill only (AI recommendation); segmented
+strip only; track wedges inside the existing DiscReadMap.
+REVISIT WHEN: The 1200 px legibility check (S10-007) fails for
+high-track-count discs.
+
+DECISION: D-058 Progress visual language: phase by shape, mode by
+mechanics, damage by literal ticks
+STATUS: Confirmed
+CHOICE: Test renders hollow with a TEST chip, Copy solid with a COPY
+chip (shape carries the distinction; hue is secondary). A test-completed
+track keeps its hollow outline under the later Copy fill (phase memory,
+mirroring the immutable phase-evidence rule). Mode shows as a chip plus
+a job-bar pass lane with literal pass ticks; Burst has no lane. Strip
+segments whose sectors needed rereads gain an amber edge tick with
+literal counts in the tooltip; grid rows stay pure progress. Terminal
+states are two: clean, and completion-with-unrecoverable (red edge,
+literal failed count). Routine corrections do not mark.
+BECAUSE: Colorblind-safe by construction, and every displayed element
+maps to a real engine event or literal counter, per the standing
+honesty rules of the rip visuals.
+OPTIONS CONSIDERED: Hue-only phase distinction; stacked phase lanes;
+pattern fills; mode color themes; per-pass fill texture; three-state
+terminals including corrections; damage heat-mapping on the strip.
+REVISIT WHEN: Live evidence shows the language misreads on real runs.
+
+DECISION: D-059 SLICE-010 boundary: Linux controls over shared VM state
+STATUS: Confirmed
+CHOICE: Track-progress state, phase, mode, and per-track counters land
+in the shared RipViewModel (fork App.Core) with unit tests; the two new
+controls and job-bar enrichment are Avalonia-only this slice. WPF
+parity is a named extension point: port the two controls, the VM
+already speaks the language.
+BECAUSE: Both heads inherit the state for free; UI work stays scoped to
+the head that can produce evidence on this machine.
+OPTIONS CONSIDERED: Both heads in one slice.
+REVISIT WHEN: The WPF parity slice is selected.
+
+---
+
 ## Slice growth tally
 
 Running list of confirmed decisions that enlarge the initial slice concept.
