@@ -747,6 +747,57 @@ REVISIT WHEN: The WPF parity slice is selected.
 
 ---
 
+DECISION: D-060 Drive recovery is guided and physical; the app never
+resets hardware
+STATUS: Confirmed
+CHOICE: The stuck-drive recovery dialog walks the user through physical
+rungs only: USB cable replug, then power cycle, each with a visual and
+each verified live by the app (re-enumeration watch plus an
+unprivileged TOC probe). No software reset rungs, no sudo helpers, no
+elevation.
+BECAUSE: Live characterization (fork finding doc, 2026-08-14) proved
+every host-side reset useless on real wedged hardware - SCSI device
+reset, host reset, USB port reset, even a full cable replug with power
+maintained - and all software rungs need privileges the app does not
+have. The owner proposed auto-run software rungs; the evidence removed
+them, and the owner accepted the physical-only refinement.
+OPTIONS CONSIDERED: Auto-run software reset ladder (owner's first
+sketch); physical-only guided ladder (chosen); message-only status quo.
+REVISIT WHEN: Any drive is observed curing on a host-issuable reset.
+
+DECISION: D-061 Per-drive incident memory with lead-with-known-cure
+STATUS: Confirmed
+CHOICE: Each wedge incident is recorded per drive identity (timestamp,
+trigger-context counters, rungs attempted, curing rung). After the same
+rung cures twice consecutively for a drive, the dialog leads with that
+rung and offers "skip to what worked before"; the full ladder stays
+reachable. Records carry hardware identity and counters only.
+BECAUSE: Mirrors the drive-calibration precedent of persisting proven
+per-drive facts. Owner proposed learning after three occurrences; the
+two-consecutive-cures refinement was accepted (the rungs are human
+actions, so only the order changes and nothing is locked out).
+OPTIONS CONSIDERED: Fixed three-strike threshold (owner's first
+sketch); two consecutive cures with full ladder reachable (chosen); no
+memory.
+REVISIT WHEN: Incident data shows drives alternating cures.
+
+DECISION: D-062 A cured drive gets a fresh run, never a resumed one
+STATUS: Confirmed
+CHOICE: After a verified cure the dialog offers "Retry now," which
+starts a new operation through the normal calibrated paths. The failed
+transaction stays failed. An uncured ladder ends in an honest terminal
+state (different port or cable, possible service) and is recorded as
+uncured. The wedge signature also gains surfacing from ordinary
+payload-read storms, not just cache defeat, before the dialog ships.
+BECAUSE: The failed operation's secure-independence was already
+unprovable; fail-closed doctrine holds. Detection breadth keeps the
+dialog reachable from every place the wedge can actually appear.
+OPTIONS CONSIDERED: Auto-resume the interrupted operation; resume with
+a re-verification pass; fresh run only (chosen).
+REVISIT WHEN: Never expected; supersede explicitly if doctrine changes.
+
+---
+
 ## Slice growth tally
 
 Running list of confirmed decisions that enlarge the initial slice concept.
