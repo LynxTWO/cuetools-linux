@@ -11,7 +11,7 @@ dated report, and a `.toc` file listing the disc layout.
 
 | Item | What to know |
 | --- | --- |
-| Input | An album folder, a CUE sheet (`.cue`), an `.m3u` playlist, or a lossless audio file. Multi-disc albums work when each disc has its own CUE sheet or playlist. |
+| Input | An album folder, a CUE sheet (`.cue`), a playlist (`.m3u` or `.m3u8`), or a lossless audio file. Multi-disc albums work when each disc has its own CUE sheet or playlist. |
 | Result | An on-screen verdict for each disc, plus a `.accurip` report and a `.toc` file next to each disc's files. |
 | Original files | Read only. Verify does not change your audio files or their tags. |
 | Network | The database checks contact AccurateRip and CTDB. Without a connection the run still completes; see [What happens next](#what-happens-next). |
@@ -97,7 +97,7 @@ Each disc card carries an outcome chip in its top-right corner:
 | Chip | Color | What it means | What to do next |
 | --- | --- | --- | --- |
 | `DATABASE VERIFIED` | green | At least one database confirmed this disc's audio. | Nothing; the rip matches other people's rips, so you're all set. |
-| `NOT DATABASE-CONFIRMED` | neutral | The disc was read and checksummed, but neither database confirmed it. That covers three situations: no database knows this [pressing](glossary.md#pressing), a database holds rips for the layout but none match yours, or a lookup did not complete. | Read both panels and the message line under the track table, which says which one happened. |
+| `NOT DATABASE-CONFIRMED` | neutral | The disc was read and checksummed, but neither database confirmed it. That covers three situations: no database knows this [pressing](glossary.md#pressing), a database holds rips for the layout but none match yours, or a lookup did not complete. | Read both panels; each says which of the three happened for that database. |
 | `REPAIRABLE` | amber | CTDB found damage it can repair. A repair that ran and failed leaves this chip unchanged, because the damage and the parity are both still there. | Press **Repair this disc**; see [repair](repair.md). If a repair already failed, read the card's status line before pressing it again. |
 | `REPAIRED + VERIFIED` | green | A repaired copy was built and [independently verified](glossary.md#independently-verified). The card shows where it was saved. | Use the repaired copy. |
 | `FAILED` | red | The disc could not be verified; the card's status line shows the error. | Fix what the message names (for example a track file that was moved or renamed after you loaded the album, or a file this build has no codec for), then verify again. |
@@ -110,7 +110,8 @@ The ACCURATERIP panel reports the comparison with other people's rips:
 | --- | --- |
 | `accurate \| confidence 4` | Every track matched other people's rips, and the least-matched track agreed with 4 of them. The album number describes the whole disc by reporting its weakest track's [confidence](glossary.md#confidence). |
 | `no match \| 0/82` | The disc is known to AccurateRip, and your rip matches none of the submissions. The second number is the smallest per-track submission count on the disc. |
-| `not in database` | AccurateRip returned nothing for this disc. Usually that means no one has submitted this [pressing](glossary.md#pressing), but a lookup that failed reads the same way. The message line under the track table says which. |
+| `not in database` | AccurateRip answered, and has no record of this [pressing](glossary.md#pressing). Nobody has submitted it yet. |
+| `lookup failed` | AccurateRip could not be reached, or answered with an error, so it never gave a verdict on this disc. |
 | `not checked` | This disc has no completed result yet, either because it has not run or because it failed. |
 
 The CUETOOLS DB panel reports the CTDB comparison:
@@ -120,14 +121,17 @@ The CUETOOLS DB panel reports the CTDB comparison:
 | `verified \| confidence 207` | Your audio matches CTDB exactly, and 207 submitted rips stand behind that match. The number counts submissions, not database entries. |
 | `damage found \| parity available` | CTDB matched the disc closely enough to locate damage, and holds the recovery data to repair it. **Repair this disc** appears on the card. |
 | `no exact match \| 3 entries` | CTDB returned rips for this disc layout, or for a near variant of it, and none of them counts as a match for your disc. Read the number as submitted rips rather than entries, despite the panel's wording. This usually means you have a different [pressing](glossary.md#pressing) with a similar track layout, or damage past what the stored [parity](glossary.md#parity) can rebuild. A rip that matches audio belonging to a variant layout also lands here, because the layouts have to agree too. |
-| `not found` | CTDB returned nothing for this disc. As with AccurateRip, a lookup that failed reads the same way; the message line says which. |
+| `not found` | CTDB answered, and does not have this disc. |
+| `lookup failed` | CTDB could not be reached, or answered with an error, so it never gave a verdict on this disc. |
 | `not checked` | This disc has no completed result yet, either because it has not run or because it failed. |
 
 ![The Verify and Repair page showing an album neither database knows. The album verdict reads "Verification complete - review the evidence" with the tally "1 not database-confirmed". The disc chip reads NOT DATABASE-CONFIRMED, the ACCURATERIP panel reads "not in database", the CUETOOLS DB panel reads "not found", and both per-track confidence columns show dashes. A message line under the table reads "AR: disk not present in database, CTDB: database access error: There is an error in XML document (0, 0)."](2026-08-11-verify-fixture-dark.png)
 
-*Two panels, two different reasons. AccurateRip genuinely does not have
-this disc, while the CTDB lookup failed outright. The panels look alike;
-the message line underneath tells them apart.*
+*Two panels, two different reasons: AccurateRip genuinely does not have
+this disc, while the CTDB lookup failed outright. This screenshot is from
+an older build, where both cases read the same way and only the message
+line underneath told them apart. On a current build the CTDB panel says
+`lookup failed` here.*
 
 ### Track evidence
 
@@ -239,12 +243,20 @@ verdict just found the match at the pressing's
 [read offset](glossary.md#read-offset). See
 [Track evidence](#track-evidence).
 
+### A panel says "lookup failed"
+
+That database could not be reached, or it answered with an error, so it
+never judged your disc. This is not a verdict about your audio. The
+message line under the track table carries the underlying error. Verify
+the album again once your connection is working; if the run was fully
+offline, the check is queued and repeats on its own.
+
 ### A panel says "not in database" or "not found" and you expected a match
 
-Both texts also appear when the lookup itself did not complete. Read the
-message line under the track table: it distinguishes a genuine "disk not
-present in database" from an error reaching the service. If it reports
-an error, verify the album again once your connection is working.
+The database answered, and does not have this [pressing](glossary.md#pressing).
+That is common for rare or regional pressings, and for discs whose track
+layout differs slightly from the one other people submitted. It is not an
+error, and it says nothing about whether your rip is good.
 
 ### The status line ends with "Offline: database verification queued for automatic backfill."
 
