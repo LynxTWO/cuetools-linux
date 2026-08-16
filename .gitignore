@@ -4,3 +4,9 @@ obj/
 .vs/
 .idea/
 docs/site/
+
+# App state a test run leaves behind when it starts in the repo root:
+# diagnostics, drive leases, the AccurateRip offset cache, the theme file.
+/CUETools2026/
+/cuetools-linux/
+/CUE Tools/

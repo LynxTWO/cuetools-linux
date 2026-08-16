@@ -17,6 +17,7 @@ Usage: python3 eng/build-manual.py   (writes docs/site/)
 """
 
 import html
+import json
 import re
 import shutil
 from pathlib import Path
@@ -42,6 +43,23 @@ PAGES = [
     ("enrich", "Enrich"),
     ("settings", "Settings"),
     ("glossary", "Glossary"),
+]
+
+# The landing page is organised by what the reader came to do, not by the
+# reading order in the sidebar.
+LANDING_CARDS = [
+    ("verify", "Check a rip you already have",
+     "Compare an album on disk against two community databases and read the verdict."),
+    ("repair", "Fix a damaged album",
+     "Rebuild damaged audio from CTDB recovery data, into a new copy."),
+    ("rip", "Rip a CD",
+     "Read a disc, check it as it goes, and publish the result."),
+    ("convert", "Convert an album",
+     "Re-encode a whole album into another format without touching the original."),
+    ("install", "Install and run it",
+     "What your system needs, how to install, and what leaves your machine."),
+    ("codecs", "See what formats work",
+     "Which audio formats this build reads and writes, and their limits."),
 ]
 
 NOTE_BANNER = (
@@ -174,11 +192,98 @@ footer {
   color: var(--muted); border-top: 1px solid var(--line);
   margin-top: 40px; padding-top: 14px; font-size: 12.5px;
 }
+.sr-only {
+  position: absolute; width: 1px; height: 1px; padding: 0; margin: -1px;
+  overflow: hidden; clip: rect(0 0 0 0); white-space: nowrap; border: 0;
+}
+nav .search { margin: 0 0 14px; }
+nav .search input {
+  width: 100%; background: var(--ground); color: var(--ink);
+  border: 1px solid var(--line); border-radius: 6px;
+  padding: 7px 10px; font: inherit; font-size: 13px;
+  font-family: ui-monospace, 'Cascadia Mono', monospace;
+}
+nav .search input::placeholder { color: var(--muted); }
+nav .search input:focus {
+  outline: none; border-color: var(--teal);
+}
+#results .noresults {
+  color: var(--muted); font-size: 13px; padding: 4px 10px;
+}
+a.result {
+  display: block; padding: 8px 10px; margin-bottom: 4px;
+  border-radius: 6px; text-decoration: none; border: 1px solid transparent;
+}
+a.result:hover, a.result:focus-visible {
+  background: var(--face); border-color: var(--line);
+}
+a.result .rpage {
+  display: block; font-family: ui-monospace, monospace; font-size: 9.5px;
+  letter-spacing: 0.1em; text-transform: uppercase; color: var(--teal);
+}
+a.result .rtitle {
+  display: block; color: var(--ink); font-size: 13.5px; margin: 2px 0 1px;
+}
+a.result .rtext {
+  display: block; color: var(--muted); font-size: 12px; line-height: 1.45;
+}
+.pager {
+  display: flex; gap: 12px; justify-content: space-between;
+  margin-top: 42px; padding-top: 18px; border-top: 1px solid var(--line);
+}
+.pager a {
+  flex: 1 1 0; min-width: 0; text-decoration: none;
+  border: 1px solid var(--line); border-radius: 8px;
+  padding: 10px 14px; background: var(--panel);
+}
+.pager a:hover { border-color: var(--teal); }
+.pager a.next { text-align: right; }
+.pager .dir {
+  display: block; font-family: ui-monospace, monospace; font-size: 9.5px;
+  letter-spacing: 0.1em; text-transform: uppercase; color: var(--muted);
+}
+.pager .name { display: block; color: var(--ink); font-size: 14.5px; }
+.cards {
+  display: grid; grid-template-columns: repeat(auto-fit, minmax(232px, 1fr));
+  gap: 14px; margin: 6px 0 26px;
+}
+.cards a {
+  display: block; text-decoration: none; padding: 15px 17px;
+  background: var(--panel); border: 1px solid var(--line); border-radius: 10px;
+}
+.cards a:hover { border-color: var(--teal); }
+.cards .ctitle {
+  display: block; color: var(--ink); font-size: 16px; margin-bottom: 5px;
+}
+.cards .cwhat {
+  display: block; color: var(--ink-dim); font-size: 13.5px; line-height: 1.5;
+}
 @media (max-width: 760px) {
   .layout { flex-direction: column; }
   nav { width: auto; min-height: 0; border-right: none;
         border-bottom: 1px solid var(--line); }
   main { padding: 24px 18px 48px; }
+  .pager { flex-direction: column; }
+  .pager a.next { text-align: left; }
+}
+@media print {
+  body { background: #fff; color: #111; font-size: 11pt; }
+  header, nav, .pager, footer { display: none; }
+  .layout { display: block; max-width: none; }
+  main { padding: 0; }
+  main h1, main h3, main strong, main .cards .ctitle { color: #000; }
+  main h2 {
+    color: #000; font-size: 12pt; border-bottom: 1px solid #999;
+    padding-bottom: 3px;
+  }
+  main a { color: #000; text-decoration: underline; }
+  main a[href^="http"]::after { content: " (" attr(href) ")"; font-size: 9pt; }
+  main code, main pre, main th, main td, .cards a {
+    background: #fff; border-color: #999; color: #000;
+  }
+  main figure, main table, main pre { break-inside: avoid; }
+  main h2, main h3 { break-after: avoid; }
+  main img { max-width: 60%; }
 }
 """
 
@@ -197,17 +302,109 @@ SHELL = """<!DOCTYPE html>
 </header>
 <div class="layout">
 <nav>
+  <form class="search" role="search" onsubmit="return false">
+    <label class="sr-only" for="q">Search the manual</label>
+    <input id="q" type="search" placeholder="Search the manual"
+           autocomplete="off" spellcheck="false">
+  </form>
+  <div id="results" hidden></div>
+  <div id="chapters">
   <p class="group">MANUAL</p>
 {nav}
+  </div>
 </nav>
 <main>
 {body}
+{footer_nav}
 <footer>CUETools Linux - GPL-2.0-or-later. Every number in this manual is
 a measured value from the evidence runs recorded in the repository.</footer>
 </main>
 </div>
+<script id="search-index" type="application/json">{index}</script>
+<script>{script}</script>
 </body>
 </html>
+"""
+
+SCRIPT = """
+(function () {
+  var box = document.getElementById('q');
+  var results = document.getElementById('results');
+  var chapters = document.getElementById('chapters');
+  var raw = document.getElementById('search-index');
+  if (!box || !results || !chapters || !raw) return;
+  var index;
+  try { index = JSON.parse(raw.textContent); } catch (e) { return; }
+
+  function render(matches, query) {
+    if (!query) {
+      results.hidden = true;
+      chapters.hidden = false;
+      return;
+    }
+    chapters.hidden = true;
+    results.hidden = false;
+    if (!matches.length) {
+      results.innerHTML = '<p class="noresults">Nothing matches ' +
+        '&ldquo;' + query.replace(/[<>&]/g, '') + '&rdquo;.</p>';
+      return;
+    }
+    var html = '<p class="group">' + matches.length + ' RESULT' +
+      (matches.length === 1 ? '' : 'S') + '</p>';
+    matches.forEach(function (m) {
+      html += '<a class="result" href="' + m.href + '">' +
+        '<span class="rpage">' + m.page + '</span>' +
+        '<span class="rtitle">' + m.title + '</span>' +
+        '<span class="rtext">' + m.text + '</span></a>';
+    });
+    results.innerHTML = html;
+  }
+
+  function search(query) {
+    var terms = query.toLowerCase().split(/\\s+/).filter(Boolean);
+    if (!terms.length) return [];
+    var scored = [];
+    index.forEach(function (entry) {
+      var hay = (entry.title + ' ' + entry.page + ' ' + entry.text).toLowerCase();
+      var score = 0;
+      for (var i = 0; i < terms.length; i++) {
+        var at = hay.indexOf(terms[i]);
+        if (at < 0) return;
+        score += entry.title.toLowerCase().indexOf(terms[i]) >= 0 ? 12 : 1;
+        score += at < 90 ? 3 : 0;
+      }
+      scored.push({ entry: entry, score: score });
+    });
+    scored.sort(function (a, b) { return b.score - a.score; });
+    return scored.slice(0, 24).map(function (s) { return s.entry; });
+  }
+
+  var last = '';
+  box.addEventListener('input', function () {
+    var query = box.value.trim();
+    if (query === last) return;
+    last = query;
+    render(query ? search(query) : [], query);
+  });
+  box.addEventListener('keydown', function (event) {
+    if (event.key === 'Escape') {
+      box.value = '';
+      last = '';
+      render([], '');
+      box.blur();
+    }
+    if (event.key === 'Enter') {
+      var first = results.querySelector('a.result');
+      if (first) window.location.href = first.getAttribute('href');
+    }
+  });
+  document.addEventListener('keydown', function (event) {
+    if (event.key === '/' && document.activeElement !== box) {
+      event.preventDefault();
+      box.focus();
+    }
+  });
+})();
 """
 
 # Filled by load_glossary(); anchor -> short definition.
@@ -469,6 +666,62 @@ def load_glossary() -> None:
     commit()
 
 
+TAG = re.compile(r"<[^>]+>")
+
+
+def search_entries(slug: str, title: str, body: str) -> list[dict]:
+    """One entry per section: its heading, and the prose that opens it.
+
+    The index is inlined into every page, so it stays small on purpose. Section
+    headings plus a snippet answer "which page and where" - the reader lands on the
+    anchor and reads the rest there.
+    """
+    entries: list[dict] = []
+    sections = re.split(r'<h([23]) id="([^"]+)">(.*?)</h[23]>', body)
+    # sections[0] is whatever precedes the first heading
+    lead = TAG.sub(" ", sections[0])
+    lead = html.unescape(re.sub(r"\s+", " ", lead)).strip()
+    if lead:
+        entries.append({
+            "page": title, "title": title, "href": f"{slug}.html",
+            "text": lead[:180],
+        })
+    for level, anchor, heading, content in zip(
+            sections[1::4], sections[2::4], sections[3::4], sections[4::4]):
+        text = TAG.sub(" ", content)
+        text = html.unescape(re.sub(r"\s+", " ", text)).strip()
+        entries.append({
+            "page": title,
+            "title": html.unescape(TAG.sub("", heading)),
+            "href": f"{slug}.html#{anchor}",
+            "text": text[:180],
+        })
+    return entries
+
+
+def pager(slug: str) -> str:
+    order = [s for s, _ in PAGES]
+    if slug not in order:
+        return ""
+    at = order.index(slug)
+    titles = dict(PAGES)
+    parts = ['<nav class="pager" aria-label="Manual pages">']
+    if at > 0:
+        previous = order[at - 1]
+        parts.append(
+            f'<a class="prev" href="{previous}.html">'
+            f'<span class="dir">Previous</span>'
+            f'<span class="name">{titles[previous]}</span></a>')
+    if at < len(order) - 1:
+        following = order[at + 1]
+        parts.append(
+            f'<a class="next" href="{following}.html">'
+            f'<span class="dir">Next</span>'
+            f'<span class="name">{titles[following]}</span></a>')
+    parts.append("</nav>")
+    return "\n".join(parts) if len(parts) > 2 else ""
+
+
 def source_for(slug: str) -> tuple[Path, bool]:
     """The published source for a topic, and whether it is a raw note."""
     page = PAGES_DIR / f"{slug}.md"
@@ -516,29 +769,46 @@ def main() -> None:
         if source.exists():
             shutil.copy2(source, OUT / "img" / image)
 
+    entries: list[dict] = []
+    for slug, title in PAGES:
+        entries.extend(search_entries(slug, title, bodies[slug]))
+    index_json = json.dumps(entries, separators=(",", ":"))
+
     for slug, title in PAGES:
         nav = "\n".join(
             f'  <a href="{s}.html"{" class=\"current\"" if s == slug else ""}>{t}</a>'
             for s, t in PAGES)
-        page = SHELL.format(title=title, css=CSS, nav=nav, body=bodies[slug])
+        page = SHELL.format(title=title, css=CSS, nav=nav, body=bodies[slug],
+                            footer_nav=pager(slug), index=index_json, script=SCRIPT)
         (OUT / f"{slug}.html").write_text(page)
 
-    index = SHELL.format(
+    cards = "\n".join(
+        f'<a href="{slug}.html"><span class="ctitle">{title}</span>'
+        f'<span class="cwhat">{what}</span></a>'
+        for slug, title, what in LANDING_CARDS)
+    index_page = SHELL.format(
         title="Manual", css=CSS,
         nav="\n".join(f'  <a href="{s}.html">{t}</a>' for s, t in PAGES),
+        footer_nav="", index=index_json, script=SCRIPT,
         body=(
             "<h1>The CUETools Linux Manual</h1>"
-            "<p>CUETools Linux verifies, repairs, converts, and enriches CD rips "
-            "against the AccurateRip and CUETools databases - the native Linux "
-            "port of CUETools 2026. Start with <a href='install.html'>Install "
-            "&amp; Run</a>, or jump to any page on the left.</p>"
-            "<p>Everything this manual claims is backed by a recorded evidence "
-            "run; where a number appears, it was measured.</p>"))
-    (OUT / "index.html").write_text(index)
+            "<p>CUETools Linux checks CD rips against the AccurateRip and CUETools "
+            "databases, repairs damaged ones, converts between lossless formats, and "
+            "rips discs itself. It is the native Linux port of CUETools 2026.</p>"
+            "<h2 id=\"start-with-what-you-want-to-do\">Start with what you want to do</h2>"
+            f'<div class="cards">{cards}</div>'
+            "<h2 id=\"about-this-manual\">About this manual</h2>"
+            "<p>Every claim here was checked against the running program or its source "
+            "code. Where a number appears, it was measured. Anything the project has not "
+            "verified yet is recorded separately rather than guessed at, and terms you "
+            "may not know link to the <a href=\"glossary.html\">glossary</a>.</p>"
+            "<p>Press <code>/</code> to search from any page.</p>"))
+    (OUT / "index.html").write_text(index_page)
     print(f"manual: {len(PAGES) + 1} pages "
           f"({len(PAGES) - len(notes_published)} rewritten, "
           f"{len(notes_published)} still notes: {', '.join(notes_published)}), "
-          f"{len(GLOSSARY)} glossary terms, {len(used_images)} images -> {OUT}")
+          f"{len(GLOSSARY)} glossary terms, {len(entries)} search entries, "
+          f"{len(used_images)} images -> {OUT}")
 
 
 if __name__ == "__main__":

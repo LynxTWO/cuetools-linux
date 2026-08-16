@@ -895,6 +895,69 @@ OPTIONS CONSIDERED: Prepare the release immediately; revisit later
 with no named trigger.
 REVISIT WHEN: SLICE-011 section 11 closes with evidence.
 
+DECISION: D-069 CTDB submission is asked once and remembered
+STATUS: Confirmed
+CHOICE: The first eligible disc after a completed verify or a published
+rip raises a consent dialog with a remember checkbox, writing
+`advanced.CTDBSubmit` and clearing `advanced.CTDBAsk`. Both keys already
+round-trip through the Linux settings store, so no settings format
+change is needed. Nothing is uploaded before an explicit yes.
+BECAUSE: Owner call 2026-08-16. Matches the classic Windows heads
+exactly, which keeps one consent model across every CUETools surface.
+OPTIONS CONSIDERED: Explicit per-disc button only (rejected: nobody
+finds it, so the contribution never happens); ask every time (rejected:
+becomes click-through noise on a batch); rips only (rejected: loses most
+of the volume, since verified albums from elsewhere are the unknown
+pressings worth contributing).
+REVISIT WHEN: A settings page gives the answer another home, or feedback
+says the prompt is unwelcome.
+
+DECISION: D-070 Only rips without unrecoverable errors may be submitted
+STATUS: Confirmed
+CHOICE: Salvaged output, held Test and Copy results, and rips carrying
+unrecoverable windows are not eligible to submit. Eligible discs send
+the classic quality value of 100.
+BECAUSE: Owner call 2026-08-16. Known-suspect audio must not enter the
+database claiming perfect quality, which is what classic's unconditional
+`quality: 100` allows today.
+OPTIONS CONSIDERED: Full classic parity (rejected for the reason above);
+confirmed discs only (rejected: contributes almost nothing, since
+unknown pressings are exactly the unconfirmed ones).
+REVISIT WHEN: A real quality value is computed from rip evidence instead
+of a constant. That follow-up is expected and is carried in SLICE-012.
+
+DECISION: D-071 The engine learns to read .m3u8
+STATUS: Confirmed
+CHOICE: `CUESheet` widens its exact `.m3u` extension comparisons to
+accept `.m3u8`, so the extension that discovery already accepts and the
+file picker already offers becomes real.
+BECAUSE: Owner call 2026-08-16. Discovery and the picker accept `.m3u8`
+today while the engine recognises only `.m3u`, so the app offers a file
+it then fails to open.
+OPTIONS CONSIDERED: Remove `.m3u8` from discovery and the picker
+(rejected: takes a capability away rather than delivering it).
+REVISIT WHEN: A playlist format needs handling beyond the extension, for
+example encoding rules that differ between the two.
+
+DECISION: D-072 The manual ships as a human layer over the engineering notes
+STATUS: Confirmed
+CHOICE: `docs/manual/pages/` holds the manual a user reads, written from
+a task outline and fact-checked against source. `docs/manual/notes/`
+stays the engineering record. The generator publishes a page when one
+exists and falls back to its note with a banner. `VOICE.md` records the
+wording rules, and conflicting or unverified claims go to
+`needs-verification.md` rather than into print.
+BECAUSE: Owner call 2026-08-15, after an external review found the notes
+read as a defence of the software rather than help for a reader. The
+first rewritten page's fact check then found 25 real defects, most of
+them inherited from the notes, which settled the "rewrite from source,
+never polish the note" rule.
+OPTIONS CONSIDERED: Polish the notes in place (rejected: preserves the
+engineering skeleton and its errors); one layer only, replacing the
+notes (rejected: the receipts are worth keeping).
+REVISIT WHEN: Every note has a rewritten page and the fallback path is
+dead code.
+
 ---
 
 ## Slice growth tally

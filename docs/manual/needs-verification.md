@@ -130,11 +130,13 @@ the Verify file picker offers both. The engine only recognises `.m3u`:
 `CUESheet.cs` compares extensions against `".m3u"` exactly at lines 820,
 859, 1195, and 4608.
 
-Status: unresolved, and it looks like a real defect rather than a
-documentation problem. Load an `.m3u8` playlist and record what happens.
-`pages/verify.md` currently promises only `.m3u`. If the engine cannot
-open `.m3u8`, either teach it the extension or stop accepting it in
-discovery, so the picker does not offer a file that fails later.
+Status: RESOLVED 2026-08-16 by fixing the app (D-071). The engine was
+the problem, and `CUESheet.IsPlaylistExtension` now answers for both
+extensions at all four comparison sites. Covered by
+`PlaylistExtensionTests` in the fork and
+`LookupStatusAndPlaylistTests.Utf8PlaylistsAreAcceptedByDiscoveryAndTheEngine`
+on the Linux side. The manual may promise `.m3u8` from the pin bump
+that carries the fix.
 
 ## 11. "not found" and "not in database" hide lookup failures
 
@@ -146,11 +148,13 @@ the CTDB panel reads `not found` while the message line underneath reads
 "CTDB: database access error: There is an error in XML document (0, 0)"
 (the O-001 quirk).
 
-Status: documented rather than fixed. `pages/verify.md` tells the reader
-to check the message line, and its troubleshooting section covers the
-case. The product question stands: the panel arguably should say
-"lookup failed" rather than "not found", which would let the manual drop
-the caveat.
+Status: RESOLVED 2026-08-16 by fixing the app. `VerifyFilesResult` now
+carries `ArLookupFailed` and `CtdbLookupFailed`, set when the status is
+anything other than success or a genuine 404, and the panels say
+`lookup failed`. Covered by `LookupStatusAndPlaylistTests`, including
+the case where a database answered before failing: a real verdict still
+wins over the failure wording. The manual's caveat comes out with the
+pin bump that carries the fix.
 
 ## 12. "Selected files must belong to the same album location" may be unreachable on Linux
 
@@ -161,8 +165,11 @@ two mounted disks, does not trigger it. The message that actually fires
 when a folder is mixed with other items is "Drop one album folder at a
 time, or select manifest files from one album."
 
-Status: unresolved. `pages/verify.md` documents the reachable message
-and leaves this one out. Confirm whether the path-root check can fire on
-Linux at all; if it cannot, either drop it or replace it with a check
-that means what its text says.
+Status: RESOLVED 2026-08-16 by fixing the app. The path-root test is
+kept, because it does real work on Windows, and a second test now
+rejects a selection whose nearest common ancestor is the filesystem
+root, which is reachable on any platform. Covered by
+`LookupStatusAndPlaylistTests.FilesFromUnrelatedFoldersAreRejectedOnLinuxToo`,
+which also pins the case that must keep working: two folders under a
+shared parent are a legitimate multi-disc selection.
 

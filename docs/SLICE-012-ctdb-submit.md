@@ -1,7 +1,8 @@
 # CUETools Linux Slice Brief: SLICE-012 CTDB submission
 
-Version: 0.1. Date: 2026-08-15. Status: Proposed, pending owner
-decisions D-069 to D-071 below.
+Version: 0.2. Date: 2026-08-16. Status: Approved for build (D-069,
+D-070, recorded 2026-08-16). The policy and service are built; the
+consent surface and the live evidence run are the remaining work.
 Companion documents: ARCHITECTURE.md, DECISION-LOG.md, and
 `docs/manual/pages/verify.md` (the manual text that changes when this
 ships).
@@ -82,22 +83,42 @@ When this ships, three manual texts change:
   trigger, since the current text describes submissions without saying
   what causes one.
 
-## 5. Owner decisions needed
+## 5. Owner decisions, recorded 2026-08-16
 
-- **D-069 - when is submission offered?** After a completed verify,
-  after a published rip, both, or only from an explicit button. The
-  classic head submits at the end of a processing run.
-- **D-070 - default answer.** Ask once and remember (classic
-  behavior), or off until the user turns it on in settings. Linux has
-  no settings page yet, which argues for ask-once.
-- **D-071 - what quality value.** The classic head hardcodes `quality:
-  100`. Confirm that is right for a modern secure rip, and what a
-  Salvage-quality or partially unrecoverable rip should send, if
-  anything.
+- **D-069: ask once, then remember.** The first eligible disc after a
+  completed verify or a published rip raises one consent dialog with a
+  remember checkbox, writing `advanced.CTDBSubmit` and clearing
+  `advanced.CTDBAsk`. Nothing uploads before an explicit yes.
+- **D-070: only reads without unrecoverable errors.** Salvaged output,
+  held Test and Copy results, and rips carrying unrecoverable windows
+  are ineligible whatever the databases said. Eligible discs send the
+  classic quality value of 100. A real quality value computed from rip
+  evidence is a named follow-up, not part of this slice.
 
-Additional constraint to confirm: whether a rip with unrecoverable
-windows (`CONSISTENT`, salvaged, or held) may be submitted at all. The
-conservative default is no.
+A failed lookup also blocks submission: when the database never
+answered, its view of this disc is unknown, and submitting risks
+duplicating an entry it already holds. That falls out of the same fix
+that separated `lookup failed` from `not found`.
+
+## 5a. What is built
+
+`CUETools.App.Core/Services/CtdbSubmission.cs`:
+
+- `CtdbSubmissionPolicy` holds the whole decision with no I/O:
+  eligibility, the ask-once gate, and the remembered answer. A quality
+  block outranks a remembered yes, so a salvaged rip stays ineligible
+  for a user who once said "always submit".
+- `CtdbSubmissionService` runs policy, then consent, then the upload,
+  and swallows submission failures so a verify or rip verdict never
+  changes because a database was unreachable. It redacts the album,
+  artist, and barcode from the diagnostic log before the server's echo
+  is written.
+- `ICtdbSubmissionPrompt` is the consent seam. **A head with no
+  implementation cannot submit**, which is the shipped state today: no
+  head implements it, so nothing can upload by accident.
+
+Tests: `CtdbSubmissionPolicyTests` (11) pins every block and both
+remembered answers.
 
 ## 6. Acceptance rows (draft)
 
@@ -112,10 +133,24 @@ conservative default is no.
 - S12-005: the manual texts in section 4 are updated in the same
   batch.
 
-## 7. Why this is not started yet
+## 7. What remains, and why it waits
 
 Submission is an outward-facing, effectively irreversible action: it
 publishes the user's disc identity and metadata to a public database.
-The decisions in section 5 change what the consent text must say, so
-the design is owner input, not an implementation detail. Build starts
-once D-069 to D-071 are recorded.
+The policy is settled and built. What remains:
+
+1. **The consent dialog**, one per head (Avalonia and WPF). Its text
+   must name what is uploaded: the disc's table of contents, the track
+   checksums, parity data, the artist and title, the barcode, and the
+   per-machine identifier the CTDB client already sends.
+2. **Wiring the service into the verify and rip completion paths.** The
+   database object has to be the live one from the run that produced
+   the result, because its parity and checksums are what upload; a
+   submission cannot be replayed later from a stored verdict.
+3. **The live evidence run (S12-002).** A real submission to the public
+   database cannot be undone, so it happens with the owner present, on
+   a disc chosen for the purpose, and is confirmed by a fresh lookup
+   from a clean profile.
+
+Until step 1 lands, `ICtdbSubmissionPrompt` has no implementation and
+nothing can upload.
