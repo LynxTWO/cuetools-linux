@@ -2,13 +2,20 @@
 
 ## What ripping means here
 
-CUETools Linux rips at full assurance or not at all. Every rip is a
-secure read: the drive is calibrated first, the drive's cache is
-actively defeated so re-reads hit the disc instead of a memory copy,
-each sector must agree across passes before it counts, and the result
-is checked against AccurateRip and the CUETools Database before you are
-told anything optimistic. There is no fast-but-unverified mode hiding
-behind a setting.
+Every rip calibrates the drive first, and the result is checked against
+AccurateRip and the CUETools Database before you are told anything
+optimistic.
+
+Corrected 2026-08-16: this section previously said "Every rip is a secure
+read" and that "There is no fast-but-unverified mode hiding behind a
+setting", which the Quality modes below contradict and the code does not
+support. What every mode shares is calibration: `RipService.RunVerify`
+(line 365), `RunEncode` (387), and `RunTestAndCopy` (1623) all call
+`EnsureCalibration`. The independent re-read requirement is what varies.
+Verify and Rip pass `requireIndependentReads: cq > 0`, so it binds only
+above the lowest correction quality, while Test and Copy passes `true`
+unconditionally. See needs-verification.md entry 1, and `pages/rip.md`
+for the user-facing version.
 
 ## The page
 

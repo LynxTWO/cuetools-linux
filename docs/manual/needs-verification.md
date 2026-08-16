@@ -17,10 +17,19 @@ working tree on that date.
   Salvage. Burst is "a single pass with the historical retry cap"; Salvage
   captures "at Burst quality with error pointers off."
 
-Status: unresolved. The opening claim reads as if it covers all modes. Verify
-against the rip pipeline (SLICE-009) whether calibration and cache defeat run
-in every mode or only in Secure and Paranoid, then scope the opening claim to
-what the code does.
+Status: RESOLVED 2026-08-16 against the code. The note's "every rip is a
+secure read" is false, and the part that is true of every mode is
+calibration, not secure reading.
+
+`RipService.RunVerify` (line 365), `RunEncode` (387), and `RunTestAndCopy`
+(1623) all call `EnsureCalibration`, so Burst, Secure, Paranoid, Salvage,
+and Test and Copy alike calibrate the drive before touching the disc.
+What varies is the independent re-read requirement: Verify and Rip pass
+`requireIndependentReads: cq > 0`, so it binds only above the lowest
+correction quality, while Test and Copy passes `true` unconditionally.
+
+`pages/rip.md` states the resolved version. The note still carries the
+absolute claim and should be corrected to match.
 
 ## 2. Verify vs Codecs: WavPack and APE availability
 
