@@ -44,9 +44,9 @@ at a time. Plan the list before you press **Run all**.
    on the [Convert page](convert.md).
 
 4. Press **Add file(s)...** and pick the albums' CUE sheets or playlists.
-   The picker takes more than one file at a time. Its **Rip sets** filter
-   lists `*.cue` and `*.m3u`; switch it to **All files** if your playlist
-   is a `.m3u8` and you cannot see it.
+   The picker takes more than one file at a time. Its first filter,
+   **Rip sets (*.cue, *.m3u, *.m3u8)**, shows all three; the other two
+   are **Audio with embedded cue** and **All files**.
 
    This page has no drop target, so dragging files onto it does nothing.
 
@@ -103,7 +103,8 @@ The Status column carries one of these:
 | `Running` | both | This item is being processed now. | Wait. |
 | `Verified` | Verify | A database confirmed this album: AccurateRip called the rip accurate, or CTDB returned a confidence above zero. | Nothing; the audio matches other people's rips. |
 | `Repairable` | Verify | Neither database confirmed the album, and CTDB found damage it holds recovery data for. | Load that album on the [Verify & Repair page](verify.md) and repair it there. The queue does not repair. |
-| `No match` | Verify | The album was read and checksummed, and no database confirmed it. A lookup that never completed also lands here. | Read the Result column; it carries the reason each database gave. |
+| `Lookup failed` | Verify | Neither database answered, so the run says nothing about your audio. The files were still read and checksummed. | Check your connection and queue the album again. The comparison is also retried automatically on a later launch; see [offline behavior and backfill](offline-and-backfill.md). |
+| `No match` | Verify | At least one database answered, and none of them confirmed the album. If exactly one of the two never answered, its half of the Result column says so. | Read the Result column; it carries the reason each database gave. |
 | `Failed` | Verify | The verify itself stopped before reaching a verdict. | Read the Result column for the error, fix what it names, and queue the album again. |
 | `Done` | Convert | Every track was re-encoded and the album folder was published. | The Result column shows the file count, for example `24 m4a file(s)`. |
 | `Failed` | Convert | The conversion stopped, and nothing was written. | Read the Result column for the reason. |
@@ -167,16 +168,17 @@ covers both messages.
 Open the codec picker, choose a row that is not greyed out, and add the
 album again.
 
-### A verify item reads `No match`
+### A verify item reads `No match` or `Lookup failed`
 
-This one Status covers two different situations, and the Result column is
-what tells them apart. A database that answered and does not have your
-disc says `disk not present in database`. A database that never answered
-says `database access error:` with the reason. Only the first is a
-statement about your audio.
+`No match` means at least one database answered and none of them
+confirmed your disc. `Lookup failed` means neither answered, so the run
+says nothing about your audio. The Result column carries the detail
+either way: a database that answered and does not have your disc says
+`disk not present in database`, while one that never answered says
+`database access error:` with the reason.
 
-If every item in the batch reads `No match` with access errors beside it,
-check your network connection. A verify run with no connection still
+If every item in the batch reads `Lookup failed`, check your network
+connection. A verify run with no connection still
 decodes every file and computes every checksum, and the database
 comparison is queued to run again on a later launch, exactly as it is
 from the Verify page. See

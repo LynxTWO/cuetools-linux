@@ -31,15 +31,16 @@ report over the album's earlier one, after trying to keep a copy of it.
    offline, and nothing is skipped: the run reads and checksums every
    file either way.
 
-3. Watch the status line at the bottom of the page as each disc
-   finishes. An offline disc adds this to the end of its status text:
+3. An offline disc adds this to the end of its status text:
 
    ```text
    Offline: database verification queued for automatic backfill.
    ```
 
-   A later status message replaces it, so watch for it as each disc
-   finishes rather than at the end of the run.
+   Do not rely on reading it. The next status message replaces it
+   immediately, on both the disc card and the bottom status line, so it
+   can pass by before you look. The queue does not depend on your seeing
+   it.
 
 4. Read the disc card. Both database panels read `lookup failed`, and
    the chip in the card's top-right corner reads
@@ -114,7 +115,7 @@ about as long as running those verifications by hand.
 
 | What the replay finds | What happens to the entry |
 | --- | --- |
-| The files are where they were, and the verification completes | The entry is marked resolved, and records the path of the fresh report. |
+| The files are where they were, and the verification completes | The entry is marked resolved and records a report path: whichever `.accurip` in that folder was written most recently. That is the fresh report in a single-disc folder, but not always in a folder holding several discs. |
 | The files are still there, but the verification fails | The entry stays queued, with the attempt counted. The next launch tries again. There is no limit on attempts. |
 | The path no longer exists | The entry is marked unresolvable, with the reason "The journaled source no longer exists at its recorded path." It is kept as a record and is not tried again. |
 | No database answers | Nothing is replayed at all, and every entry stays queued for a later launch. |
@@ -191,10 +192,12 @@ offline`. Those entries stay queued for the next launch.
 
 ### The report was replaced, and there is no `.pre-backfill` copy
 
-The copy is best-effort, and three things can skip it: the folder is not
-writable, a file of that name already exists, or the most recently
-written report in that folder belonged to a different disc. Copy a
-report you want to keep yourself, before the next launch.
+The copy is best-effort. Two things stop it being made at all: the
+folder is not writable, or a file of that exact name already exists. A
+third makes it the wrong copy without skipping it, because the snapshot
+is taken from whichever `.accurip` in the folder was written most
+recently, which in a multi-disc folder can belong to another disc. Copy
+a report you want to keep yourself, before the next launch.
 
 ### A backfilled report still shows a database access error
 
@@ -225,8 +228,10 @@ replayed silently. On a later launch a card reads
 to review" beneath it. Pressing it looks each album up at that moment
 and shows you the usual before-and-after diff to approve or decline, so
 what you are offered is the databases' current answer and never a stored
-one. Pressing it while still offline does nothing, and the card stays
-where it is.
+one. Pressing it while still offline stops at the first album it can
+still find, and that album and everything after it stay pending with no
+message. It is not completely inert: any album whose files have been
+moved or deleted is retired from the card before it stops.
 
 Asking to enrich the same album twice while offline queues it once.
 

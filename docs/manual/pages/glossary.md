@@ -10,6 +10,17 @@ software over many years. It stores per-track checksums for a disc, keyed
 by that disc's track layout. When your checksums match theirs, independent
 copies of the same disc agree with yours.
 
+## AppImage
+
+An AppImage is a single executable file that holds a whole Linux
+application, so there is nothing to install. You make the file executable
+and run it; deleting the file removes the application.
+
+An AppImage carries the libraries an application cannot expect to find on
+every system, which is why it is larger than a distribution package. It
+still uses the basic system libraries, so it has the same distribution
+requirements as the `.deb` built from the same application.
+
 ## backfill
 
 Backfill is CUETools running a database lookup later, because the run that
@@ -21,6 +32,20 @@ The verification queue does not replay a stored answer. It verifies the
 album again from scratch, so what you end up with is a complete, dated
 verification rather than a patched one. See
 [offline behavior and backfill](offline-and-backfill.md).
+
+## cache defeat
+
+Reading an unrelated part of the disc so that the drive's own memory has
+to let go of the part CUETools actually wants, before that part is read
+again. Without it a second read can be answered from the drive's cache,
+and two reads that never reached the disc twice would agree no matter
+what happened at the surface.
+
+CUETools measures each drive during [calibration](#drive-calibration): it
+records whether the drive answers re-reads from memory, and how many
+bytes have to be read elsewhere to clear it. Secure and Paranoid use that
+figure on a drive that caches, and Test & Copy will not start at all
+unless the drive proved a re-read can reach the disc.
 
 ## confidence
 
@@ -50,6 +75,32 @@ A public database that stores checksums and recovery data for CD rips.
 The recovery data is what makes repair possible: when your audio nearly
 matches a known entry, CTDB can locate the damaged parts and rebuild
 them. See [parity](#parity) and [Reed-Solomon](#reed-solomon).
+
+## drive calibration
+
+A short set of read-only measurements CUETools makes of your optical
+drive before it rips with it for the first time. It records the drive's
+speed range, whether the drive answers a re-read from its own memory
+instead of the disc, and how much has to be read elsewhere to clear that
+memory. Nothing is written to the disc, and the audio is not affected.
+
+The result is saved per drive, so it happens once rather than every rip,
+and a Rip, Verify, or Test & Copy refreshes it when it is missing or out
+of date. It needs the audio disc in the drive. Secure and Paranoid
+reading depends on it: without a proven way to make a re-read reach the
+disc, they refuse to start rather than compare a read with itself. See
+[cache defeat](#cache-defeat).
+
+## glibc
+
+glibc is the GNU C Library, the part of a Linux system that almost every
+program uses to reach the kernel. Which version you have is decided by your
+distribution release, not by the programs you install.
+
+A program compiled against a newer glibc will not start on a system with an
+older one, which is why an application can require a minimum distribution
+release. The requirement runs one way: a newer glibc runs older programs
+without trouble.
 
 ## independently verified
 

@@ -412,12 +412,18 @@ GLOSSARY: dict[str, str] = {}
 
 
 def slugify(text: str) -> str:
-    """GitHub-style heading anchor."""
+    """GitHub-style heading anchor.
+
+    Each whitespace character becomes its own hyphen rather than collapsing a
+    run into one, because that is what GitHub does and what anyone writing a
+    link by hand will expect: "Test & Copy reads" loses the ampersand and keeps
+    both surrounding spaces, giving "test--copy-reads".
+    """
     text = re.sub(r"`([^`]*)`", r"\1", text)
     text = re.sub(r"\*\*(.+?)\*\*", r"\1", text)
     text = text.lower()
     text = re.sub(r"[^\w\s-]", "", text)
-    return re.sub(r"[\s_]+", "-", text).strip("-")
+    return re.sub(r"[\s_]", "-", text).strip("-")
 
 
 def link_target(target: str) -> str:

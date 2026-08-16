@@ -173,3 +173,75 @@ root, which is reachable on any platform. Covered by
 which also pins the case that must keep working: two folders under a
 shared parent are a legitimate multi-disc selection.
 
+## 13. The 2026-08-12 repair was probably not at the limit of what parity could do
+
+`notes/repair.md` said the walkthrough disc "sat at the exact limit of
+what npar=16 parity can recover" and that one more damaged sector in that
+stripe would have defeated the repair. The code disagrees.
+`CUETools.CTDB/CUEToolsDB.cs:474-490` fetches parity at increasing depth
+(4, then 8, then 16, capped at the entry's own `Npar` and at
+`AccurateRipVerify.maxNpar`) and stops at the first depth that recovers,
+while `CUETools.AccurateRip/CDRepair.cs:182` sets the fix's stripe
+capacity to the fetched depth divided by two. A reported capacity of 4
+therefore means the fix succeeded at depth 8, with depth 16 still
+available.
+
+Status: unresolved, and the claim is repeated in `docs/SLICE-002-repair.md`
+line 93 and in the project's own history. To settle it, log the fetched
+depth beside the entry's `Npar` during one live repair. Until then, the
+manual states the two numbers and what they count, and makes no claim
+about what one more damaged sector would have done. The note is
+corrected.
+
+Related product finding: F-19 and F-20 in
+`docs/FINDINGS-2026-08-16-manual-pass.md` cover the same mismatch on the
+panel and in the R115 doc comment.
+
+## 14. Walkthrough figures with no surviving receipt
+
+Three figures from the 2026-08-12 repair walkthrough cannot be confirmed
+from anything in the repository:
+
+- "129 of 307,669 sectors" and the affected ranges "41:29 to 66:37"
+  (`notes/repair.md`). `VerifyFilesResult.RepairTotalSectors` is recorded
+  in the receipt but never displayed, no receipt from that run is checked
+  in, and the ranges string in
+  `docs/evidence/2026-08-12-repair-real-disc-repairing.png` is truncated.
+- "Track 1 took 47 seconds against 3-30 seconds for the rest" and "88
+  seconds from confirmation to published". No log or receipt records
+  either.
+
+Status: unresolved. Re-run the walkthrough and keep `repair.verify`, or
+drop the figures. The manual uses only the corrected-sample and
+corrected-sector counts, which `docs/SLICE-002-repair.md:93` corroborates.
+A reader comparing their own run against an unverified timing would draw
+the wrong conclusion about their drive.
+
+## 15. The RepairScope states screenshot shows impossible figures
+
+`docs/evidence/2026-08-12-repairscope-states.png` reads "18,342 samples
+across 12 sectors" in two of its three rows. That cannot come from a real
+fix: `CDRepairFix.CorrectableErrors` counts 16-bit values and
+`AffectedSectorArray` indexes CD sectors
+(`CUETools.AccurateRip/CDRepair.cs:308-322`), and 12 sectors hold only
+12 * 588 * 2 = 14,112 such values.
+
+Status: unresolved. Confirm whether the image is a control-state render
+with example figures, and label it in `notes/repair.md` accordingly. The
+manual page uses the image to show the three panel states and quotes none
+of its numbers.
+
+## 16. install.md describes a submission identifier for submissions that never happen
+
+`notes/install.md` ("What leaves your machine") says "Database
+submissions include a per-machine identifier derived from your hardware,
+so repeated submissions from one machine can be recognised." Verified
+2026-08-15 and again 2026-08-16: nothing in either modern head calls the
+CTDB client's `Submit`, so no submission occurs at all.
+`CUETools.App.Core/Services/CtdbSubmission.cs` is eligibility policy with
+no consent surface behind it.
+
+Status: unresolved, and it is a privacy-relevant claim in both
+directions. Either scope the sentence to what SLICE-012 would send once
+it ships, or remove it until then. Note that `notes/install.md` currently
+carries uncommitted owner edits, so coordinate before changing it.

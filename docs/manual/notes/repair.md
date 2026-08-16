@@ -60,9 +60,16 @@ published receipt (repair.verify) and the diagnostic log.
 3. **The damage, measured.** 7,150 damaged samples across 129 of 307,669
    sectors, concentrated in the disc's outer third (the ranges run from
    41:29 to 66:37). Parity headroom: the worst 10-sector stripe used
-   **4 of 4** correctable errors - this disc sat at the exact limit of
-   what npar=16 parity can recover. One more damaged sector in that
-   stripe and CTDB could not have repaired it.
+   **4 of 4** correctable errors at the parity depth the fix ran at.
+   Corrected 2026-08-16: this section previously read that the disc "sat
+   at the exact limit of what npar=16 parity can recover" and that one
+   more damaged sector would have defeated the repair. The code does not
+   support that. CUEToolsDB.cs:474-490 fetches parity at increasing
+   depth (4, then 8, then 16, capped at the entry's own Npar) and stops
+   at the first depth that recovers, and CDRepair.cs:182 sets the fix's
+   stripe capacity to that fetched depth / 2. A capacity of 4 therefore
+   means the fix succeeded at depth 8, with depth 16 still unused. See
+   needs-verification.md entry 13.
 4. **Repair.** 88 seconds from confirmation to published: reconstruct
    from parity, encode the sibling copy, verify it independently, seal
    evidence, publish atomically.
