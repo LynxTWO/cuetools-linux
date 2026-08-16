@@ -4,6 +4,7 @@ using Avalonia;
 using Avalonia.Controls.ApplicationLifetimes;
 using Avalonia.Markup.Xaml;
 using CUETools.Linux.App.Services;
+using CUETools.Wpf.Services;
 
 namespace CUETools.Linux.App;
 
@@ -100,6 +101,29 @@ public partial class App : Application
                     // down gracefully.
                     Console.Out.Flush();
                     Environment.Exit(0);
+                }
+
+                // First run asks once whether CUETools may look up cover art on
+                // its own, then remembers the answer (the same shape as the
+                // database-submission consent). Defaulting it off in silence
+                // would leave a feature that looks broken with no sign a choice
+                // exists. Secondary drive windows never ask: the primary window
+                // owns the profile, and two windows asking one question at once
+                // is not a question, it is a pile-up.
+                if (!launchOptions.IsSecondaryDriveWindow &&
+                    !autoRepair &&
+                    NetworkPreferences.NeedsArtworkAnswer(graph.Settings))
+                {
+                    _ = NetworkPreferences
+                        .AskAboutArtworkAsync(
+                            graph.Settings,
+                            new AvaloniaUserPrompt(() => windowRef))
+                        .ContinueWith(
+                            answer => graph.Log.Info(
+                                "settings",
+                                "artwork auto-lookup answered: " +
+                                (answer.Result ? "yes" : "no")),
+                            TaskScheduler.Default);
                 }
 
                 // Existing paths on the command line load into Verify at
