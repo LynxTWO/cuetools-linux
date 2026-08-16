@@ -48,9 +48,14 @@ plus disc, track, and duration counts. Each disc card carries:
 
 Every verify writes a dated AccurateRip report (`<cuename>.accurip`) next
 to the album. It contains the same verdict vocabulary plus per-track
-CRCs, and it records exactly what the databases answered that day. Reports
-are evidence: the app never rewrites one (see offline-and-backfill.md for
-the preserved-history rule).
+CRCs, and it records exactly what the databases answered that day.
+
+Re-verifying an album writes a new report in place of the old one.
+Preservation is scoped to the backfill path: before an automatic backfill
+re-verifies an offline-era album, VerificationBackfillService snapshots
+the prior report to `<name>.accurip.<timestamp>.pre-backfill` (see
+offline-and-backfill.md). Corrected 2026-08-15; this section previously
+claimed the app never rewrites a report, which the code does not support.
 
 Screenshots: 2026-08-11-verify-fixture-dark.png (unknown album, honest
 "not in database"), 2026-08-12-verify-real-disc-dark.png (real pressing,
