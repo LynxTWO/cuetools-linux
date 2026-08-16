@@ -318,3 +318,130 @@ Severity: low, cosmetic, but it is user-visible text.
 5. F-19, F-20: settle what the parity numbers mean before the manual
    explains them.
 6. The rest as ordinary UX work.
+
+---
+
+# Second pass: Rip, Install, Codecs, Enrich, Settings
+
+Another 37 findings from writing the remaining five pages. The ones that
+change what the product promises are first.
+
+## Serious: the app contacts the network before you ask it to
+
+### F-23 Launching with a disc in the drive starts lookups and downloads
+
+`RipViewModel` is constructed in `Composition.CreateAppGraph` and reads
+the disc in its constructor. `ReadDiscAsync` calls `TriggerArtFetch()` as
+soon as the disc is identified, and `FetchArtAsync` downloads the first
+eligible front cover with no prompt. `_config.embedAlbumArt` and
+`extractAlbumArt` both default to true.
+
+So starting the app with an audio CD inserted produces a CTDB metadata
+lookup, possibly a freedb lookup, a MusicBrainz query, and a Cover Art
+Archive download, none of them requested.
+
+Severity: high, and it is a documentation contradiction as well:
+`notes/install.md` and the README's Privacy section both say local work
+sends nothing. One of the two has to change. This is the same class of
+problem as entry 3 in `needs-verification.md`, but worse, because the
+traffic happens without the user choosing a feature at all.
+
+### F-24 CTDB-supplied artwork has no host allowlist
+
+`AlbumArtService` maps the "CTDB metadata" provider to
+`ProviderPolicy.ExternalArtwork`, whose `ValidateUri` arm is `_ => true`,
+so a thumbnail or master named by the CTDB response is fetched from any
+public HTTPS host. MusicBrainz, Cover Art Archive, and TheAudioDB are
+each pinned to their own hosts; the CTDB path is the one that is not.
+
+The Linux Enrich path is stricter:
+`EnrichmentService.TryApprovedCoverUri` allows only coverartarchive.org,
+archive.org, and db.cuetools.net. That asymmetry suggests the rip path's
+looseness is unintended rather than a decision.
+
+Severity: high. A database response decides which host the app connects
+to.
+
+## Serious: Salvage does not do what it says
+
+### F-25 Salvage is offered on three buttons and honoured by one
+
+`RipViewModel.RunJobAsync` passes `EffectiveCorrectionQuality` (3 maps to
+0) to `RunEncode` and `RunVerify`, neither of which takes a `salvage`
+argument. Pressing **Rip** or **Verify only** with Salvage selected
+silently runs a plain Burst job: no minimum-speed pin, no concealment,
+and no `salvaged` grade on the output. Only **Test & Copy** passes
+`salvage: true`.
+
+Severity: high. The user believes they are making a salvage capture of a
+failing disc and gets an ordinary Burst rip that is not labelled as one.
+
+### F-26 Two shipped strings misdescribe Salvage, one of them into the archive
+
+The quality tooltip (`RipView.axaml:229`) and the accept-anyway Test and
+Copy log (`RipService.cs:2402`) both say Salvage turns C2 error pointers
+off. `RipService.cs:515-526` keeps C2 on and sets
+`ConcealUnconfirmedSamples = true` instead, and its own log line says "C2
+pointers ON". A comment there records that the first build did turn C2
+off and produced fourteen times a good rip's glitch rate.
+
+Severity: high. The log travels with the audio, so the user's permanent
+record of how that capture was made is wrong.
+
+## Other findings
+
+- **F-27** The connectivity probe ignores the profile's proxy.
+  `ConnectivityProbe.IsOnline` opens raw `TcpClient` connections to
+  db.cuetools.net:80 and www.accuraterip.com:443, while every real lookup
+  goes through `config.GetProxy()`. On a network where direct outbound is
+  blocked but a proxy works, every verify is misreported as offline,
+  journaled, and the backfill keeps failing the same way.
+- **F-28** Rips are not journaled for offline backfill.
+  `Composition.CreateAppGraph` gives the rip view model the raw
+  `engineVerify`, and `RipService` makes its own database contact, so an
+  offline rip finishes with no verdict and nothing queued. Only Verify
+  and Queue journal.
+- **F-29** Optical drives are enumerated once, in the `RipViewModel`
+  constructor, with no rescan. A drive attached after launch stays
+  invisible until restart, and the page says "No optical drive found."
+- **F-30** Diagnostic logs accumulate forever. One file per launch under
+  `~/.config/CUETools2026/logs/`, with no pruning anywhere in
+  `DiagnosticLog.cs`.
+- **F-31** The glibc 2.38 floor is not only the .NET runtime. `objdump
+  -T` on the 2026-08-15 publish shows the vendored `libmp3lame.so` and
+  `MACLibDll.so` also reference `GLIBC_2.38`, so lowering the floor needs
+  those two codec libraries rebuilt on an older toolchain as well. This
+  bears directly on the packaging work in progress.
+- **F-32** A fatal drive error can be unreadable. The drive-bar status
+  uses `TextTrimming="CharacterEllipsis"` with no tooltip
+  (`RipView.axaml:41-44`), and the stuck-drive guidance is about 450
+  characters. The one message whose entire value is "power the drive off
+  and on" is the most likely to be clipped.
+- **F-33** The rip codec button shows only the format label, while
+  Convert shows the format plus the implementation. On the page where the
+  choice is frozen for the whole transaction, which encoder will run is
+  visible only in a tooltip.
+- **F-34** The rip track grid has no column headers
+  (`RipView.axaml:145-167`), so four evidence columns render as
+  unlabelled numbers, and `CrcEvidenceTip` is never bound on this head.
+- **F-35** `SetPostRipRepair` sets `RepairLastRipText` for the "no
+  unambiguous album input" case but leaves `CanRepairLastRip` false,
+  and the button binds `IsVisible` to that flag, so the explanatory text
+  never renders.
+- **F-36** `CUESheet.LoadAndResizeAlbumArt` fetches a cover through
+  `CTDB.FetchFile` with no host or scheme validation at all. It is
+  currently reachable only from the classic head
+  (`CUETools/frmCUETools.cs:971`), so it is a hazard to remember rather
+  than a live defect on Linux.
+
+## Suggested order for this pass
+
+1. F-23 and F-24: the app reaches the network unasked, and one of those
+   paths accepts any host. Both are promises the documentation currently
+   makes and the code does not keep.
+2. F-25 and F-26: Salvage silently degrades on two of three buttons, and
+   its own archive log misdescribes it.
+3. F-27 and F-28: two ways a user ends up with no database verdict and no
+   queued retry.
+4. F-31 before the next packaging attempt.
+5. The rest as ordinary UX work.

@@ -60,7 +60,7 @@ what this build writes.
 
    When more than one release matches the disc, the **release** box lists
    them. Each row starts with the source it came from, so a title burnt
-   onto the disc itself shows as `cdtext`. Pick a different row and the
+   onto the disc itself shows as `CD-Text`. Pick a different row and the
    album, the track titles, and the folder the rip is written to all
    change to match. Pick before you start; the choice is frozen when the
    job begins.
@@ -141,8 +141,8 @@ Three live displays sit in the **RUN** panel:
 
 When a stretch of the disc will not agree with itself, a box appears
 showing the literal counts from the drive: `x4` for the number of extra
-passes so far, `3 sectors disagree` underneath, and a line reading
-`42% in` for where on the disc it is. The box turns green and reads
+passes so far, `3 sectors disagree` beside it, and a line under the box
+reading `42% in` for where on the disc it is. The box turns green and reads
 `recovered` when the passes finally agree.
 
 If the drive gives up on a stretch, the counts stop and the box fades
@@ -194,6 +194,12 @@ reads; at least two agreed per track.  Also AccurateRip-accurate
 (confidence 4).  Final output PCM was decoded and verified after metadata
 finalization."
 
+A Salvage capture says what it is in three places: the summary above, the
+status line ("Test & Copy salvaged (drive-stable capture, not verified)
+-> " and the path), and its row in your rip history, which reads
+`salvaged` or `salvaged (damage recorded)` where an ordinary job would
+read `verified`.
+
 ### The database line
 
 At the bottom of the disc panel, two short readings report what
@@ -201,7 +207,7 @@ AccurateRip and CTDB answered.
 
 | Reading | What it means |
 | --- | --- |
-| `AR not checked` / `CTDB not checked` | No result yet. It reads this before a job and while one runs. |
+| `AR not checked` / `CTDB not checked` | No result yet. It reads this at startup, and again from the moment a job starts until that job's first database answer. After a job finishes, its readings stay on screen, even if you swap the disc, until the next job begins. |
 | `AR 4 / 130  accurate` | Every track matched. 4 is the weakest track's confidence, 130 the smallest per-track submission count on the disc. |
 | `AR 0 / 82` | AccurateRip holds rips for this disc layout and none of them matched yours. |
 | `AR 0 / 0` | AccurateRip returned nothing to compare against, either because it has no record of this [pressing](glossary.md#pressing) or because the lookup did not complete. |
@@ -209,14 +215,17 @@ AccurateRip and CTDB answered.
 | `CTDB recoverable damage . 12 sector(s)` | CTDB located damage and holds the parity to rebuild those sectors. |
 | `CTDB 0 / 235` | CTDB returned rips for this disc layout and none of them counts as a match. Read the second number as submitted rips. |
 | `CTDB 0 / 0` | CTDB returned nothing to compare against. |
+| `CTDB found, no exact match` | The per-read wording of `CTDB 0 / 235`: CTDB answered with entries for this disc layout and none matched. It appears only while a Test & Copy reports each read. |
 
 During a Test & Copy the same line is rewritten as each read finishes, so
 you see what the Test read found before the Copy read starts. Those
 per-read readings can also say `lookup failed`, which means that database
 could not be reached or answered with an error, and never judged the
 disc. `not in database` and `not found` mean the opposite: the database
-answered and has no record of this pressing. When the whole transaction
-finishes, the line settles back to the counts above.
+answered and has no record of this pressing. When a Test & Copy
+publishes, the line settles back to the counts above. A held or failed
+run does not rewrite it, so the last read's wording stays on screen until
+the next job starts.
 
 ### The track rows
 
@@ -254,9 +263,11 @@ independent of both databases.
 | `This job completed, but verify history could not be saved.` | The audio is fine; the local history file could not be written. |
 
 With no disc in the drive, the page lists your recent jobs under
-**RECENTLY RIPPED**, each with its grade. A rip reads "rip - verified
-(AR 4, CTDB 207)"; a Test & Copy reads "test & copy (2 reads) - verified
-after 2 optical reads; at least 2 agreed per track (AR 4, CTDB 207)".
+**RECENTLY RIPPED**, each with its grade and what the written files
+proved. A rip reads "rip - verified (AR 4, CTDB 207); final output PCM
+verified after metadata"; a Test & Copy reads "test & copy (2 reads) -
+verified after 2 optical reads; at least 2 agreed per track (AR 4,
+CTDB 207)".
 
 ## Test & Copy reads the disc twice
 
@@ -377,7 +388,7 @@ that apart from an empty tray. Run
 is missing, or that you have not logged out and back in since adding it.
 
 A disc that is not an audio CD is reported as such, naming what the drive
-says is loaded, for example "Not an audio CD - CD-ROM in drive A:".
+says is loaded, for example "Not an audio CD - DVD-ROM in drive A:".
 
 ### "This physical drive is locked to its existing job."
 

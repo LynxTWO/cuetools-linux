@@ -47,6 +47,20 @@ bytes have to be read elsewhere to clear it. Secure and Paranoid use that
 figure on a drive that caches, and Test & Copy will not start at all
 unless the drive proved a re-read can reach the disc.
 
+## codec
+
+The program that turns audio into a file of a given format and back
+again. The name is short for coder-decoder: the coder packs
+[PCM](#pcm-pulse-code-modulation) samples into the file, and the decoder
+unpacks them.
+
+Format and codec are not the same thing. One format can have several
+codecs, and CUETools can offer more than one for the same extension:
+FLAC files can be written by CUETools' own encoder or by the reference
+libFLAC library, and both produce valid FLAC that decodes to the same
+audio. An application can also carry a codec's coder without its
+decoder, which is why a build can write a format it cannot read.
+
 ## confidence
 
 A count of how many independent submissions agree with your audio.
@@ -195,6 +209,18 @@ The error-correction math CTDB uses to rebuild damaged audio from
 play through a small scratch, and that recovers data from a damaged QR
 code. Reed-Solomon can reconstruct a limited number of damaged pieces
 exactly; past that limit it reports that it cannot, rather than guessing.
+
+## tags
+
+The album and track details stored inside an audio file itself: artist,
+album, track title, year, genre, track number, and often a cover image.
+Players read them to decide what to show you, which is why a file with
+none of them plays as "Unknown Artist".
+
+Tags sit in their own part of the file, separate from the audio, so
+rewriting them changes the file without changing a single audio sample. A
+CUE sheet holds a second copy of much the same information as plain text,
+and the two can disagree.
 
 ## TOC id (table of contents id)
 

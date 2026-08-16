@@ -121,9 +121,10 @@ and, with `--publish`, produces the binary the packaging scripts need.
 
 Both packages land in `bin/packages/`. The scripts need the .NET SDK
 pinned in `global.json` (10.0.100 or a later feature band), PowerShell
-(`pwsh`), `cmake`, `curl`, and `python3`; `package-deb.sh` also needs
-`dpkg-deb`, and `package-appimage.sh` downloads a hash-pinned
-`appimagetool` on first use.
+(`pwsh`), a C and C++ toolchain with `make`, plus `cmake`, `pkg-config`,
+`patch`, `tar`, `unzip`, `binutils`, `curl`, and `python3`;
+`package-deb.sh` also needs `dpkg-deb`, and `package-appimage.sh`
+downloads a hash-pinned `appimagetool` on first use.
 
 ## Start CUETools
 
@@ -194,7 +195,8 @@ Everything here stays on your machine.
 | Rip verification history | `~/.config/CUETools2026/verify-history.json.gz` |
 | AccurateRip drive offset table | `~/.config/CUE Tools/AccurateRipCache/DriveOffsets.bin` |
 | Offline backfill queue | `~/.local/state/cuetools-linux/journal/` |
-| Verify reports | Next to the verified album (`album.accurip` and `album.toc`) |
+| Drive lease locks | `~/.local/share/CUETools2026/drive-leases/` (only when you have an optical drive) |
+| Verify reports | Next to the verified album (`<name>.accurip` and `<name>.toc`, where `<name>` is the CUE sheet, playlist, or audio file you verified) |
 | Rips and conversions | `~/Music/CUETools` unless you choose another folder on the page |
 
 Settings are read once at startup and written back when the app exits, so
