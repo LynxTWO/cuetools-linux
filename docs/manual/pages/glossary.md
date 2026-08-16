@@ -16,11 +16,10 @@ A count of how many independent submissions agree with your audio.
 Higher numbers mean more independent agreement. Confidence is not a
 percentage or a score, and a low number on a rare disc is normal.
 
-The album-level AccurateRip figure is the lowest confidence of any track
-on the disc, so `accurate | confidence 4` means every track agrees with
-at least four other rips. The CTDB figure works differently: it is the
-combined confidence of every database entry that matches you, so it is
-usually a much larger number.
+The album-level AccurateRip figure reports the disc's weakest track, so
+`accurate | confidence 4` means every track agrees with at least four
+other rips. The CTDB figure adds up the submissions behind every
+database entry that matches you, so it is usually a much larger number.
 
 ## CRC32
 

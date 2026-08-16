@@ -152,3 +152,17 @@ case. The product question stands: the panel arguably should say
 "lookup failed" rather than "not found", which would let the manual drop
 the caveat.
 
+## 12. "Selected files must belong to the same album location" may be unreachable on Linux
+
+`VerificationSourceDiscovery.cs:121` raises this when the selected paths
+have more than one distinct `Path.GetPathRoot`. On Linux every absolute
+path shares the root `/`, so a selection spanning two folders, or even
+two mounted disks, does not trigger it. The message that actually fires
+when a folder is mixed with other items is "Drop one album folder at a
+time, or select manifest files from one album."
+
+Status: unresolved. `pages/verify.md` documents the reachable message
+and leaves this one out. Confirm whether the path-root check can fire on
+Linux at all; if it cannot, either drop it or replace it with a check
+that means what its text says.
+
