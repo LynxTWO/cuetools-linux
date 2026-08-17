@@ -162,6 +162,13 @@ Started from a terminal, the app prints one line when the window appears:
 startup-to-window-ms=<milliseconds>
 ```
 
+That is how long the app took to put a window on screen. On the machine
+this was measured on, a packaged build reports a little under 700, and an
+empty drive keeps it there. Your own number depends on your hardware, so
+treat it as something to compare against itself over time rather than
+against this one: a launch that suddenly takes several times what it
+usually does is worth looking into.
+
 If an audio CD is in the drive when CUETools starts, the Rip page reads it
 straight away, and reading a disc includes database lookups. See
 [What leaves your machine](#what-leaves-your-machine).

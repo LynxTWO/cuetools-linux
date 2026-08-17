@@ -90,9 +90,26 @@ public partial class App : Application
                 // --smoke: prove the app reaches a visible window, then exit
                 // (used by CI and startup measurements; the stopwatch starts
                 // in Main so the number covers the whole launch).
-                Console.WriteLine($"startup-to-window-ms={Program.Startup.ElapsedMilliseconds}");
+                long startupMs = Program.Startup.ElapsedMilliseconds;
+                Console.WriteLine($"startup-to-window-ms={startupMs}");
                 if (desktop.Args is ["--smoke", ..])
                 {
+                    // The number is asserted, not just printed. This line read 0 on
+                    // every run for as long as it existed, because the stopwatch was a
+                    // beforefieldinit static initializer that did not run until this
+                    // read, and CI never noticed because nothing checked the value. A
+                    // real launch cannot reach a visible window in under a millisecond,
+                    // so 0 means the instrument is broken rather than the app is fast.
+                    if (startupMs <= 0)
+                    {
+                        Console.Error.WriteLine(
+                            "smoke: startup-to-window-ms is 0, which no real launch achieves. " +
+                            "The startup stopwatch is not being started. See findings F-41.");
+                        Console.Out.Flush();
+                        Console.Error.Flush();
+                        Environment.Exit(1);
+                    }
+
                     // Hard exit by design: --smoke exists to prove the app
                     // reaches a visible window. Graceful lifetime shutdown
                     // from inside Opened races StartCore's own use of the
@@ -303,11 +320,19 @@ public partial class App : Application
 
 public static class Program
 {
-    internal static readonly Stopwatch Startup = Stopwatch.StartNew();
+    // Deliberately NOT Stopwatch.StartNew() in the initializer. Program has no static
+    // constructor, so the compiler marks it beforefieldinit and the runtime may defer
+    // this initializer until the first access to one of these fields. That access was
+    // the ElapsedMilliseconds read itself, so the stopwatch started and was read in the
+    // same instant and startup-to-window-ms printed 0 on every run. Started explicitly
+    // as the first statement of Main instead.
+    internal static readonly Stopwatch Startup = new Stopwatch();
 
     [STAThread]
     public static void Main(string[] args)
     {
+        Startup.Start();
+
 #if RIP_DIAGNOSTIC
         // Dev-only (D-053): the rip transport proof runs before any UI
         // exists and exits with the failed-drive count. Compiled out of

@@ -653,3 +653,59 @@ the log does not surface is unknown.
 
 This disc cannot settle needs-verification entry 13. Damage at this density
 is far beyond what CTDB parity repairs, so no repair would ever run on it.
+
+## F-41 The startup stopwatch reported 0 ms on every run
+
+Measured 2026-08-17. `--smoke` prints `startup-to-window-ms=` from
+`Program.Startup.ElapsedMilliseconds` at `window.Opened`, and the comment
+beside it says the stopwatch "starts in Main so the number covers the
+whole launch". It printed exactly `0` on every run of the shipped AOT
+build, three for three.
+
+The cause is C# static initialization. `Program` declares
+
+```csharp
+internal static readonly Stopwatch Startup = Stopwatch.StartNew();
+```
+
+and has no static constructor, so the compiler marks the type
+`beforefieldinit` and the runtime may defer that initializer until the
+first access to one of the type's static fields. `Main` being a method on
+the same type does not force it. The first field access was the
+`ElapsedMilliseconds` read itself, so the stopwatch was created and read in
+the same instant.
+
+Fixed by starting it explicitly as the first statement of `Main` and
+leaving the field as a plain `new Stopwatch()`, which does not depend on
+when the initializer runs.
+
+Measured before and after, three runs each:
+
+| Build | Reported | Wall clock |
+| --- | --- | --- |
+| AOT, before the fix | 0 ms every run | 699, 699, 797 ms |
+| JIT via `dotnet`, after the fix | 3012, 3274, 3139 ms | 3077, 3354, 3261 ms |
+| AOT, after the fix | 688, 709, 635 ms | 727, 750, 688 ms |
+
+After the fix the reported number tracks wall clock closely: within about
+40 ms on the AOT build and 80 ms on the JIT build, which is the process
+teardown that follows `Opened`. The AOT figures also agree with the
+external wall-clock timings taken before the fix, so the instrument is now
+measuring the thing its name claims.
+
+The manual is not at fault here, and it is worth being exact about that.
+`pages/install.md` documents the line's format and states no number, so
+there was never a speed claim to disprove. What it did document was an
+output that always read zero, which would leave a reader checking their
+install with a number that could not mean anything.
+
+Now that the instrument works, the measured figures are worth having.
+The shipped AOT build reaches a visible window in roughly 0.68 seconds. A
+JIT build run through `dotnet` takes about 3.1 seconds, so any startup
+figure has to stay attached to the packaged app rather than to running
+from source. Both are warm-cache on this workstation, and a first cold
+launch will be slower.
+
+Worth noting for its own sake: a smoke test whose only output was a
+hardcoded-looking `0` passed CI unremarked. The number was never asserted
+against a bound, so nothing failed when the instrument stopped measuring.

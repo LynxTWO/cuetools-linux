@@ -167,21 +167,32 @@ public class QueueFlowTests
         string a = WriteAlbumDir(), b = WriteAlbumDir();
         try
         {
+            // Hold the FIRST item, not the second, and wait on that item's own Running
+            // flag rather than on IsRunning. IsRunning goes true when the batch starts,
+            // which says nothing about which row is in flight: holding the second item
+            // let the first one finish before the asserts ran, so
+            // RemoveCommand.CanExecute(Items[0]) was a race. It passed alone and in a
+            // quiet suite, and failed once under the load of a concurrent AOT compile.
             var gate = new SemaphoreSlim(0);
             int calls = 0;
             verify.OnVerify = path =>
             {
-                if (Interlocked.Increment(ref calls) == 2) gate.Wait(TimeSpan.FromSeconds(5));
+                if (Interlocked.Increment(ref calls) == 1) gate.Wait(TimeSpan.FromSeconds(5));
                 return new VerifyFilesResult { Ok = true, Status = "ok", Accurate = true, ArConfidence = 1, Source = path };
             };
 
             Assert.True(vm.EnqueuePath(a));
             Assert.True(vm.EnqueuePath(b));
             vm.RunAllCommand.Execute(null);
-            await WaitUntilAsync(() => vm.IsRunning);
+            await WaitUntilAsync(() => vm.Items[0].Running);
 
+            Assert.True(vm.IsRunning);
             Assert.False(vm.ClearCommand.CanExecute(null));
+            // The row that is running cannot be removed, because the job would have no
+            // row to report into. A row still waiting can be, which is what lets a user
+            // drop a mistaken entry without clearing the whole batch.
             Assert.False(vm.RemoveCommand.CanExecute(vm.Items[0]));
+            Assert.True(vm.RemoveCommand.CanExecute(vm.Items[1]));
 
             gate.Release();
             await WaitUntilAsync(() => !vm.IsRunning);
