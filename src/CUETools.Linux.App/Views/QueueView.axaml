@@ -10,6 +10,7 @@
     <Border Grid.Row="0" Background="{DynamicResource Panel}"
             BorderBrush="{DynamicResource Line}" BorderThickness="0,0,0,1"
             Padding="16,11">
+     <StackPanel Spacing="9">
       <DockPanel LastChildFill="False">
         <TextBlock DockPanel.Dock="Left" Text="Action"
                    Foreground="{DynamicResource Muted}" FontSize="11"
@@ -44,6 +45,29 @@
                 Command="{Binding ClearCommand}" Padding="12,6"
                 VerticalAlignment="Center" />
       </DockPanel>
+
+      <!-- Where converted files go. The Queue used to ignore the Convert page's folder
+           and write beside each album with nothing on screen saying so (F-14). Each item
+           freezes this value as it is added, so this steers what is queued next. -->
+      <DockPanel LastChildFill="True"
+                 IsVisible="{Binding OutputPickerEnabled}">
+        <TextBlock DockPanel.Dock="Left" Text="Output"
+                   Foreground="{DynamicResource Muted}" FontSize="11"
+                   VerticalAlignment="Center" Margin="0,0,8,0" />
+        <Button DockPanel.Dock="Right" Content="Default"
+                Command="{Binding ClearOutputCommand}" Padding="12,6"
+                Margin="8,0,0,0" VerticalAlignment="Center"
+                ToolTip.Tip="Write each album's converted files to its own usual location." />
+        <Button DockPanel.Dock="Right" Content="Choose..."
+                Command="{Binding BrowseOutputCommand}" Padding="12,6"
+                Margin="8,0,0,0" VerticalAlignment="Center" />
+        <!-- Trimmed rather than clipped, with the full path in a tooltip. -->
+        <TextBlock Text="{Binding OutputLabel}"
+                   ToolTip.Tip="{Binding OutputLabel}"
+                   VerticalAlignment="Center" FontSize="12"
+                   TextTrimming="CharacterEllipsis" TextWrapping="NoWrap" />
+      </DockPanel>
+     </StackPanel>
     </Border>
 
     <!-- queue list -->

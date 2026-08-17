@@ -43,6 +43,9 @@ public class QueueFlowTests
             Ok = true, Status = "done", FileCount = 1, OutputDir = "/tmp/x",
         };
         public int Calls;
+        /// <summary>The outputDir each call received, in order. The Queue used to pass ""
+        /// unconditionally (F-14), which no test could see while this was discarded.</summary>
+        public readonly List<string> OutputDirs = new();
 
         public IReadOnlyList<string> LosslessFormats() => new[] { "flac", "wav", "m4a" };
         public IReadOnlyList<string> LossyFormats() => Array.Empty<string>();
@@ -53,6 +56,7 @@ public class QueueFlowTests
             Action<double, string> onProgress)
         {
             Calls++;
+            lock (OutputDirs) OutputDirs.Add(outputDir);
             return OnConvert(path);
         }
     }
@@ -205,5 +209,96 @@ public class QueueFlowTests
         {
             Directory.Delete(a, true); Directory.Delete(b, true);
         }
+    }
+
+    [AvaloniaFact]
+    public async Task ConvertUsesTheQueuesOutputFolder()
+    {
+        var (vm, _, convert, _, _) = CreateViewModel();
+        string a = WriteAlbumDir();
+        string dest = Path.Combine(Path.GetTempPath(), "q-out-" + Guid.NewGuid().ToString("n"));
+        Directory.CreateDirectory(dest);
+        try
+        {
+            vm.SelectedAction = "Convert";
+            vm.OutputDir = dest;
+            Assert.True(vm.EnqueuePath(a));
+
+            vm.RunAllCommand.Execute(null);
+            await WaitUntilAsync(() => !vm.IsRunning && convert.Calls > 0);
+
+            // The whole of F-14: this was "" no matter what the user chose.
+            Assert.Equal(new[] { dest }, convert.OutputDirs);
+        }
+        finally
+        {
+            Directory.Delete(a, true); Directory.Delete(dest, true);
+        }
+    }
+
+    [AvaloniaFact]
+    public async Task ChangingTheOutputFolderDoesNotMoveItemsAlreadyQueued()
+    {
+        var (vm, _, convert, _, _) = CreateViewModel();
+        string a = WriteAlbumDir(), b = WriteAlbumDir();
+        string first = Path.Combine(Path.GetTempPath(), "q-out1-" + Guid.NewGuid().ToString("n"));
+        string second = Path.Combine(Path.GetTempPath(), "q-out2-" + Guid.NewGuid().ToString("n"));
+        Directory.CreateDirectory(first); Directory.CreateDirectory(second);
+        try
+        {
+            vm.SelectedAction = "Convert";
+            vm.OutputDir = first;
+            Assert.True(vm.EnqueuePath(a));
+            // Retarget between the two adds. The first row keeps what it was given.
+            vm.OutputDir = second;
+            Assert.True(vm.EnqueuePath(b));
+
+            Assert.Equal(first, vm.Items[0].OutputDir);
+            Assert.Equal(second, vm.Items[1].OutputDir);
+
+            vm.RunAllCommand.Execute(null);
+            await WaitUntilAsync(() => !vm.IsRunning && convert.Calls == 2);
+
+            Assert.Equal(new[] { first, second }, convert.OutputDirs);
+        }
+        finally
+        {
+            Directory.Delete(a, true); Directory.Delete(b, true);
+            Directory.Delete(first, true); Directory.Delete(second, true);
+        }
+    }
+
+    [AvaloniaFact]
+    public void AnEmptyOutputFolderMeansBesideEachAlbum()
+    {
+        var (vm, _, _, _, _) = CreateViewModel();
+        // Never show the user an empty box where a path belongs.
+        Assert.Equal("Beside each album (default)", vm.OutputLabel);
+        Assert.False(vm.ClearOutputCommand.CanExecute(null));
+
+        vm.OutputDir = "/music/converted";
+        Assert.Equal("/music/converted", vm.OutputLabel);
+        Assert.True(vm.ClearOutputCommand.CanExecute(null));
+
+        vm.ClearOutputCommand.Execute(null);
+        Assert.Equal("", vm.OutputDir);
+        Assert.Equal("Beside each album (default)", vm.OutputLabel);
+    }
+
+    [AvaloniaFact]
+    public void AVerifyItemCarriesNoOutputFolder()
+    {
+        var (vm, _, _, _, _) = CreateViewModel();
+        string a = WriteAlbumDir();
+        try
+        {
+            // A destination is a Convert concept. Verify writes its report beside the
+            // album it checked, and must not inherit a folder chosen for conversions.
+            vm.OutputDir = "/music/converted";
+            vm.SelectedAction = "Verify";
+            Assert.True(vm.EnqueuePath(a));
+            Assert.Equal("", vm.Items[0].OutputDir);
+        }
+        finally { Directory.Delete(a, true); }
     }
 }
