@@ -779,3 +779,44 @@ measurement.
 Separately, this run confirmed F-41 in the released artifact: the AppImage
 built 2026-08-14 printed `startup-to-window-ms=0`, so the broken stopwatch
 shipped rather than being a working-tree regression.
+
+## F-43 An unrecognised launch flag is silently ignored
+
+Found 2026-08-17 by losing 45 minutes to it. A verify-only run was started
+against the Release publish with `--rip-verify-cli C`. The app printed
+`startup-to-window-ms=656`, opened its window, and sat there until the
+timeout killed it 45 minutes later. Nothing said the flag had not been
+understood.
+
+The flag is real but Debug-only. `CUETools.Linux.App.csproj:22-33` defines
+`RIP_DIAGNOSTIC` and references `CUETools.Ripper.SCSI` only under
+`Configuration == Debug`, which is deliberate (D-053: the rip transport
+diagnostic is a dev-only surface and Release publishes are byte-unaffected).
+So `--rip-diagnostic`, `--rip-verify-cli` and `--rip-tc` exist in a Debug
+build and simply do not exist in a Release one.
+
+The defect is not that they are compiled out. It is that arguments are
+handled by a chain of `args.Contains(...)` tests in
+`App.axaml.cs:95-260` with no central parser and no final check for
+anything left over, so *any* argument the app does not recognise produces a
+normal silent launch. That covers a mistyped documented flag as much as a
+Debug-only one: `--quue` instead of `--queue`, or `--convert-to` without
+`--convert`, each opens the window on the Verify page as though nothing had
+been asked for.
+
+`pages/install.md` documents nine launch forms. A reader who mistypes one
+gets no signal that they did.
+
+Severity: low for a user, who sees a window open and can retry. Higher for
+automation and for evidence runs, where a silently ignored flag produces a
+process that looks alive and yields nothing, and where the operator may
+conclude the hardware or the disc was at fault. That is exactly what
+happened here: the first reading of the empty log was that the LG drive had
+wedged.
+
+Proposed fix, not implemented: collect the recognised arguments while
+parsing, and on any unconsumed argument write one line to stderr naming it
+and exit non-zero rather than opening a window. A Release build should say
+that a `RIP_DIAGNOSTIC` flag needs a Debug build, rather than ignoring it,
+because the flag name is knowable at compile time even when its
+implementation is not.
