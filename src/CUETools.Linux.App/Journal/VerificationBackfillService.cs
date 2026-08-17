@@ -27,8 +27,51 @@ public sealed class VerificationBackfillService
 
     public sealed record ReplayOutcome(int Resolved, int Unresolvable, int StillPending);
 
+    /// <summary>
+    /// One replay at a time across every CUETools process. Without this, two windows opened
+    /// together read the same pending entries and re-verify the same albums concurrently,
+    /// each overwriting the other's fresh report. The optical drive has had cross-process
+    /// exclusion since D-068; the journal had none.
+    ///
+    /// Returns null when another process holds the replay, which is not an error: that
+    /// process is doing the work.
+    /// </summary>
+    private FileStream? TryClaimReplay()
+    {
+        // Both platforms enforce exclusion here: Windows through the share mode, Linux
+        // through the advisory lock (FileStream.Lock is unsupported on macOS, so that
+        // platform gets no claim and no replay rather than a silent race).
+        if (!OperatingSystem.IsWindows() && !OperatingSystem.IsLinux())
+            return null;
+        try
+        {
+            string path = Path.Combine(_journal.Directory, "replay.lock");
+            string? dir = Path.GetDirectoryName(path);
+            if (!string.IsNullOrEmpty(dir)) Directory.CreateDirectory(dir);
+            var stream = new FileStream(
+                path, FileMode.OpenOrCreate, FileAccess.ReadWrite, FileShare.Read);
+            if (OperatingSystem.IsLinux())
+            {
+                try { stream.Lock(0, 1); }
+                catch (IOException) { stream.Dispose(); return null; }
+            }
+            return stream;
+        }
+        catch (Exception ex) when (ex is IOException or UnauthorizedAccessException)
+        {
+            return null;
+        }
+    }
+
     public ReplayOutcome ReplayPending(Action<string>? log = null)
     {
+        using FileStream? claim = TryClaimReplay();
+        if (claim == null)
+        {
+            log?.Invoke("backfill: another CUETools process is replaying; skipped");
+            return new ReplayOutcome(0, 0, 0);
+        }
+
         IReadOnlyList<BackfillJournalEntry> pending =
             _journal.ReadPending(BackfillLane.Verification);
         if (pending.Count == 0)
@@ -60,7 +103,7 @@ public sealed class VerificationBackfillService
             // evidence is append-only (ADD guardrail 5): snapshot the
             // offline-era report byte-for-byte before replaying, so history
             // survives beside the fresh dated report.
-            string? priorReport = FindFreshReport(entry.SourcePath);
+            string? priorReport = ReportFor(entry.SourcePath);
             if (priorReport != null)
             {
                 string preserved = priorReport + "." +
@@ -76,10 +119,21 @@ public sealed class VerificationBackfillService
             }
 
             VerifyFilesResult result = _verify.Verify(entry.SourcePath, (_, _) => { });
-            if (result.Ok)
+            // A completed run is not an answer. When neither database answered,
+            // the fresh report records only a connection error, and resolving on
+            // Ok alone consumed the entry with nothing learned - the exact case
+            // the queue exists for. The connectivity probe runs once for the whole
+            // batch, so a network that drops mid-replay lands here.
+            if (result.Ok && result.ArLookupFailed && result.CtdbLookupFailed)
+            {
+                _journal.Update(entry);
+                stillPending++;
+                log?.Invoke($"backfill: {entry.Id} retry later (no database answered)");
+            }
+            else if (result.Ok)
             {
                 entry.State = BackfillState.Resolved;
-                entry.ResolutionEvidencePath = FindFreshReport(entry.SourcePath);
+                entry.ResolutionEvidencePath = ReportFor(entry.SourcePath);
                 _journal.Update(entry);
                 resolved++;
                 log?.Invoke($"backfill: {entry.Id} resolved");
@@ -97,18 +151,34 @@ public sealed class VerificationBackfillService
         return new ReplayOutcome(resolved, unresolvable, stillPending);
     }
 
-    private static string? FindFreshReport(string sourcePath)
+    /// <summary>
+    /// The report belonging to THIS entry, which the engine names after the source stem
+    /// (`ArLogFilenameFormat` is `%filename%.accurip`), so `album.cue` gives `album.accurip`.
+    ///
+    /// This used to return the newest `*.accurip` anywhere in the folder. A multi-disc album
+    /// in one folder hit that every time: the snapshot preserved another disc's report while
+    /// the replayed disc's own report was overwritten with no copy, and the entry then
+    /// recorded the wrong file as its evidence. Silent evidence loss in the one path whose
+    /// job is preserving evidence.
+    ///
+    /// A legacy entry naming a folder has no stem to work from, so it is only unambiguous
+    /// when the folder holds exactly one report.
+    /// </summary>
+    private static string? ReportFor(string sourcePath)
     {
         try
         {
-            string? dir = Directory.Exists(sourcePath)
-                ? sourcePath
-                : Path.GetDirectoryName(sourcePath);
+            if (Directory.Exists(sourcePath))
+            {
+                string[] reports = Directory.GetFiles(sourcePath, "*.accurip");
+                return reports.Length == 1 ? reports[0] : null;
+            }
+            string? dir = Path.GetDirectoryName(sourcePath);
             if (dir == null || !Directory.Exists(dir))
                 return null;
-            return Directory.GetFiles(dir, "*.accurip")
-                .OrderByDescending(File.GetLastWriteTimeUtc)
-                .FirstOrDefault();
+            string candidate = Path.Combine(
+                dir, Path.GetFileNameWithoutExtension(sourcePath) + ".accurip");
+            return File.Exists(candidate) ? candidate : null;
         }
         catch (Exception ex) when (ex is IOException or UnauthorizedAccessException)
         {

@@ -32,8 +32,17 @@ public sealed class JournalingVerifyService : IVerifyService
         VerifyFilesResult result = _inner.Verify(path, progress);
         if (!online && result.Ok)
         {
-            _journal.CreatePending(
-                BackfillLane.Verification, path, result.TocId ?? "");
+            // Queue this album once, however many times it is verified offline.
+            // Without the check, verifying the same album N times offline queued
+            // it N times and the next online launch re-verified it N times. The
+            // enrichment lane's comment claimed it shared "the same double-check
+            // discipline as the verify lane", which was not true of this lane
+            // until now.
+            bool alreadyPending = _journal.ReadPending(BackfillLane.Verification)
+                .Any(entry => string.Equals(entry.SourcePath, path, StringComparison.Ordinal));
+            if (!alreadyPending)
+                _journal.CreatePending(
+                    BackfillLane.Verification, path, result.TocId ?? "");
             progress(1,
                 result.Status +
                 " Offline: database verification queued for automatic backfill.");

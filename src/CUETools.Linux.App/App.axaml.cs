@@ -266,25 +266,33 @@ public partial class App : Application
                 // journal entries re-verify automatically once the databases
                 // answer again. Off the UI thread; outcomes go to the
                 // diagnostic log.
-                _ = Task.Run(() =>
+                //
+                // Secondary drive windows do not replay. The primary window owns
+                // the durable profile and the journal, exactly as it owns settings
+                // (the replay itself also claims a cross-process lock, so this is
+                // the cheap half of the same rule).
+                if (!launchOptions.IsSecondaryDriveWindow)
                 {
-                    try
+                    _ = Task.Run(() =>
                     {
-                        var outcome = graph.Backfill.ReplayPending(
-                            line => graph.Log.Info("backfill", line));
-                        if (outcome.Resolved + outcome.Unresolvable + outcome.StillPending > 0)
+                        try
                         {
-                            graph.Log.Info("backfill",
-                                $"replay done: {outcome.Resolved} resolved, " +
-                                $"{outcome.Unresolvable} unresolvable, " +
-                                $"{outcome.StillPending} still pending");
+                            var outcome = graph.Backfill.ReplayPending(
+                                line => graph.Log.Info("backfill", line));
+                            if (outcome.Resolved + outcome.Unresolvable + outcome.StillPending > 0)
+                            {
+                                graph.Log.Info("backfill",
+                                    $"replay done: {outcome.Resolved} resolved, " +
+                                    $"{outcome.Unresolvable} unresolvable, " +
+                                    $"{outcome.StillPending} still pending");
+                            }
                         }
-                    }
-                    catch (Exception ex)
-                    {
-                        graph.Log.Warn("backfill", "replay failed: " + ex.GetType().Name);
-                    }
-                });
+                        catch (Exception ex)
+                        {
+                            graph.Log.Warn("backfill", "replay failed: " + ex.GetType().Name);
+                        }
+                    });
+                }
             };
             desktop.MainWindow = window;
         }
