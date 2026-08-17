@@ -126,11 +126,29 @@ rooted at the source, so the `CreateTOC` branch in `CUESheet.cs:3451`
 (guarded by a non-empty `OutputDir` and non-null `_outputPath`) should
 fire on every CUE-based verify and write `<name>.toc` beside the album.
 
-Status: needs a live confirmation. `pages/verify.md` states it, because
-the code path is unambiguous, but no recorded run lists a `.toc` next to
-a verified album. Run one verify, list the folder, and either confirm
-the page or correct it. Worth an owner opinion too: a `.toc` file
-appearing next to every verified album may be unwanted.
+Status: RESOLVED 2026-08-17 by running it. An album folder was staged
+holding only `.flac` and `.cue`, one verify was run against it, and both
+files appeared:
+
+```text
+Steely Dan - Aja (1977).accurip     2624 bytes
+Steely Dan - Aja (1977).toc          558 bytes
+```
+
+The `.toc` is a human-readable track table (Track, Start, Length, Start
+sector, End sector), identical in shape to the one a rip writes.
+`pages/verify.md` was right on code reading alone, and is now measured.
+
+The same run confirmed two more page claims. The report's first line
+reads `[CUETools log; Date: 08/17/2026 07:36:15; Version: 2.2.6]`, so the
+version really is the engine's rather than the Linux app's, and the
+second line reads `[CTDB TOCID: r81hxErrwZPVmTUZigpDmIQyQqo-] found.`,
+confirming the id on a disc card is CTDB's.
+
+The open owner question stands and is now a product decision rather than
+a documentation one: a `.toc` appearing beside every verified album, not
+just every rip, may be unwanted. Recorded as F-37 in
+`docs/FINDINGS-2026-08-16-manual-pass.md`.
 
 ## 10. `.m3u8` playlists are accepted but probably cannot be verified
 
@@ -192,15 +210,45 @@ stripe would have defeated the repair. The code disagrees.
 `AccurateRipVerify.maxNpar`) and stops at the first depth that recovers,
 while `CUETools.AccurateRip/CDRepair.cs:182` sets the fix's stripe
 capacity to the fetched depth divided by two. A reported capacity of 4
-therefore means the fix succeeded at depth 8, with depth 16 still
-available.
+therefore means the fix succeeded at depth 8, not at 16.
 
-Status: unresolved, and the claim is repeated in `docs/SLICE-002-repair.md`
-line 93 and in the project's own history. To settle it, log the fetched
-depth beside the entry's `Npar` during one live repair. Until then, the
-manual states the two numbers and what they count, and makes no claim
-about what one more damaged sector would have done. The note is
+Status: the headline claim is RESOLVED 2026-08-17 by code, with one
+narrower question left open. The chain was traced end to end and needs no
+live repair:
+
+1. `CUEToolsDB.cs:474` walks `npar = 4, 8, 16`, capped at the entry's own
+   `Npar` and at `AccurateRipVerify.maxNpar`, and breaks at the first
+   depth that recovers (lines 483-490).
+2. The fetched syndrome's width is authoritative, not the loop variable:
+   line 482 reassigns `npar = syn.GetLength(1)`, and
+   `CDRepair.cs:170` independently rederives it as `syn2.GetLength(1)`.
+3. `CDRepair.cs:182` then sets `columnCapacity = npar / 2`.
+
+`maxNpar` is 16 (`AccurateRip.cs:18`), so the `Math.Min` on line 171 never
+clamps below the ladder. Stripe capacity is therefore always exactly the
+fetched depth divided by two. A capacity of 4 means the fix ran at depth
+8, and "the exact limit of what npar=16 parity can recover" is wrong for
+any disc, not just this one.
+
+Still open, and narrower than the original entry: whether depth 16 was
+*available* for that particular disc. The ladder is capped at the CTDB
+entry's own `Npar`, so if that entry carried only npar=8, then 4 of 4 was
+its true ceiling after all and one more damaged sector really would have
+defeated the repair. Nothing in the repository records that entry's
+`Npar`, so it stays unknown for the 2026-08-12 disc specifically.
+
+That gap is now self-closing. `VerifyService` logs both depths on every
+repair (`fix/parity-depth-evidence`, commit 18d59e77): `ctdb parity: entry
+npar=N, fix ran at npar=M`, plus whether deeper parity remained. The next
+repair on any disc settles it without a special session.
+
+The manual states the two numbers and what they count, and makes no claim
+about what one more damaged sector would have done. Both notes are
 corrected.
+
+Not settled by the 2026-08-17 bad-master disc, and it never could be:
+damage that dense is far past what parity repairs, so no repair runs and
+no depth is ever fetched. See F-40.
 
 Related product finding: F-19 and F-20 in
 `docs/FINDINGS-2026-08-16-manual-pass.md` cover the same mismatch on the
@@ -233,12 +281,18 @@ across 12 sectors" in two of its three rows. That cannot come from a real
 fix: `CDRepairFix.CorrectableErrors` counts 16-bit values and
 `AffectedSectorArray` indexes CD sectors
 (`CUETools.AccurateRip/CDRepair.cs:308-322`), and 12 sectors hold only
-12 * 588 * 2 = 14,112 such values.
+12 x 588 x 2 = 14,112 such values.
 
-Status: unresolved. Confirm whether the image is a control-state render
-with example figures, and label it in `notes/repair.md` accordingly. The
-manual page uses the image to show the three panel states and quotes none
-of its numbers.
+Status: RESOLVED 2026-08-17 by labelling it. The arithmetic settles it
+without a rerun: `CorrectableErrors` counts 16-bit values and 12 sectors
+hold only 12 x 588 x 2 = 14,112 of them, so 18,342 cannot come from a
+real fix. `notes/repair.md` now says the figures are an example render,
+and the manual page's caption already framed them that way and quotes
+none of them.
+
+Owner's plan (2026-08-16): redo the manual screenshots from real discs
+eventually, substituting names where a real album should not appear. That
+is a separate piece of work, not a blocker on any page.
 
 ## 16. install.md describes a submission identifier for submissions that never happen
 

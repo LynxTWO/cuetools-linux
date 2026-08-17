@@ -27,9 +27,15 @@ The glibc floor is the one requirement that rules distributions out. The
 app binary, and two of the audio codec libraries packaged with it, use
 symbols versioned `GLIBC_2.38`, so an older system refuses to load them.
 That means Ubuntu 24.04 or later, Debian 13 or later, or a comparably
-recent distribution. Ubuntu 22.04 and Debian 12 cannot run it today. This
-is a known limitation rather than the intended floor, and it is being
-worked on.
+recent distribution. Ubuntu 22.04 and Debian 12 cannot run it today.
+
+That floor is an accident of the machine the release was built on, not
+something the app actually needs. Nothing in CUETools uses a feature that
+arrived in glibc 2.38. The symbols involved are four ordinary,
+long-standing ones (`fmod`, `fmodf`, `strtol`, `wcstol`) that a newer
+compiler quietly binds to a newer version of itself. Building the release
+on an older system lowers the floor without changing a line of code,
+which is the fix being worked on.
 
 ### Optical drives need the cdrom group
 
@@ -155,6 +161,13 @@ Started from a terminal, the app prints one line when the window appears:
 ```text
 startup-to-window-ms=<milliseconds>
 ```
+
+That is how long the app took to put a window on screen. On the machine
+this was measured on, a packaged build reports a little under 700, and an
+empty drive keeps it there. Your own number depends on your hardware, so
+treat it as something to compare against itself over time rather than
+against this one: a launch that suddenly takes several times what it
+usually does is worth looking into.
 
 If an audio CD is in the drive when CUETools starts, the Rip page reads it
 straight away, and reading a disc includes database lookups. See
@@ -282,9 +295,12 @@ A proposed cover image is downloaded only from `coverartarchive.org`,
 
 Those releases ship a glibc older than 2.38, and the app needs symbols
 from 2.38, so the system's loader refuses to start it. There is no flag
-or workaround for this in the current build. Run it on Ubuntu 24.04,
-Debian 13, or a comparably recent distribution; lowering the floor is
-being worked on.
+or workaround for this in the current build, because the loader makes
+that decision before any of the app's own code runs. Run it on Ubuntu
+24.04, Debian 13, or a comparably recent distribution. Nothing about the
+app genuinely requires that version (see
+[What your system needs](#what-your-system-needs)), so the floor should
+drop in a later release.
 
 ### The AppImage will not start and mentions FUSE
 

@@ -201,7 +201,12 @@ public static class Composition
 
         var journal = new JournalStore();
         IVerifyService engineVerify = new VerifyService(config, log);
-        IVerifyService journaledVerify = new JournalingVerifyService(engineVerify, journal);
+        // Probe the databases the way the lookups will actually reach them. Without the
+        // proxy, a network that allows only proxied outbound reported offline for services
+        // the app could reach, journaling every verify and failing every replay the same way.
+        bool ProbeOnline() => ConnectivityProbe.IsOnline(config.GetProxy());
+        IVerifyService journaledVerify =
+            new JournalingVerifyService(engineVerify, journal, ProbeOnline);
         var viewModel = new VerifyViewModel(
             journaledVerify,
             new ReportStore(log),
@@ -212,7 +217,7 @@ public static class Composition
         // Replay re-verifies through the raw engine service: a replay that
         // happens to race a network drop must not journal a duplicate of the
         // entry it is resolving.
-        var backfill = new VerificationBackfillService(engineVerify, journal);
+        var backfill = new VerificationBackfillService(engineVerify, journal, ProbeOnline);
 
         // Convert stack: catalog + service + page, built on the LOADED
         // settings so saved codec selections and format types apply. The
@@ -282,9 +287,64 @@ public static class Composition
             new LinuxPlatformCapabilities(),
             dialogs);
 
+        // A rip makes its own database contact rather than going through the journaled verify
+        // service, so an offline rip used to finish with no verdict and nothing queued: the
+        // user had to know to re-verify the finished album by hand. Queue it instead, so the
+        // backfill asks on a later launch exactly as it does for an offline verify.
+        ripViewModel.Published += publication =>
+        {
+            if (!publication.NoDatabaseAnswered) return;
+            try
+            {
+                string? source = RipPublicationSource(publication.OutputDirectory);
+                if (source == null)
+                {
+                    log.Warn("backfill", "published rip has no manifest to queue");
+                    return;
+                }
+                journal.CreatePending(BackfillLane.Verification, source, "");
+                log.Info("backfill", "offline rip queued for automatic verification");
+            }
+            catch (Exception ex)
+            {
+                log.Warn("backfill", "could not queue the published rip: " + ex.GetType().Name);
+            }
+        };
+
         return new AppGraph(
             viewModel, convertViewModel, queueViewModel, backfill, log, config,
             catalog, appSettings, settingsStore, enrichment, journal, ripViewModel,
             albumArt);
+    }
+
+    /// <summary>
+    /// The manifest inside a published rip that a later verify should re-check: its CUE sheet,
+    /// or the single audio file an image-layout rip wrote. Journaling the directory itself
+    /// would queue a path the engine cannot open ("is a directory").
+    /// </summary>
+    private static string? RipPublicationSource(string outputDirectory)
+    {
+        if (string.IsNullOrWhiteSpace(outputDirectory) ||
+            !System.IO.Directory.Exists(outputDirectory))
+        {
+            return null;
+        }
+
+        string[] cues = System.IO.Directory.GetFiles(outputDirectory, "*.cue");
+        if (cues.Length == 1) return cues[0];
+        if (cues.Length > 1)
+        {
+            // A rip publishes one cue per album folder. More than one means something else
+            // put a sheet here, and guessing which describes the rip is exactly the kind of
+            // choice discovery refuses to make.
+            return null;
+        }
+
+        foreach (string extension in new[] { "*.flac", "*.wv", "*.ape", "*.m4a", "*.wav" })
+        {
+            string[] audio = System.IO.Directory.GetFiles(outputDirectory, extension);
+            if (audio.Length == 1) return audio[0];
+        }
+        return null;
     }
 }

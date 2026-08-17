@@ -30,8 +30,20 @@ disc's report as the entry's `ResolutionEvidencePath`. A multi-disc album
 in one folder hits this every time.
 
 Severity: high. This is silent evidence loss in the one path whose job is
-preserving evidence. The manual now says the `.pre-backfill` copy is a
-convenience rather than a guarantee, which is true but understates it.
+preserving evidence.
+
+FIXED and demonstrated 2026-08-17. Two real albums were staged in one
+folder as `disc1.cue` and `disc2.cue` and verified by the app, which
+wrote `disc1.accurip` and `disc2.accurip`: the engine names a report from
+the source stem, which is exactly what the fix computes. With
+`disc2.accurip` made the newer file, replaying the `disc1` entry selects
+`disc2.accurip` under the old rule and `disc1.accurip` under the new one.
+
+Worth recording for severity: this repository's own box-set rips go into
+one folder per disc, so no rip layout here ever hit it. The layout that
+does is several discs sharing one folder, which discovery explicitly
+supports (`DistinctCueSheetsInOneFolderRemainSeparateDiscs`) and which a
+verify of an existing library commonly has.
 
 ### F-02 A network drop mid-replay marks entries resolved with an error inside
 
@@ -259,6 +271,12 @@ though capacity were npar/4.
 Severity: medium. Two numbers on one panel invite a comparison that is
 not valid.
 
+Partly addressed 2026-08-17. The diagnostic log now records both depths
+explicitly on every repair (`fix/parity-depth-evidence`, commit 18d59e77),
+so the two can no longer be confused in evidence. The panel itself still
+renders them side by side without saying they are different depths, so
+the rendering half of this finding stands.
+
 ### F-20 The headroom number's stated meaning is wrong in one case
 
 The R115 doc comment at `CUETools.AccurateRip/CDRepair.cs:297-301` says
@@ -272,6 +290,13 @@ retried deeper.
 Severity: medium. The manual must not repeat the "at the edge of
 recoverability" reading until this is settled. Note the 2026-08-12
 walkthrough reported exactly this state (worst stripe 4 of 4).
+
+FIXED 2026-08-17 in the fork, and written up as F-39. The comment now
+carries the depth qualifier and warns against calling a fix at capacity
+one error from unrecoverable without checking which rung of the ladder it
+ran at. Fixing the comment mattered on its own, because it is where the
+manual's wording came from: correcting the prose alone would have let the
+claim grow back from the source.
 
 ---
 
@@ -411,7 +436,10 @@ record of how that capture was made is wrong.
   -T` on the 2026-08-15 publish shows the vendored `libmp3lame.so` and
   `MACLibDll.so` also reference `GLIBC_2.38`, so lowering the floor needs
   those two codec libraries rebuilt on an older toolchain as well. This
-  bears directly on the packaging work in progress.
+  bears directly on the packaging work in progress. Extended and partly
+  corrected by F-38: the apphost reaches 2.38 on its own, through `fmod`
+  and `fmodf`, so rebuilding only those two libraries would not have
+  lowered the floor.
 - **F-32** A fatal drive error can be unreadable. The drive-bar status
   uses `TextTrimming="CharacterEllipsis"` with no tooltip
   (`RipView.axaml:41-44`), and the stuck-drive guidance is about 450
@@ -445,3 +473,270 @@ record of how that capture was made is wrong.
    queued retry.
 4. F-31 before the next packaging attempt.
 5. The rest as ordinary UX work.
+
+## F-37 A verify writes a `.toc` beside every album it checks
+
+Measured 2026-08-17. An album folder holding only `.flac` and `.cue` was
+verified once, and the run wrote both `<name>.accurip` (2624 bytes) and
+`<name>.toc` (558 bytes), the same human-readable track table a rip
+writes. `Composition.cs` sets `config.advanced.CreateTOC = true` for the
+whole profile, and `VerifyService.TrySetVerifyLogTarget` gives the sheet
+an output path rooted at the source, so the engine's `CreateTOC` branch
+fires on the verify path too.
+
+Nothing is wrong with the file. The question is whether it should appear
+at all: checking somebody else's album now leaves two new files in their
+folder rather than one, and the second is a layout table they did not ask
+for and cannot obviously act on. The report is the point of a verify; the
+`.toc` is rip evidence.
+
+Severity: low, and it is a decision rather than a defect. Options are to
+scope `CreateTOC` to the rip and repair paths, to keep it and say so
+plainly on the Verify page (which it now does), or to expose it as a
+setting.
+
+---
+
+# Live evidence, 2026-08-17
+
+## The stuck-drive state reproduced on a second drive model
+
+The 2026-08-14 characterization was made on the ASUS BW-16D1HT in an OWC
+enclosure. On 2026-08-17 the same state appeared on an HL-DT-ST BD-RE
+WH16NS40, firmware 1.05, during a secure Test and Copy of disc 3 of a
+3-CD set.
+
+Sequence, from `rip-C.log`:
+
+1. The first window was in trouble immediately: `stuck window at 0%
+   errors=2027`, at the very start of the program rather than at a
+   scratch mid-disc.
+2. Deep recovery worked it down across passes (2330, then 2190, 2027,
+   1923 fresh errors at 32x), and the slip probe reported
+   `reads identical (cache or stable, not jittering)`.
+3. The drive then began rejecting every read shape down to single
+   sectors, in regions it had read successfully moments earlier:
+   `payload_batch_fallbacks=127`, `pinpoint_retries=2048`,
+   `corroborated_unreadable_pinpoints=2048`, `cache_defeat_retries=30`,
+   all with `IllegalRequest / 24/00`.
+4. `unresponsive-signature=yes`. The run failed closed after 341s with
+   the shipped power-cycle guidance, `ok=False`, `readsUsed=0`, nothing
+   published, and no verdict claimed.
+
+Independently confirmed from outside the app: a `CDROMREADTOCHDR` ioctl
+returned EIO on `/dev/sr2` while both other drives answered normally. The
+owner power-cycled the enclosure, the device re-enumerated, and the same
+ioctl then returned the full TOC (20 tracks, leadout 64:43).
+
+What this adds to SLICE-011's evidence:
+
+- The classifier is not tuned to one drive. A different manufacturer,
+  model and firmware produced the same signature and the same verdict.
+- The cure is confirmed a second time: a power cycle cleared it, and the
+  guidance's insistence that a replug may not be enough is what the owner
+  followed.
+- It failed closed. No partial output, no verdict, `failedWindows=0`, and
+  the completed evidence from the earlier disc was untouched.
+
+## The disc, not only the drive
+
+Worth separating for the manual's troubleshooting: this disc's trouble
+began at 0% with over two thousand errors in the first window, which is
+the start of the program rather than a scratch. Whether that is a second
+bad master in this set or a drive that cannot read this particular disc
+is not established. Reading the same disc in a different drive would
+separate the two, and the Rip page's troubleshooting currently cannot
+tell a reader how to make that distinction.
+
+## F-38 The 2.38 glibc floor is set by the build machine, not the code
+
+Measured 2026-08-17 with `objdump -T` over every shipped native binary in
+`src/CUETools.Linux.App/bin/Release/net10.0/linux-x64/publish`. Three of
+the seven reach `GLIBC_2.38`, which matches the manual's "the app binary,
+and two of the audio codec libraries" exactly:
+
+| Binary | Highest GLIBC version needed |
+| --- | --- |
+| `CUETools.Linux.App` (AOT apphost) | 2.38 |
+| `libmp3lame.so` | 2.38 |
+| `MACLibDll.so` | 2.38 |
+| `libFLAC_dynamic.so` | 2.34 |
+| `wavpackdll.so` | 2.34 |
+| `libSkiaSharp.so` | 2.27 |
+| `libHarfBuzzSharp.so` | 2.14 |
+
+The finding is what those symbols turn out to be. Not one is a glibc 2.38
+feature. The apphost needs only `fmod` and `fmodf`, which 2.38 re-versioned;
+the older `fmod@GLIBC_2.2.5` still exists on new systems, so a build linked
+on an older one binds that instead. The two codec libraries need only
+`__isoc23_strtol` and `__isoc23_wcstol`, which are what glibc 2.38's headers
+redirect plain `strtol`/`wcstol` to under a C23-aware compiler (GCC 13+).
+Those variants differ from the originals only in parsing `0b` binary
+literals, which neither library does.
+
+So rebuilding the release under an older glibc should lower the floor to
+2.34 with no source change, and dropping the two codecs would not help,
+because the apphost reaches 2.38 by itself. Inferred, not verified: no such
+build has been attempted. The requirement stands as written until one is.
+
+Manual updated: `pages/install.md` now says the floor is an accident of the
+build machine rather than leaving "being worked on" unexplained, and
+`notes/install.md` carries the table.
+
+## F-39 The repair-headroom doc comment states the wrong conclusion
+
+Found 2026-08-17 while settling needs-verification entry 13. The XML doc on
+`CDRepairFix.WorstStripeErrors` (`CUETools.AccurateRip/CDRepair.cs`) read:
+
+> at capacity, one more error in that stripe would have made the disc
+> unrecoverable
+
+That is the same claim the manual carried and it is wrong for the same
+reason. `CUEToolsDB.LookupCTDB` (`CUETools.CTDB/CUEToolsDB.cs:474-490`)
+walks a ladder of `npar = 4, 8, 16`, capped at the entry's own `Npar` and at
+`AccurateRipVerify.maxNpar`, and stops at the first depth that recovers.
+`CUETools.AccurateRip/CDRepair.cs:182` then sets `columnCapacity = npar / 2`
+for whichever depth succeeded. So a fix reporting capacity 4 ran at
+`npar = 8`, the second rung, with 16 never fetched. One more error there
+would have defeated that rung and sent the lookup to the next one.
+
+The disc is only out of headroom when the capacity comes from the last rung
+the ladder can reach. Worth recording separately from the manual fix,
+because the comment is where the manual's wording came from: correcting the
+prose alone would have let it grow back.
+
+Fixed in the fork. The comment now states the depth qualifier and warns
+against describing a fix at capacity as one error from unrecoverable
+without checking which rung it ran at.
+
+## F-40 A bad master exercises the reread path without touching the fatal path
+
+Measured 2026-08-17 on the PLDS drive (drive A) with the third disc of the
+owner's three-disc set, which the owner identified in advance as likely a
+bad master. Verify-only, so nothing was written.
+
+The run was stopped deliberately after 17 minutes. What it showed by then:
+
+| Window | Passes | Errors | Converged |
+| --- | --- | --- | --- |
+| 0 | 30 | 488 | no |
+| 2400 | 30 | 552 | no |
+| 4800 | 30 | 683 | no |
+
+Three consecutive windows from sector 0, none converging, error counts
+rising. That shape is a defective pressing rather than a scratch: the
+2026-08-12 walkthrough disc had 129 damaged sectors across the whole disc
+and its damage sat in the outer third, whereas this one had roughly 1,700
+in the first 7,200 sectors, starting at the program's beginning.
+
+Behaviour worth keeping, all measured:
+
+- The engine gave up per window rather than per disc. Each window burned
+  its 30 passes, logged `WARN gave up on window ... (unreadable by drive)`,
+  and moved on. No crash, no abort, no fatal classification.
+- The D11 stuck-drive classifier did not fire, correctly. No `24/00`, no
+  `unresponsive-signature`. Bad media and a wedged drive are the
+  distinction that policy turns on, and a real bad master did not trip it.
+- The speed ladder was exercised: 16x, 12x and 8x requested, with recovery
+  passes running at 0x and stepping back up on entering a fresh window.
+- The drive was healthy after an abort mid-read: `CDROM_DRIVE_STATUS`
+  returned `disc ok` and the only remaining holder of `/dev/sr0` was
+  `gvfsd-cdda`.
+
+Two limits on what this proves. Progress was 1% in 16 minutes, so the disc
+was never carried to a verdict, and no AccurateRip or CTDB result exists
+for it. And the log carries only the `rip.recovery`, `rip.reread` and
+`rip.speed` channels, with no SCSI channel in this or any earlier rip log,
+so the absence of sense data is not evidence that the drive reported none.
+Whether these reads succeeded with unstable payloads or failed with sense
+the log does not surface is unknown.
+
+This disc cannot settle needs-verification entry 13. Damage at this density
+is far beyond what CTDB parity repairs, so no repair would ever run on it.
+
+## F-41 The startup stopwatch reported 0 ms on every run
+
+Measured 2026-08-17. `--smoke` prints `startup-to-window-ms=` from
+`Program.Startup.ElapsedMilliseconds` at `window.Opened`, and the comment
+beside it says the stopwatch "starts in Main so the number covers the
+whole launch". It printed exactly `0` on every run of the shipped AOT
+build, three for three.
+
+The cause is C# static initialization. `Program` declares
+
+```csharp
+internal static readonly Stopwatch Startup = Stopwatch.StartNew();
+```
+
+and has no static constructor, so the compiler marks the type
+`beforefieldinit` and the runtime may defer that initializer until the
+first access to one of the type's static fields. `Main` being a method on
+the same type does not force it. The first field access was the
+`ElapsedMilliseconds` read itself, so the stopwatch was created and read in
+the same instant.
+
+Fixed by starting it explicitly as the first statement of `Main` and
+leaving the field as a plain `new Stopwatch()`, which does not depend on
+when the initializer runs.
+
+Measured before and after, three runs each:
+
+| Build | Reported | Wall clock |
+| --- | --- | --- |
+| AOT, before the fix | 0 ms every run | 699, 699, 797 ms |
+| JIT via `dotnet`, after the fix | 3012, 3274, 3139 ms | 3077, 3354, 3261 ms |
+| AOT, after the fix | 688, 709, 635 ms | 727, 750, 688 ms |
+
+After the fix the reported number tracks wall clock closely: within about
+40 ms on the AOT build and 80 ms on the JIT build, which is the process
+teardown that follows `Opened`. The AOT figures also agree with the
+external wall-clock timings taken before the fix, so the instrument is now
+measuring the thing its name claims.
+
+The manual is not at fault here, and it is worth being exact about that.
+`pages/install.md` documents the line's format and states no number, so
+there was never a speed claim to disprove. What it did document was an
+output that always read zero, which would leave a reader checking their
+install with a number that could not mean anything.
+
+Now that the instrument works, the measured figures are worth having.
+The shipped AOT build reaches a visible window in roughly 0.68 seconds. A
+JIT build run through `dotnet` takes about 3.1 seconds, so any startup
+figure has to stay attached to the packaged app rather than to running
+from source. Both are warm-cache on this workstation, and a first cold
+launch will be slower.
+
+Worth noting for its own sake: a smoke test whose only output was a
+hardcoded-looking `0` passed CI unremarked. The number was never asserted
+against a bound, so nothing failed when the instrument stopped measuring.
+
+## F-42 The AppImage does not need libfuse2
+
+Tested 2026-08-17 by running the shipped artifact,
+`bin/packages/CUEToolsLinux-0.1.0-alpha-x86_64.AppImage`, on this
+workstation. `notes/install.md` said the AppImage "needs FUSE, provided by
+the `libfuse2` or `libfuse2t64` package depending on your distribution".
+Neither is installed here: `libfuse2` has no candidate at all on this
+release, and `libfuse2t64` is available but not installed. The AppImage ran
+regardless, reaching a window and exiting cleanly.
+
+It really did mount rather than quietly falling back, which is the part
+worth proving, because an extract-and-run fallback would look identical
+from outside. `--appimage-mount` reported `/tmp/.mount_CUETooihBKKM`, and
+`mount` listed it as `type fuse.CUEToolsLinux-0.1.0-alpha-x86_64.AppImage`
+with `ro,nosuid,nodev,user_id=1000`.
+
+The requirement is a `fusermount` binary on the PATH, not a specific
+library package. On this system `fuse3` provides it:
+`/usr/bin/fusermount` is a symlink to the setuid `/usr/bin/fusermount3`.
+Naming `libfuse2` would send a reader to install a package they do not
+need, and on Ubuntu 24.04 to one that does not exist under that name.
+
+`pages/install.md` was already correct, and says the AppImage "needs a
+`fusermount` program on your `PATH`" with `--appimage-extract-and-run` as
+the fallback. Only the notes over-specified it, and they now carry the
+measurement.
+
+Separately, this run confirmed F-41 in the released artifact: the AppImage
+built 2026-08-14 printed `startup-to-window-ms=0`, so the broken stopwatch
+shipped rather than being a working-tree regression.
