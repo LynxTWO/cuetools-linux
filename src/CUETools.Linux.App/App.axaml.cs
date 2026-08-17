@@ -41,7 +41,12 @@ public partial class App : Application
                 new AvaloniaFileDialogService(() => windowRef),
                 autoRepair ? new AutoConfirmPrompt() : new AvaloniaUserPrompt(() => windowRef),
                 new AvaloniaUiDispatcher(),
-                launchOptions);
+                launchOptions,
+                // Never AutoConfirmPrompt's equivalent, even under --repair. That flag is
+                // consent to repair the user's own files in place of a dialog; it is not
+                // consent to publish their disc identity to a public database, and the two
+                // must not be collapsed. Publishing always asks a human.
+                new Services.AvaloniaCtdbSubmissionPrompt(() => windowRef));
             foreach (string line in nativeLog) graph.Log.Info("codecs", line);
 
             // A Linux session manager stops apps with SIGTERM (and a terminal
