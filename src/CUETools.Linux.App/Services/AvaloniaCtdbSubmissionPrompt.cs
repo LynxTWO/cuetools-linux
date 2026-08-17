@@ -56,8 +56,35 @@ public sealed class AvaloniaCtdbSubmissionPrompt : ICtdbSubmissionPrompt
         if (_windowSource() is not { } owner)
             return new CtdbSubmissionConsent { Submit = false, Remember = false };
 
+        Window dialog = BuildDialog(
+            candidate, out CheckBox remember, out Button yes, out Button no);
+
         var submit = false;
-        var remember = new CheckBox
+        // Wired here rather than in BuildDialog, so the builder stays pure layout that a
+        // test can construct and read without a window ever being shown.
+        yes.Click += (_, _) => { submit = true; dialog.Close(); };
+        no.Click += (_, _) => dialog.Close();
+
+        dialog.ShowDialog(owner).GetAwaiter().GetResult();
+
+        return new CtdbSubmissionConsent
+        {
+            Submit = submit,
+            Remember = remember.IsChecked == true,
+        };
+    }
+
+    /// <summary>
+    /// Builds the dialog without showing it, so its wording and its defaults are testable.
+    /// Pure layout: nothing here closes a window or records an answer.
+    /// </summary>
+    internal static Window BuildDialog(
+        CtdbSubmissionCandidate candidate,
+        out CheckBox remember,
+        out Button share,
+        out Button decline)
+    {
+        remember = new CheckBox
         {
             Content = "Remember this answer and stop asking",
             IsChecked = false,
@@ -72,10 +99,38 @@ public sealed class AvaloniaCtdbSubmissionPrompt : ICtdbSubmissionPrompt
             CanResize = false,
         };
 
+        // Declining is the default action, so Enter and Escape both refuse. An upload
+        // cannot be undone, and a dialog that appears under the user's hands must not
+        // treat a reflex keypress as consent to publish.
+        //
+        // It is also the accented one. Rendered without this the two buttons were
+        // pixel-identical, so nothing but the label distinguished a reversible click from
+        // an irreversible one. The safe choice carries the emphasis, the same way a
+        // delete confirmation emphasises Cancel: this publishes the user's disc identity
+        // and the database has no delete.
         var yes = new Button { Content = "Share", MinWidth = 96 };
-        var no = new Button { Content = "Don't share", MinWidth = 96, IsDefault = true };
-        yes.Click += (_, _) => { submit = true; dialog.Close(); };
-        no.Click += (_, _) => dialog.Close();
+        var no = new Button
+        {
+            Content = "Don't share",
+            MinWidth = 96,
+            IsDefault = true,
+            IsCancel = true,
+            FontWeight = FontWeight.SemiBold,
+        };
+        // The app's Button.accent style is declared inside VerifyView's own styles, so a
+        // window built in code cannot pick it up by class. Same palette keys, applied
+        // directly, with a fallback so a missing resource cannot leave the button
+        // invisible against its own background.
+        no.Background = dialog.TryFindResource("StatusAccent", out object? accent)
+            && accent is IBrush accentBrush
+            ? accentBrush
+            : Brushes.Teal;
+        no.Foreground = dialog.TryFindResource("Ground", out object? ground)
+            && ground is IBrush groundBrush
+            ? groundBrush
+            : Brushes.Black;
+        share = yes;
+        decline = no;
 
         string disc = string.IsNullOrWhiteSpace(candidate.Album)
             ? "this disc"
@@ -121,18 +176,14 @@ public sealed class AvaloniaCtdbSubmissionPrompt : ICtdbSubmissionPrompt
                     Orientation = Orientation.Horizontal,
                     Spacing = 8,
                     HorizontalAlignment = HorizontalAlignment.Right,
+                    // Decline sits left of Share, so the destructive-by-default reading
+                    // order puts the safe answer where the eye lands first.
                     Children = { no, yes },
                 },
             },
         };
 
-        dialog.ShowDialog(owner).GetAwaiter().GetResult();
-
-        return new CtdbSubmissionConsent
-        {
-            Submit = submit,
-            Remember = remember.IsChecked == true,
-        };
+        return dialog;
     }
 
     private static string BuildContentsList(CtdbSubmissionCandidate candidate)
@@ -147,7 +198,9 @@ public sealed class AvaloniaCtdbSubmissionPrompt : ICtdbSubmissionPrompt
             "  - parity data, which is what lets the database repair a damaged copy\n" +
             "  - the artist and album title shown above\n" +
             "  - " + barcode + "\n" +
-            "  - an identifier for this computer, which the database uses to tell " +
-            "separate submissions apart";
+            // Kept short enough not to wrap at this width. A wrapped bullet returns to
+            // the left margin rather than hanging under its own text, which reads as a
+            // new item rather than a continuation.
+            "  - an identifier for this computer, to tell submissions apart";
     }
 }

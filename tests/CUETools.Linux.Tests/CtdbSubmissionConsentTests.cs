@@ -1,6 +1,9 @@
+using Avalonia.Headless.XUnit;
+using Avalonia.LogicalTree;
 using CUETools.CDImage;
 using CUETools.CTDB;
 using CUETools.Linux.App;
+using CUETools.Linux.App.Services;
 using CUETools.Processor;
 using CUETools.Wpf.Services;
 using Xunit;
@@ -209,5 +212,78 @@ public class CtdbSubmissionConsentTests
         Exception? thrown = Record.Exception(() => service.Offer(Database(), Clean()));
 
         Assert.Null(thrown);
+    }
+}
+
+// The dialog itself. BuildDialog is pure layout and shows nothing, so these run headless
+// and read the tree the user would see.
+public class CtdbConsentDialogTests
+{
+    private static CtdbSubmissionCandidate Candidate(string barcode = "0123456789") => new()
+    {
+        RunCompleted = true,
+        Album = "Aja",
+        Artist = "Steely Dan",
+        Barcode = barcode,
+        Confidence = 4,
+    };
+
+    private static string AllText(Avalonia.Controls.Window w) =>
+        string.Join("\n", w.GetLogicalDescendants()
+            .OfType<Avalonia.Controls.TextBlock>()
+            .Select(t => t.Text ?? ""));
+
+    [AvaloniaFact]
+    public void DecliningIsTheDefaultAndTheCancelAction()
+    {
+        Avalonia.Controls.Window dialog = AvaloniaCtdbSubmissionPrompt.BuildDialog(
+            Candidate(), out Avalonia.Controls.CheckBox remember,
+            out Avalonia.Controls.Button share, out Avalonia.Controls.Button decline);
+
+        // Enter and Escape must both refuse. An upload cannot be undone, so a reflex
+        // keypress on a dialog that appeared under the user's hands must not publish.
+        Assert.True(decline.IsDefault);
+        Assert.True(decline.IsCancel);
+        Assert.False(share.IsDefault);
+        Assert.False(share.IsCancel);
+
+        // Remembering is opt-in: a single answer must not silently become permanent.
+        Assert.False(remember.IsChecked);
+        Assert.Equal("Share this rip with the CUETools Database?", dialog.Title);
+    }
+
+    [AvaloniaFact]
+    public void TheDialogNamesEverythingThatLeavesTheMachine()
+    {
+        string text = AllText(AvaloniaCtdbSubmissionPrompt.BuildDialog(
+            Candidate(), out _, out _, out _));
+
+        // SLICE-012 section 4: the consent text must name each of these, because a user
+        // cannot consent to an upload whose contents they have to guess.
+        Assert.Contains("table of contents", text);
+        Assert.Contains("checksum for each track", text);
+        Assert.Contains("parity data", text);
+        Assert.Contains("artist and album", text);
+        Assert.Contains("0123456789", text);
+        Assert.Contains("identifier for this computer", text);
+
+        // And what it does not send, plus the fact that it cannot be taken back.
+        Assert.Contains("does not send your audio files", text);
+        Assert.Contains("cannot be", text);
+        Assert.Contains("no delete", text);
+
+        // The disc being published is named, so "this rip" is never ambiguous.
+        Assert.Contains("Steely Dan - Aja", text);
+    }
+
+    [AvaloniaFact]
+    public void AMissingBarcodeIsDescribedRatherThanShownAsBlank()
+    {
+        string text = AllText(AvaloniaCtdbSubmissionPrompt.BuildDialog(
+            Candidate(barcode: ""), out _, out _, out _));
+
+        // Never print "the disc's barcode ()" at a user.
+        Assert.DoesNotContain("barcode ()", text);
+        Assert.Contains("barcode, if it has one", text);
     }
 }
