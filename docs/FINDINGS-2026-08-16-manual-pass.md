@@ -683,12 +683,22 @@ disc's lead-in without difficulty and fails only in the audio payload, and
 the three discs are confirmed distinct rather than the same disc read three
 times.
 
-Still open, and now sharper than when this entry was written: whether CD1
-is defective or the PLDS specifically cannot read it. Separating those
-needs the same disc read in a second drive, which needs a physical swap.
-CD3, the disc actually suspected of being a bad master, is being verified
-in the LG as of 2026-08-17 15:40; that result speaks to CD3 and does not by
-itself settle anything about CD1.
+Whether CD1 is defective or the PLDS specifically cannot read it was left
+open here. It is now nearly closed, from the other end.
+
+CD3, the disc actually suspected of being a bad master, was verified in the
+LG later the same day and is the worst of the three: errors climbing to
+1,576 per window, 6% in 55 minutes. That confirms the owner's advance call
+and shows this failure shape is not particular to the PLDS.
+
+Then the PLDS read a different, known-good disc end to end to an accurate
+verdict at AccurateRip 226 of 262 (F-45). A drive that does that is
+working, so the remaining explanation for CD1 is the disc.
+
+Short of proof, and worth keeping short of it: only reading CD1 itself in a
+second drive proves it, and that still needs a physical swap. What has
+changed is that the drive-fault hypothesis now requires the PLDS to fail on
+one disc while succeeding on another, which is what a bad disc looks like.
 
 This disc cannot settle needs-verification entry 13. Damage at this density
 is far beyond what CTDB parity repairs, so no repair would ever run on it.
@@ -888,3 +898,61 @@ Still not established: whether CD1 is defective or the PLDS specifically
 cannot read it. CD3 failing the same way in a different drive makes a
 PLDS-specific fault unlikely, but only reading CD1 in a second drive
 settles it, and that needs a physical swap. See F-40.
+
+## F-45 Three known-good discs, three drives, three accurate verdicts
+
+Measured 2026-08-17 at the owner's request, ahead of any CTDB submission:
+one known-good disc per drive, verify-only, run concurrently.
+
+| Drive | Tracks | Elapsed | AccurateRip | CTDB | Verdict | Stuck windows |
+| --- | --- | --- | --- | --- | --- | --- |
+| A, PLDS DU8A5SH | 4 | 791 s | 226/262 | 602/660 | accurate | 1 |
+| B, ASUS BW-16D1HT | 20 | 413 s | 6/6 | 12/13 | accurate | 0 |
+| C, LG WH16NS40 | 8 | 350 s | 245/388 | 799/835 | accurate | 0 |
+
+Three things follow, and each closes something that was open.
+
+### The PLDS is not a broken drive
+
+This is the one that matters most. F-40 left open whether Reggae Roots CD1
+was defective or the PLDS specifically could not read it, and the honest
+answer was that nothing had separated them. The PLDS has now read a
+different disc end to end to an accurate verdict at AccurateRip 226 of 262.
+A drive that does that is working.
+
+So the remaining explanation for CD1 is the disc. That is not the same as
+proof: only reading CD1 itself in a second drive proves it, and that still
+needs a physical swap. But the drive-fault hypothesis now requires the PLDS
+to fail on exactly one disc while succeeding on another, which is what a bad
+disc looks like.
+
+### F-44 holds on a second disc, in a second drive
+
+Drive A's disc had one stuck window, at 88% with a single unresolved sector,
+and verified accurate. That is an independent repeat of what CD2 showed on
+the ASUS: a window the reread layer gave up on, in a rip AccurateRip then
+confirmed bit-exact.
+
+Two discs, two drives, same result. A stuck window is a statement about read
+stability and not about the audio, and the manual can now say so on the
+strength of more than one disc.
+
+### The 3E/02 carve-out fired live and recovered
+
+Drive A's run recorded `drive_reported_timeout_batches=1`. That is the
+corroboration-gated HardwareError 3E/02 (TIMEOUT ON LOGICAL UNIT) path: a
+multi-sector batch where the drive surrendered, decomposed into independent
+single-sector reads rather than being treated as fatal.
+
+It happened during a run that finished accurate. The carve-out exists
+precisely so a drive's own surrender on one batch does not end a rip that is
+otherwise fine, and this is the first record of it doing that on a good disc
+with a clean verdict at the end. Every other anomaly counter was zero:
+`read_communication_retries`, `payload_batch_fallbacks`, `pinpoint_retries`.
+
+### For the submission evidence run
+
+Drive C's disc is the strongest candidate for S12-002. Its pressing already
+carries 835 CTDB submissions, so a new one adds confidence to a
+well-established entry rather than creating a fresh one that nothing else
+can corroborate.
