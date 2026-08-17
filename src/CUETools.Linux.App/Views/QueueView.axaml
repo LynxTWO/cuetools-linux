@@ -36,6 +36,10 @@
         <Button DockPanel.Dock="Right" Content="Run all"
                 Command="{Binding RunAllCommand}" Classes="accent"
                 Padding="16,6" Margin="8,0,0,0" VerticalAlignment="Center" />
+        <Button DockPanel.Dock="Right" Content="Stop after item"
+                Command="{Binding StopCommand}" Padding="12,6"
+                Margin="8,0,0,0" VerticalAlignment="Center"
+                ToolTip.Tip="Finish the item running now and keep its result, leaving the rest queued." />
         <Button DockPanel.Dock="Right" Content="Clear"
                 Command="{Binding ClearCommand}" Padding="12,6"
                 VerticalAlignment="Center" />
@@ -57,7 +61,7 @@
               <Border Background="{DynamicResource Face}"
                       BorderBrush="{DynamicResource Line}" BorderThickness="1"
                       CornerRadius="8" Padding="12,9" Margin="0,0,0,6">
-                <Grid ColumnDefinitions="3*,90,110,4*">
+                <Grid ColumnDefinitions="3*,90,110,4*,Auto">
                   <TextBlock Grid.Column="0" Text="{Binding Display}"
                              Foreground="{DynamicResource Ink}" FontSize="12.5"
                              TextTrimming="CharacterEllipsis"
@@ -72,6 +76,14 @@
                              Foreground="{DynamicResource Muted}" FontSize="11.5"
                              TextTrimming="CharacterEllipsis"
                              ToolTip.Tip="{Binding Result}" />
+                  <!-- The view model has always had RemoveCommand; nothing bound it, so the
+                       only way to drop one mistaken row was Clear and start again. Bound to
+                       the page, not the row, because the command lives on the view model. -->
+                  <Button Grid.Column="4" Content="Remove" Padding="9,3"
+                          Margin="8,0,0,0" VerticalAlignment="Center" FontSize="11"
+                          Command="{Binding $parent[ItemsControl].((vm:QueueViewModel)DataContext).RemoveCommand}"
+                          CommandParameter="{Binding}"
+                          ToolTip.Tip="Take this item out of the queue. The item running now cannot be removed." />
                 </Grid>
               </Border>
             </DataTemplate>
