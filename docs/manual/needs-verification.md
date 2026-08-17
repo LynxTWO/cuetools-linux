@@ -126,11 +126,29 @@ rooted at the source, so the `CreateTOC` branch in `CUESheet.cs:3451`
 (guarded by a non-empty `OutputDir` and non-null `_outputPath`) should
 fire on every CUE-based verify and write `<name>.toc` beside the album.
 
-Status: needs a live confirmation. `pages/verify.md` states it, because
-the code path is unambiguous, but no recorded run lists a `.toc` next to
-a verified album. Run one verify, list the folder, and either confirm
-the page or correct it. Worth an owner opinion too: a `.toc` file
-appearing next to every verified album may be unwanted.
+Status: RESOLVED 2026-08-17 by running it. An album folder was staged
+holding only `.flac` and `.cue`, one verify was run against it, and both
+files appeared:
+
+```text
+Steely Dan - Aja (1977).accurip     2624 bytes
+Steely Dan - Aja (1977).toc          558 bytes
+```
+
+The `.toc` is a human-readable track table (Track, Start, Length, Start
+sector, End sector), identical in shape to the one a rip writes.
+`pages/verify.md` was right on code reading alone, and is now measured.
+
+The same run confirmed two more page claims. The report's first line
+reads `[CUETools log; Date: 08/17/2026 07:36:15; Version: 2.2.6]`, so the
+version really is the engine's rather than the Linux app's, and the
+second line reads `[CTDB TOCID: r81hxErrwZPVmTUZigpDmIQyQqo-] found.`,
+confirming the id on a disc card is CTDB's.
+
+The open owner question stands and is now a product decision rather than
+a documentation one: a `.toc` appearing beside every verified album, not
+just every rip, may be unwanted. Recorded as F-37 in
+`docs/FINDINGS-2026-08-16-manual-pass.md`.
 
 ## 10. `.m3u8` playlists are accepted but probably cannot be verified
 

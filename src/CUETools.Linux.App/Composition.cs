@@ -201,7 +201,12 @@ public static class Composition
 
         var journal = new JournalStore();
         IVerifyService engineVerify = new VerifyService(config, log);
-        IVerifyService journaledVerify = new JournalingVerifyService(engineVerify, journal);
+        // Probe the databases the way the lookups will actually reach them. Without the
+        // proxy, a network that allows only proxied outbound reported offline for services
+        // the app could reach, journaling every verify and failing every replay the same way.
+        bool ProbeOnline() => ConnectivityProbe.IsOnline(config.GetProxy());
+        IVerifyService journaledVerify =
+            new JournalingVerifyService(engineVerify, journal, ProbeOnline);
         var viewModel = new VerifyViewModel(
             journaledVerify,
             new ReportStore(log),
@@ -212,7 +217,7 @@ public static class Composition
         // Replay re-verifies through the raw engine service: a replay that
         // happens to race a network drop must not journal a duplicate of the
         // entry it is resolving.
-        var backfill = new VerificationBackfillService(engineVerify, journal);
+        var backfill = new VerificationBackfillService(engineVerify, journal, ProbeOnline);
 
         // Convert stack: catalog + service + page, built on the LOADED
         // settings so saved codec selections and format types apply. The

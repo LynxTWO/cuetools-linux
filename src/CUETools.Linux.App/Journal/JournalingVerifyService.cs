@@ -1,3 +1,4 @@
+using System.Net;
 using System.Net.Sockets;
 using CUETools.Wpf.Services;
 
@@ -67,14 +68,47 @@ public static class ConnectivityProbe
         ("www.accuraterip.com", 443),
     };
 
-    public static bool IsOnline()
+    public static bool IsOnline() => IsOnline(null);
+
+    /// <summary>
+    /// Reachability of the two verification databases, as the app would reach them.
+    ///
+    /// The probe used to open raw sockets to the database hosts while every real lookup went
+    /// through the configured proxy. On a network where direct outbound connections are
+    /// blocked but a proxy works, that reported offline for a service the app could in fact
+    /// reach: every verify was journaled, and the backfill then failed the same way forever.
+    ///
+    /// Passing the engine's proxy fixes that. For each endpoint, whatever the proxy says it
+    /// would actually connect to is what gets probed, which is the destination itself when no
+    /// proxy applies to it. One reachable endpoint is enough; the lookups themselves decide
+    /// the rest.
+    /// </summary>
+    public static bool IsOnline(IWebProxy? proxy)
     {
         foreach ((string host, int port) in Endpoints)
         {
+            string probeHost = host;
+            int probePort = port;
+            try
+            {
+                var destination = new Uri((port == 443 ? "https://" : "http://") + host);
+                Uri? hop = proxy?.GetProxy(destination);
+                if (hop != null && !hop.Equals(destination))
+                {
+                    probeHost = hop.Host;
+                    probePort = hop.Port;
+                }
+            }
+            catch
+            {
+                // A proxy that cannot answer for this destination is not a reason to call the
+                // network down; fall through and probe the destination itself.
+            }
+
             try
             {
                 using var client = new TcpClient();
-                if (client.ConnectAsync(host, port).Wait(TimeSpan.FromSeconds(3)))
+                if (client.ConnectAsync(probeHost, probePort).Wait(TimeSpan.FromSeconds(3)))
                     return true;
             }
             catch

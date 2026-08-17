@@ -30,8 +30,20 @@ disc's report as the entry's `ResolutionEvidencePath`. A multi-disc album
 in one folder hits this every time.
 
 Severity: high. This is silent evidence loss in the one path whose job is
-preserving evidence. The manual now says the `.pre-backfill` copy is a
-convenience rather than a guarantee, which is true but understates it.
+preserving evidence.
+
+FIXED and demonstrated 2026-08-17. Two real albums were staged in one
+folder as `disc1.cue` and `disc2.cue` and verified by the app, which
+wrote `disc1.accurip` and `disc2.accurip`: the engine names a report from
+the source stem, which is exactly what the fix computes. With
+`disc2.accurip` made the newer file, replaying the `disc1` entry selects
+`disc2.accurip` under the old rule and `disc1.accurip` under the new one.
+
+Worth recording for severity: this repository's own box-set rips go into
+one folder per disc, so no rip layout here ever hit it. The layout that
+does is several discs sharing one folder, which discovery explicitly
+supports (`DistinctCueSheetsInOneFolderRemainSeparateDiscs`) and which a
+verify of an existing library commonly has.
 
 ### F-02 A network drop mid-replay marks entries resolved with an error inside
 
@@ -445,3 +457,24 @@ record of how that capture was made is wrong.
    queued retry.
 4. F-31 before the next packaging attempt.
 5. The rest as ordinary UX work.
+
+## F-37 A verify writes a `.toc` beside every album it checks
+
+Measured 2026-08-17. An album folder holding only `.flac` and `.cue` was
+verified once, and the run wrote both `<name>.accurip` (2624 bytes) and
+`<name>.toc` (558 bytes), the same human-readable track table a rip
+writes. `Composition.cs` sets `config.advanced.CreateTOC = true` for the
+whole profile, and `VerifyService.TrySetVerifyLogTarget` gives the sheet
+an output path rooted at the source, so the engine's `CreateTOC` branch
+fires on the verify path too.
+
+Nothing is wrong with the file. The question is whether it should appear
+at all: checking somebody else's album now leaves two new files in their
+folder rather than one, and the second is a layout table they did not ask
+for and cannot obviously act on. The report is the point of a verify; the
+`.toc` is rip evidence.
+
+Severity: low, and it is a decision rather than a defect. Options are to
+scope `CreateTOC` to the rip and repair paths, to keep it and say so
+plainly on the Verify page (which it now does), or to expose it as a
+setting.
