@@ -820,3 +820,71 @@ and exit non-zero rather than opening a window. A Release build should say
 that a `RIP_DIAGNOSTIC` flag needs a Debug build, rather than ignoring it,
 because the flag name is knowable at compile time even when its
 implementation is not.
+
+## F-44 A stuck window does not mean a damaged rip
+
+Measured 2026-08-17 on the ASUS drive (drive B) with Reggae Roots CD2
+(KBOX3604B), verify-only. The first clean end-to-end result of the day, and
+the most useful one, because it is the control the other two discs lacked.
+
+The verdict: **AccurateRip accurate, 4 of 4. CTDB verified, confidence 4 of
+7.** Elapsed 741 seconds.
+
+The disc was not pristine. Three windows exhausted their rereads and were
+declared stuck:
+
+| Position | Unresolved sectors |
+| --- | --- |
+| 14% | 2 |
+| 15% | 2 |
+| 43% | 1 |
+
+And the rip was still bit-exact. That deduction is forced rather than
+guessed: AccurateRip compares an exact CRC over the audio program, all
+three positions sit inside it, and the result was `accurate=True` at 4 of 4.
+Had any of those five sectors carried wrong samples, the CRC could not have
+matched.
+
+So `stuck window` is a statement about read *stability*, not about
+correctness. The reread layer gives up when repeated passes stop agreeing,
+and this run shows that a sector whose passes never converged can still
+have been read correctly every time. Why the vote did not settle is not
+established here.
+
+That matters for what the manual tells a user. A log carrying "gave up on
+window ... (unreadable by drive)" reads like a ruined rip, and on this disc
+it accompanied a perfect one. The Rip page's troubleshooting should not
+equate the two.
+
+Every hardware-anomaly counter was zero: `control_transition_retries`,
+`read_communication_retries`, `cache_defeat_retries`,
+`cache_defeat_chunk_fallbacks`, `cache_defeat_wake_readiness_retries`,
+`payload_batch_fallbacks`, `pinpoint_retries`,
+`corroborated_unreadable_pinpoints`, `drive_reported_timeout_pinpoints`,
+`drive_reported_timeout_batches`. `c2_mode=3`, cache defeat flushing
+786,432 bytes per secure reread.
+
+### What this settles about the other two discs
+
+It is the control that kills the systematic-bug hypothesis. When CD1 and
+CD3 both stalled at window 0 in different drives, a structural fault in the
+read path looked plausible. CD2 read straight through the same code on a
+third drive and verified accurate, so the machinery is sound and the two
+bad discs are bad discs.
+
+The set, measured the same day, same code, one disc per drive:
+
+| Disc | Drive | Worst window | Outcome |
+| --- | --- | --- | --- |
+| CD1 (KBOX3604A) | PLDS | 683 errors, minFresh 236 | 1% in 16 min, abandoned |
+| CD2 (KBOX3604B) | ASUS | 2 errors | **accurate, AR 4/4, CTDB 4/7** |
+| CD3 (KBOX3604C) | LG | 1,475 errors and climbing | 4% in ~50 min, abandoned |
+
+The owner's advance call that disc 3 was likely a bad master is confirmed:
+CD3 is the worst of the three. CD1 being nearly as bad was not expected by
+anyone and remains the surprise of the set.
+
+Still not established: whether CD1 is defective or the PLDS specifically
+cannot read it. CD3 failing the same way in a different drive makes a
+PLDS-specific fault unlikely, but only reading CD1 in a second drive
+settles it, and that needs a physical swap. See F-40.
