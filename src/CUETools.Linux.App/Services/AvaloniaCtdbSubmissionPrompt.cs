@@ -99,33 +99,40 @@ public sealed class AvaloniaCtdbSubmissionPrompt : ICtdbSubmissionPrompt
             CanResize = false,
         };
 
-        // Declining is the default action, so Enter and Escape both refuse. An upload
-        // cannot be undone, and a dialog that appears under the user's hands must not
-        // treat a reflex keypress as consent to publish.
+        // Two separate decisions here, and they deliberately point different ways.
         //
-        // It is also the accented one. Rendered without this the two buttons were
-        // pixel-identical, so nothing but the label distinguished a reversible click from
-        // an irreversible one. The safe choice carries the emphasis, the same way a
-        // delete confirmation emphasises Cancel: this publishes the user's disc identity
-        // and the database has no delete.
-        var yes = new Button { Content = "Share", MinWidth = 96 };
+        // Share carries the accent, because it is the action the dialog is asking about
+        // and the database this feature exists to contribute to. Rendered without an
+        // accent on either, the buttons were pixel-identical and nothing but the label
+        // separated them (owner's call 2026-08-17 to put it here rather than on
+        // declining).
+        //
+        // Declining stays the default and the cancel action, so Enter and Escape both
+        // refuse. The emphasis invites; the keyboard still protects. A dialog that
+        // appears under the user's hands must not read a reflex keypress as consent to
+        // publish something that cannot be taken back.
+        var yes = new Button
+        {
+            Content = "Share",
+            MinWidth = 96,
+            FontWeight = FontWeight.SemiBold,
+        };
         var no = new Button
         {
             Content = "Don't share",
             MinWidth = 96,
             IsDefault = true,
             IsCancel = true,
-            FontWeight = FontWeight.SemiBold,
         };
         // The app's Button.accent style is declared inside VerifyView's own styles, so a
         // window built in code cannot pick it up by class. Same palette keys, applied
         // directly, with a fallback so a missing resource cannot leave the button
         // invisible against its own background.
-        no.Background = dialog.TryFindResource("StatusAccent", out object? accent)
+        yes.Background = dialog.TryFindResource("StatusAccent", out object? accent)
             && accent is IBrush accentBrush
             ? accentBrush
             : Brushes.Teal;
-        no.Foreground = dialog.TryFindResource("Ground", out object? ground)
+        yes.Foreground = dialog.TryFindResource("Ground", out object? ground)
             && ground is IBrush groundBrush
             ? groundBrush
             : Brushes.Black;

@@ -339,6 +339,17 @@ public static class Program
         Startup.Start();
 
 #if RIP_DIAGNOSTIC
+        // Dev-only: show the CTDB consent dialog and print the answer, with no
+        // submission service behind it, so its wording and layout can be reviewed on a
+        // real display without a click being able to publish anything. Compiled out of
+        // Release builds. Reviewing the dialog through a genuine verify would arm a
+        // Share button wired to the live database, which is not what a look at the
+        // wording should risk.
+        if (args.Contains("--ctdb-consent-preview"))
+        {
+            Environment.Exit(Services.CtdbConsentPreview.Run());
+        }
+
         // Dev-only (D-053): the rip transport proof runs before any UI
         // exists and exits with the failed-drive count. Compiled out of
         // Release builds, where the flag does not exist.
