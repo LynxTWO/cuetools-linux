@@ -333,7 +333,7 @@
                   IsVisible="{Binding TestCopyHeld}">
             <StackPanel Spacing="8">
               <TextBlock Text="HELD" FontFamily="{StaticResource Mono}"
-                         FontSize="11" Foreground="{DynamicResource StatusWarn}" />
+                         FontSize="11" Foreground="{DynamicResource StatusWarning}" />
               <TextBlock Text="{Binding TestCopyText}" FontSize="12"
                          Foreground="{DynamicResource Ink}" TextWrapping="Wrap" />
               <Button Content="Accept copy anyway"

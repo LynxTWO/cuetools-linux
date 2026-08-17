@@ -43,7 +43,13 @@ from the real per-sector damage map:
 Every number shown is the literal value from the repair engine; only the
 animation is smoothed.
 
-Screenshot: 2026-08-12-repairscope-states.png (three states).
+Screenshot: 2026-08-12-repairscope-states.png (three states). Its figures are
+an example render, not a capture of a real fix: the image reads "18,342 samples
+across 12 sectors", and 12 sectors hold only 12 x 588 x 2 = 14,112 of the
+16-bit values CorrectableErrors counts (CDRepair.cs:308-322). Treat the image
+as a picture of the three panel states and nothing more. Owner's plan
+(2026-08-16): redo the manual screenshots from real discs, with substituted
+names where a real album should not appear. See needs-verification.md entry 15.
 
 ## The real damaged disc, end to end (2026-08-12 walkthrough)
 
@@ -68,7 +74,11 @@ published receipt (repair.verify) and the diagnostic log.
    depth (4, then 8, then 16, capped at the entry's own Npar) and stops
    at the first depth that recovers, and CDRepair.cs:182 sets the fix's
    stripe capacity to that fetched depth / 2. A capacity of 4 therefore
-   means the fix succeeded at depth 8, with depth 16 still unused. See
+   means the fix succeeded at depth 8, and depth 16 was never fetched.
+   Whether depth 16 was *available* for this disc is a separate question,
+   because the ladder is capped at the CTDB entry's own Npar, and nothing
+   here records what that was. So "4 of 4" is the ceiling of the depth the
+   fix ran at, and may or may not have been the disc's real ceiling. See
    needs-verification.md entry 13.
 4. **Repair.** 88 seconds from confirmation to published: reconstruct
    from parity, encode the sibling copy, verify it independently, seal
