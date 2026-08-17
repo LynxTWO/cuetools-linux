@@ -548,6 +548,11 @@ is not established. Reading the same disc in a different drive would
 separate the two, and the Rip page's troubleshooting currently cannot
 tell a reader how to make that distinction.
 
+Still not established as of 2026-08-17, and F-40 records the same open
+question about the same drive and disc. Note the wording above says "a
+second bad master", which assumed an identification that later turned out
+to be wrong: see the correction at the head of F-40.
+
 ## F-38 The 2.38 glibc floor is set by the build machine, not the code
 
 Measured 2026-08-17 with `objdump -T` over every shipped native binary in
@@ -609,11 +614,29 @@ Fixed in the fork. The comment now states the depth qualifier and warns
 against describing a fix at capacity as one error from unrecoverable
 without checking which rung it ran at.
 
-## F-40 A bad master exercises the reread path without touching the fatal path
+## F-40 A severely damaged disc exercises the reread path without touching the fatal path
 
-Measured 2026-08-17 on the PLDS drive (drive A) with the third disc of the
-owner's three-disc set, which the owner identified in advance as likely a
-bad master. Verify-only, so nothing was written.
+Measured 2026-08-17 on the PLDS drive (drive A). Verify-only, so nothing
+was written.
+
+Corrected the same day, and the correction matters. This entry first said
+the disc was "the third disc of the owner's three-disc set, which the owner
+identified in advance as likely a bad master". That was wrong. The owner
+later gave the arrangement as Reggae Roots CD1 (KBOX3604A) in the PLDS, CD2
+(KBOX3604B) in the ASUS, and CD3 (KBOX3604C) in the LG, so the disc ground
+here was **CD1, not the suspected bad master**, which had not been read at
+all at that point.
+
+The mistake came from taking "the PLDS has the bad master" as an
+identification when it was one of two conflicting statements, the other
+being that disc 3 was the suspect. Nothing in the run's own evidence could
+settle it: the log records `drive='PLDS     - DVD-RW DU8A5SH'` and
+`chosen_release=False` and carries no TOC, title, or track count. Two
+claims about which disc was where should have been recorded as a conflict
+and resolved by measurement, not by picking the more recent one.
+
+Every measurement below is unaffected, because they describe the disc that
+was actually in the drive. Only the identity attribution was wrong.
 
 The run was stopped deliberately after 17 minutes. What it showed by then:
 
@@ -636,7 +659,8 @@ Behaviour worth keeping, all measured:
   and moved on. No crash, no abort, no fatal classification.
 - The D11 stuck-drive classifier did not fire, correctly. No `24/00`, no
   `unresponsive-signature`. Bad media and a wedged drive are the
-  distinction that policy turns on, and a real bad master did not trip it.
+  distinction that policy turns on, and a genuinely unreadable disc did not
+  trip it.
 - The speed ladder was exercised: 16x, 12x and 8x requested, with recovery
   passes running at 0x and stepping back up on entering a fresh window.
 - The drive was healthy after an abort mid-read: `CDROM_DRIVE_STATUS`
@@ -650,6 +674,21 @@ for it. And the log carries only the `rip.recovery`, `rip.reread` and
 so the absence of sense data is not evidence that the drive reported none.
 Whether these reads succeeded with unstable payloads or failed with sense
 the log does not surface is unknown.
+
+What the drive can still do is worth recording next to that. All three
+drives returned a full TOC on demand afterwards, CD1 included: 20 tracks,
+64:43, CDDB `350f2914` from the PLDS, against 69:14 / `2a103814` for CD2 in
+the ASUS and 68:51 / `35102114` for CD3 in the LG. So the PLDS reads this
+disc's lead-in without difficulty and fails only in the audio payload, and
+the three discs are confirmed distinct rather than the same disc read three
+times.
+
+Still open, and now sharper than when this entry was written: whether CD1
+is defective or the PLDS specifically cannot read it. Separating those
+needs the same disc read in a second drive, which needs a physical swap.
+CD3, the disc actually suspected of being a bad master, is being verified
+in the LG as of 2026-08-17 15:40; that result speaks to CD3 and does not by
+itself settle anything about CD1.
 
 This disc cannot settle needs-verification entry 13. Damage at this density
 is far beyond what CTDB parity repairs, so no repair would ever run on it.
