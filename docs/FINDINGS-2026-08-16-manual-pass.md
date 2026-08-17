@@ -709,3 +709,34 @@ launch will be slower.
 Worth noting for its own sake: a smoke test whose only output was a
 hardcoded-looking `0` passed CI unremarked. The number was never asserted
 against a bound, so nothing failed when the instrument stopped measuring.
+
+## F-42 The AppImage does not need libfuse2
+
+Tested 2026-08-17 by running the shipped artifact,
+`bin/packages/CUEToolsLinux-0.1.0-alpha-x86_64.AppImage`, on this
+workstation. `notes/install.md` said the AppImage "needs FUSE, provided by
+the `libfuse2` or `libfuse2t64` package depending on your distribution".
+Neither is installed here: `libfuse2` has no candidate at all on this
+release, and `libfuse2t64` is available but not installed. The AppImage ran
+regardless, reaching a window and exiting cleanly.
+
+It really did mount rather than quietly falling back, which is the part
+worth proving, because an extract-and-run fallback would look identical
+from outside. `--appimage-mount` reported `/tmp/.mount_CUETooihBKKM`, and
+`mount` listed it as `type fuse.CUEToolsLinux-0.1.0-alpha-x86_64.AppImage`
+with `ro,nosuid,nodev,user_id=1000`.
+
+The requirement is a `fusermount` binary on the PATH, not a specific
+library package. On this system `fuse3` provides it:
+`/usr/bin/fusermount` is a symlink to the setuid `/usr/bin/fusermount3`.
+Naming `libfuse2` would send a reader to install a package they do not
+need, and on Ubuntu 24.04 to one that does not exist under that name.
+
+`pages/install.md` was already correct, and says the AppImage "needs a
+`fusermount` program on your `PATH`" with `--appimage-extract-and-run` as
+the fallback. Only the notes over-specified it, and they now carry the
+measurement.
+
+Separately, this run confirmed F-41 in the released artifact: the AppImage
+built 2026-08-14 printed `startup-to-window-ms=0`, so the broken stopwatch
+shipped rather than being a working-tree regression.

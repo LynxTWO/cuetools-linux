@@ -57,9 +57,19 @@
   `sudo apt install ./cuetools-linux_<version>_amd64.deb` installs the app,
   the `cuetools-linux` command, the desktop entry, and the icon.
 - **AppImage (other distributions):** download, `chmod +x`, run. One file, no
-  install. It needs FUSE, provided by the `libfuse2` or `libfuse2t64` package
-  depending on your distribution. If FUSE is unavailable or you would rather
-  not install it, run the AppImage with `--appimage-extract-and-run`.
+  install. It needs a `fusermount` program on the PATH. If FUSE is unavailable
+  or you would rather not install it, run the AppImage with
+  `--appimage-extract-and-run`.
+
+  Do not name `libfuse2` as the requirement. Tested 2026-08-17 on this
+  workstation, where neither `libfuse2` (no such package on Ubuntu 24.04) nor
+  `libfuse2t64` is installed: the shipped AppImage mounted anyway, because
+  `fuse3` supplies `/usr/bin/fusermount` as a symlink to `fusermount3`. Proved
+  by `--appimage-mount`, which reported `/tmp/.mount_CUETooihBKKM` while
+  `mount` showed it as `type fuse.CUEToolsLinux-0.1.0-alpha-x86_64.AppImage`,
+  so it really was a FUSE mount and not a silent extract-and-run fallback.
+  The requirement is the `fusermount` binary, which several different packages
+  can supply, and `pages/install.md` already words it that way.
 
 Both packages carry the identical application, including the bundled audio
 codecs and command-line encoders. Current sizes are printed by the packaging
