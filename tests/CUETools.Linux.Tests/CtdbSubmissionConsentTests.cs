@@ -85,9 +85,12 @@ public class CtdbSubmissionConsentTests
             _ => new CtdbSubmissionCandidate { RunCompleted = false },
         };
 
-        CtdbSubmissionBlock block = service.Offer(Database(), candidate);
+        CtdbSubmissionOutcome outcome = service.Offer(Database(), candidate);
 
-        Assert.NotEqual(CtdbSubmissionBlock.None, block);
+        Assert.NotEqual(CtdbSubmissionBlock.None, outcome.Block);
+        Assert.False(outcome.Submitted);
+        // Nothing to say to the user about a disc that was never a candidate.
+        Assert.Equal("", outcome.StatusText);
         Assert.Equal(0, prompt.Asked);
         // An unanswered question leaves the setting armed for a disc that does qualify.
         Assert.True(config.advanced.CTDBAsk);
@@ -101,9 +104,9 @@ public class CtdbSubmissionConsentTests
         // reason nothing could upload before this slice.
         var service = new CtdbSubmissionService(config, null, new NullLog());
 
-        Assert.Equal(
-            CtdbSubmissionBlock.DeclinedPreviously,
-            service.Offer(Database(), Clean()));
+        CtdbSubmissionOutcome outcome = service.Offer(Database(), Clean());
+        Assert.Equal(CtdbSubmissionBlock.DeclinedPreviously, outcome.Block);
+        Assert.False(outcome.Submitted);
         Assert.True(config.advanced.CTDBAsk);
     }
 
@@ -117,9 +120,11 @@ public class CtdbSubmissionConsentTests
         CUEConfig config = AskingConfig();
         var service = new CtdbSubmissionService(config, prompt, new NullLog());
 
-        Assert.Equal(
-            CtdbSubmissionBlock.DeclinedPreviously,
-            service.Offer(Database(), Clean()));
+        CtdbSubmissionOutcome outcome = service.Offer(Database(), Clean());
+        Assert.Equal(CtdbSubmissionBlock.DeclinedPreviously, outcome.Block);
+        Assert.False(outcome.Submitted);
+        // Declining says nothing on screen; the user already knows what they chose.
+        Assert.Equal("", outcome.StatusText);
         Assert.Equal(1, prompt.Asked);
         // Not remembered, so the next disc asks again rather than inheriting this answer.
         Assert.True(config.advanced.CTDBAsk);
@@ -177,7 +182,7 @@ public class CtdbSubmissionConsentTests
             {
                 RunCompleted = true,
                 Salvaged = true,
-            }));
+            }).Block);
         Assert.Equal(0, prompt.Asked);
     }
 
@@ -212,6 +217,29 @@ public class CtdbSubmissionConsentTests
         Exception? thrown = Record.Exception(() => service.Offer(Database(), Clean()));
 
         Assert.Null(thrown);
+    }
+
+    [Fact]
+    public void AFailedSubmissionSaysSoInsteadOfLookingLikeSuccess()
+    {
+        var prompt = new RecordingPrompt
+        {
+            Answer = new CtdbSubmissionConsent { Submit = true, Remember = false },
+        };
+        var service = new CtdbSubmissionService(AskingConfig(), prompt, new NullLog());
+
+        // This database was constructed, never queried, so CUEToolsDB.Submit returns null
+        // without touching the network. That is the engine refusing to send, and it is
+        // also why these tests can never upload anything by accident.
+        CtdbSubmissionOutcome outcome = service.Offer(Database(), Clean());
+
+        // Silence must not extend to the user. Reported as "hit Share, then nothing": the
+        // consenting user and the refusing user saw the same nothing, and so did the user
+        // whose submission was never sent at all.
+        Assert.False(outcome.Submitted);
+        Assert.NotEqual("", outcome.StatusText);
+        Assert.Contains("Could not share", outcome.StatusText);
+        Assert.Contains("never looked up", outcome.StatusText);
     }
 }
 
