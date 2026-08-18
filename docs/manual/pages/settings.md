@@ -1,20 +1,64 @@
 # Settings and where files live
 
-CUETools Linux has no settings page. The choices you can make are on the
-pages that use them, and the app saves them for you: it reads one
-settings file when it starts, and writes that file back when it exits.
-This page is the reference for what survives a restart, what only a text
-edit can change, and where the app keeps its own files. All of them are
+CUETools Linux keeps its options in two places: a **Settings** page in
+the rail, and the controls on the pages that use them. Everything is
+saved for you: the app reads one settings file when it starts, and writes
+that file back when it exits. This page is the reference for the Settings
+page, for what survives a restart, for the few things only a text edit
+can change, and for where the app keeps its own files. All of them are
 under your home folder, and none of them are inside your music.
 
 Because the app rewrites the settings file on its way out, edit that file
 with CUETools closed. An edit made while the app is running is
 overwritten when it exits.
 
-## What you can change from the window
+## The Settings page
+
+**Settings** sits at the bottom of the rail, under SESSION. Every change
+applies the moment you make it, the way the theme button always has;
+there is no Apply or OK, and the file is written when the app exits. A
+job that is already running keeps the options it started with, so a
+mid-rip change steers the next job, never the one in flight.
+
+Its sections: Ripping, AccurateRip & CTDB, File naming & output, Gaps &
+HTOA, Tagging, Album art, Privacy & data, HDCD, Encoders, and
+Diagnostics. Two are worth introductions:
+
+**Privacy & data** holds the answers the app once asked for and then
+remembered, so a changed mind no longer means editing a file:
+
+- **Look up cover art automatically** is the first-run artwork question
+  as a toggle. Changing it here counts as answering, so the first-run
+  dialog will not ask someone who has already decided.
+- **Share verified rips with CTDB** is the sharing question as one
+  choice: *Ask before sharing*, *Always share*, or *Never share*.
+  Choosing *Ask before sharing* re-arms the dialog. Whatever you choose,
+  a damaged, salvaged, or held rip is never shared:
+  [what sharing sends](install.md#sharing-a-rip-with-ctdb-if-you-say-yes)
+  covers the payload, and the quality rule cannot be overridden.
+- **Keep logs forever** turns off log deletion for archiving. It ships
+  off, and the retention rule it replaces is written beside it: logs
+  older than 90 days are removed once there are more than 200, whichever
+  rule keeps more.
+
+**Encoders** lists the optional command-line encoders the app cannot
+bundle, with a **Download** link to each official project and a
+**Locate...** that imports your downloaded copy. An import that is
+refused says why, in red, under the encoder's status line.
+
+One switch on the page does nothing on this platform yet, and says so
+here rather than pretending: **Prevent sleep during a rip** has no power
+request wired up on Linux, and each rip logs
+`keep-awake not implemented on this platform`.
+
+A window CUETools opened for a second drive has no Settings entry at
+all. Only the main window owns the saved profile, so the page lives
+only there.
+
+## What you can change from the work pages
 
 The rail on the left holds **Rip**, **Verify & Repair**, **Convert**, and
-**Queue**. There is no Settings entry. The only control in the window
+**Queue**, with **Settings** below them. The only control in the window
 frame itself is the theme button in the top right.
 
 | Control | Where it is | Kept for next time |
@@ -29,10 +73,12 @@ frame itself is the theme button in the top right.
 | **layout** (`Tracks`, `Image + embedded CUE`) | Rip page | Yes |
 | **Choose folder...**, the conversion output folder | Convert page | No. Every launch starts at `~/Music/CUETools` again |
 
-The output folder on the Rip page belongs to the Rip page. Conversions
-started from Convert or Queue go under `CUETools` in your Music folder
-unless you choose somewhere else in that session, and queued conversions
-have no folder control at all.
+The output folder on the Rip page belongs to the Rip page. The Queue
+page has an output row of its own for conversions: each queued item
+freezes the folder that was chosen when it was added, so changing the row
+steers what is queued next and never moves work already waiting. Left at
+its default, each album's converted files go to its own usual location.
+Neither the Convert nor the Queue folder survives a restart.
 
 Everything else keeps the value it was built with until you edit the
 settings file. [Settings with no control](#settings-with-no-control)
@@ -130,21 +176,25 @@ file under `~/.config/CUETools2026/logs/`:
 
 ## Settings with no control
 
-These have no interface in this build. Change them in
-`~/.config/CUETools2026/settings.txt` with the app closed.
+Most of what used to be in this table moved onto the Settings page:
+stop-on-unrecoverable, deep recovery, adaptive read speed, and the tray
+lock are all in its Ripping section now, described where the switch is.
+What remains file-only, changed in `~/.config/CUETools2026/settings.txt`
+with the app closed:
 
 | Key | Default | What it does |
 | --- | --- | --- |
-| `WpfStopOnUnrecoverable` | `0` | With `1`, a rip stops at the first stretch the drive cannot recover, and the status line says so: "Unrecoverable damage at 42% - stopping." Left at `0`, the rip carries on, marks that stretch, and finishes, and CTDB [parity](glossary.md#parity) may be able to rebuild it afterwards. |
-| `WpfDeepRecovery` | `1` | Keeps re-reading a stuck stretch while the error count is still falling, and drops the drive to its slowest speed there. It applies at `Secure` and `Paranoid` only. |
-| `WpfAdaptiveReadSpeed` | `1` | Starts at the drive's calibrated maximum speed, steps down when the drive gets stuck, and eases back up over clean stretches. The audio is identical at any speed. |
-| `WpfLockTray` | `0` | With `1`, the drive is told to refuse an eject while a rip or verify runs, so the read cannot be interrupted by the tray button. If the drive rejects the command the job continues, and the log records `tray lock failed:`. |
-| `WpfPreventSleep` | `1` | Nothing, on this platform. It is meant to keep the machine awake through a long rip, and no power request is wired up on Linux yet. Each rip logs `keep-awake not implemented on this platform - the system may sleep during this rip`. |
-| `WpfNamingTemplate`, and the five `WpfNaming...` keys | see below | The folder and file names rips and conversions are written under. |
+| `WpfNamingTemplate`, and the five `WpfNaming...` keys | see below | The folder and file names rips and conversions are written under. The template has no editor in this build; the five clean-up switches are described below. |
 
-The [Rip page](rip.md) describes what the read modes do, and
-`WpfDeepRecovery` and `WpfAdaptiveReadSpeed` are covered there in
+The [Rip page](rip.md) describes what the read modes do; deep recovery
+and adaptive read speed are covered there in
 [how it works](rip.md#how-it-works).
+
+One near-miss is worth naming so nobody hunts for it: the Settings page's
+**Track filename template** row is not `WpfNamingTemplate`. It is the
+engine's own template, and it names the tracks of a conversion written in
+tracks mode. Rips are named by `WpfNamingTemplate` below, whatever the
+engine template says.
 
 ## How rips and conversions are named
 
