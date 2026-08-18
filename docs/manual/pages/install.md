@@ -278,16 +278,46 @@ Enrich uses the same CTDB metadata lookup, and the same freedb fallback.
 A proposed cover image is downloaded only from `coverartarchive.org`,
 `archive.org`, or `db.cuetools.net`, and only over HTTPS.
 
+### Sharing a rip with CTDB, if you say yes
+
+After a clean rip or a clean verification, CUETools may offer to share the
+result with the CUETools Database, so other people can check their own
+copies of the same disc against yours. It asks with a dialog, once; a
+"remember" checkbox stops the asking, in either direction. Nothing is ever
+sent before you answer yes.
+
+The dialog itself lists what sharing sends, and this page repeats it: the
+disc's track layout, a checksum for each track, recovery (parity) data,
+the artist and album title, the barcode if the disc has one, and an
+identifier for this computer that the database uses to tell separate
+submissions apart. The upload goes to `db.cuetools.net` over the same
+plain HTTP as the lookups, so it is readable in transit.
+
+It does not send your audio files, your file names, or anything about
+where your music is stored. Sharing cannot be undone: the database has no
+delete. Only a rip or verification with no unrecoverable errors is ever
+offered; a salvaged or partly-failed read cannot be shared at all, even
+with a remembered yes.
+
+After you answer, the page's status line says whether the upload actually
+landed or failed. If you said yes and see no such line, treat it as not
+sent.
+
+Your remembered answer is stored in the settings file. Until the settings
+screen arrives, changing your mind means editing
+`~/.config/CUETools2026/settings.txt` with the app closed: `CTDBSubmit`
+is the answer, and `CTDBAsk` set back to `1` makes the dialog ask again.
+
 ### What never goes out
 
-- **Nothing is submitted to any database.** Verifying a pressing that
-  neither database knows adds nothing to either one. This build has no
-  submission path at all, so nothing you do here contributes a rip, a
-  checksum, or recovery data to AccurateRip or CTDB.
+- Nothing is submitted to AccurateRip. There is no submission path to it
+  in this build at all.
+- Nothing is submitted to CTDB without a yes to the sharing dialog above.
 - Converting an album, running a conversion queue, and reading files from
   disk send nothing.
 - There is no telemetry and no update check. The app makes no network
-  request that is not one of the lookups above.
+  request that is not one of the lookups above or a sharing upload you
+  agreed to.
 
 ## If something goes wrong
 

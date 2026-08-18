@@ -111,19 +111,31 @@ Verification and repair are online services, so some data does go out:
 - **Cover art** is fetched only after you answer yes to the question CUETools
   asks the first time it could look one up. Answer no and it never fetches one
   by itself; opening the artwork browser still fetches, because that is asking.
-- **Database submissions**: nothing is submitted. No modern CUETools head calls
-  the submission API, so verifying or ripping contributes nothing back. The
-  per-machine identifier this section used to describe belongs to a submission
-  path that does not run here. If SLICE-012 ships, this entry has to say what
-  it sends.
+- **Database submissions**: SLICE-012 shipped 2026-08-18, so this entry now
+  says what it sends. After a clean rip or verify the app asks once, with a
+  dialog whose text lists the payload; a remembered answer stops the asking
+  (D-069). A yes uploads the disc's table of contents, per-track checksums,
+  Reed-Solomon parity, the artist and album title, the barcode, and the
+  per-machine identifier the CTDB client sends to tell submissions apart, to
+  db.cuetools.net over the same plain HTTP as the lookups. D-070 gates
+  quality: any unrecoverable window, salvage, or held result is refused
+  before the dialog ever shows, and a remembered yes cannot override that.
+  Nothing is sent on no, and nothing is sent before an answer.
+
+  Live evidence, 2026-08-18: one submission of a clean Test and Copy rip
+  (AR 205/216). The diagnostic log recorded the server's reply, "TOCID has
+  been confirmed", with album and artist redacted. An independent raw HTTP
+  lookup afterwards showed the matching entry's confidence at 797, up from
+  796 before the click, total 821 from 820, with both minor variant
+  pressings unchanged. S12-002 closed.
 
 Converting, repairing, and reading your own files send nothing.
 
 Corrected 2026-08-16 and 2026-08-17. This section previously said that reading
 a disc sends nothing, which was never true of the identification lookup, and
-described a submission identifier for submissions that never happen. See
-needs-verification.md entries 3 and 16, and F-23 in
-docs/FINDINGS-2026-08-16-manual-pass.md.
+described a submission identifier for submissions that never happened in any
+modern head until SLICE-012. See needs-verification.md entries 3 and 16, and
+F-23 in docs/FINDINGS-2026-08-16-manual-pass.md.
 
 ## Uninstalling
 
