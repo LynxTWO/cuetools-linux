@@ -1,4 +1,5 @@
 using System;
+using System.Threading.Tasks;
 using Avalonia.Controls;
 using Avalonia.Layout;
 using Avalonia.Media;
@@ -27,51 +28,75 @@ public sealed class AvaloniaCtdbSubmissionPrompt : ICtdbSubmissionPrompt
         => _windowSource = windowSource ?? throw new ArgumentNullException(nameof(windowSource));
 
     /// <summary>
-    /// Called from the worker thread that ran the verify or rip, so the dialog is marshalled
-    /// to the UI thread and this call blocks until the user answers. Blocking is correct
-    /// here: the submission belongs to the run that produced it, and the live database
-    /// object cannot be replayed later.
+    /// Called from the worker thread that ran the verify or rip. The dialog must live on
+    /// the UI thread, and the UI thread must keep pumping while it is open, so the WORKER
+    /// blocks here on a completion source while the UI thread awaits ShowDialog normally.
+    ///
+    /// The first version marshalled onto the UI thread and then blocked it with
+    /// ShowDialog(owner).GetAwaiter().GetResult(). Avalonia's ShowDialog has no nested
+    /// message pump (unlike WPF), so that deadlocked the renderer: the window was created
+    /// and mapped but never painted - observed live as a title bar over transparent
+    /// nothing, with the whole app frozen behind it, stuck exactly at the offer.
     /// </summary>
     public CtdbSubmissionConsent Ask(CtdbSubmissionCandidate candidate)
     {
         ArgumentNullException.ThrowIfNull(candidate);
 
+        // On the UI thread there is no safe way to wait for an answer synchronously:
+        // blocking deadlocks the renderer, exactly the bug above. Every real offer comes
+        // from a Task.Run worker, so this branch is a guard, and it refuses rather than
+        // freezes. A prompt that cannot be shown safely is not consent.
+        if (Dispatcher.UIThread.CheckAccess())
+            return new CtdbSubmissionConsent { Submit = false, Remember = false };
+
+        var done = new TaskCompletionSource<CtdbSubmissionConsent>(
+            TaskCreationOptions.RunContinuationsAsynchronously);
+        Dispatcher.UIThread.Post(() => _ = RunDialogAsync(candidate, done));
         try
         {
-            if (Dispatcher.UIThread.CheckAccess())
-                return AskOnUiThread(candidate);
-
-            return Dispatcher.UIThread.InvokeAsync(() => AskOnUiThread(candidate))
-                .GetAwaiter().GetResult();
+            return done.Task.GetAwaiter().GetResult();
         }
         catch (Exception)
         {
-            // A prompt that cannot be shown is not consent. Never upload on an error path.
             return new CtdbSubmissionConsent { Submit = false, Remember = false };
         }
     }
 
-    private CtdbSubmissionConsent AskOnUiThread(CtdbSubmissionCandidate candidate)
+    /// <summary>UI-thread side: build, show, await, and report. Every failure path
+    /// resolves the completion source with a refusal so the worker can never hang.</summary>
+    private async Task RunDialogAsync(
+        CtdbSubmissionCandidate candidate,
+        TaskCompletionSource<CtdbSubmissionConsent> done)
     {
-        if (_windowSource() is not { } owner)
-            return new CtdbSubmissionConsent { Submit = false, Remember = false };
-
-        Window dialog = BuildDialog(
-            candidate, out CheckBox remember, out Button yes, out Button no);
-
-        var submit = false;
-        // Wired here rather than in BuildDialog, so the builder stays pure layout that a
-        // test can construct and read without a window ever being shown.
-        yes.Click += (_, _) => { submit = true; dialog.Close(); };
-        no.Click += (_, _) => dialog.Close();
-
-        dialog.ShowDialog(owner).GetAwaiter().GetResult();
-
-        return new CtdbSubmissionConsent
+        try
         {
-            Submit = submit,
-            Remember = remember.IsChecked == true,
-        };
+            if (_windowSource() is not { } owner)
+            {
+                done.TrySetResult(new CtdbSubmissionConsent { Submit = false, Remember = false });
+                return;
+            }
+
+            Window dialog = BuildDialog(
+                candidate, out CheckBox remember, out Button yes, out Button no);
+
+            var submit = false;
+            // Wired here rather than in BuildDialog, so the builder stays pure layout
+            // that a test can construct and read without a window ever being shown.
+            yes.Click += (_, _) => { submit = true; dialog.Close(); };
+            no.Click += (_, _) => dialog.Close();
+
+            await dialog.ShowDialog(owner);
+
+            done.TrySetResult(new CtdbSubmissionConsent
+            {
+                Submit = submit,
+                Remember = remember.IsChecked == true,
+            });
+        }
+        catch (Exception)
+        {
+            done.TrySetResult(new CtdbSubmissionConsent { Submit = false, Remember = false });
+        }
     }
 
     /// <summary>

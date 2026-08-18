@@ -305,6 +305,28 @@ public class CtdbConsentDialogTests
     }
 
     [AvaloniaFact]
+    public void AskOnTheUiThreadRefusesInsteadOfDeadlocking()
+    {
+        // Headless xunit runs this on the dispatcher thread, the same situation as a
+        // caller invoking Ask from UI code. The first shipped version deadlocked here:
+        // it marshalled to the UI thread and then blocked it under ShowDialog, so the
+        // dialog mapped unpainted and the whole app froze at the offer, live, in front
+        // of the owner. The guard refuses instead, because a prompt that cannot be
+        // shown safely is not consent. If the guard regresses, this test hangs rather
+        // than fails, which is exactly what the app did.
+        var prompt = new AvaloniaCtdbSubmissionPrompt(() => null);
+        CtdbSubmissionConsent consent = prompt.Ask(new CtdbSubmissionCandidate
+        {
+            RunCompleted = true,
+            Album = "Aja",
+            Artist = "Steely Dan",
+        });
+
+        Assert.False(consent.Submit);
+        Assert.False(consent.Remember);
+    }
+
+    [AvaloniaFact]
     public void AMissingBarcodeIsDescribedRatherThanShownAsBlank()
     {
         string text = AllText(AvaloniaCtdbSubmissionPrompt.BuildDialog(
