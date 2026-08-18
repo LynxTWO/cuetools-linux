@@ -137,6 +137,20 @@
           </DockPanel>
 
           <ScrollViewer Grid.Row="2" VerticalScrollBarVisibility="Auto">
+           <StackPanel>
+            <!-- F-34: the grid finally names its columns. Same widths as the rows. -->
+            <Border BorderBrush="{DynamicResource Line}" BorderThickness="0,0,0,1"
+                    Padding="4,3">
+              <Grid ColumnDefinitions="30,*,58,66,66,84,84">
+                <TextBlock Grid.Column="0" Text="#" FontFamily="{StaticResource Mono}" FontSize="10" Foreground="{DynamicResource Muted}" />
+                <TextBlock Grid.Column="1" Text="TITLE" FontFamily="{StaticResource Mono}" FontSize="10" Foreground="{DynamicResource Muted}" />
+                <TextBlock Grid.Column="2" Text="LENGTH" FontFamily="{StaticResource Mono}" FontSize="10" Foreground="{DynamicResource Muted}" />
+                <TextBlock Grid.Column="3" Text="AR CONF" FontFamily="{StaticResource Mono}" FontSize="10" Foreground="{DynamicResource Muted}" ToolTip.Tip="AccurateRip confidence for this track, from the last completed read." />
+                <TextBlock Grid.Column="4" Text="CTDB" FontFamily="{StaticResource Mono}" FontSize="10" Foreground="{DynamicResource Muted}" ToolTip.Tip="CUETools Database confidence for this track, from the last completed read." />
+                <TextBlock Grid.Column="5" Text="TEST CRC" FontFamily="{StaticResource Mono}" FontSize="10" Foreground="{DynamicResource Muted}" ToolTip.Tip="Full-range CRC32 of the Test read." />
+                <TextBlock Grid.Column="6" Text="COPY CRC" FontFamily="{StaticResource Mono}" FontSize="10" Foreground="{DynamicResource Muted}" ToolTip.Tip="Full-range CRC32 of the Copy read." />
+              </Grid>
+            </Border>
             <ItemsControl ItemsSource="{Binding Tracks}">
               <ItemsControl.ItemTemplate>
                 <DataTemplate x:DataType="models:TrackItem">
@@ -169,6 +183,7 @@
                 </DataTemplate>
               </ItemsControl.ItemTemplate>
             </ItemsControl>
+           </StackPanel>
           </ScrollViewer>
 
           <!-- verdict line -->
@@ -271,8 +286,34 @@
               <controls:DiscReadMap Height="150"
                                     Progress="{Binding RipProgress}"
                                     Spinning="{Binding IsRipping}" />
-              <ProgressBar Minimum="0" Maximum="1"
-                           Value="{Binding RipProgress}" Height="8" />
+              <!-- SLICE-010: one segment per track, duration-proportional. Hollow
+                   during Test, solid inside the retained outline during Copy; amber
+                   ticks and red edges carry literal counts in their tooltips. -->
+              <controls:TrackStrip Height="14"
+                                   Tracks="{Binding Tracks}"
+                                   CurrentHollow="{Binding CurrentFillHollow}"
+                                   ShowRetained="{Binding PhaseIsCopy}" />
+              <DockPanel LastChildFill="True">
+                <Border DockPanel.Dock="Left" Background="{DynamicResource Glass}"
+                        CornerRadius="4" Padding="7,2" Margin="0,0,6,0"
+                        IsVisible="{Binding PhaseChipVisible}">
+                  <TextBlock Text="{Binding PhaseChip}" FontFamily="{StaticResource Mono}"
+                             FontSize="10" Foreground="{DynamicResource Ink}" />
+                </Border>
+                <Border DockPanel.Dock="Left" Background="{DynamicResource Glass}"
+                        CornerRadius="4" Padding="7,2" Margin="0,0,8,0"
+                        IsVisible="{Binding ModeChipVisible}">
+                  <TextBlock Text="{Binding ModeChip}" FontFamily="{StaticResource Mono}"
+                             FontSize="10" Foreground="{DynamicResource Muted}" />
+                </Border>
+                <ProgressBar Minimum="0" Maximum="1"
+                             Value="{Binding RipProgress}" Height="8"
+                             VerticalAlignment="Center" />
+              </DockPanel>
+              <!-- Window-scoped pass ticks; hidden entirely for one-pass modes (D-058). -->
+              <controls:PassLane Height="6"
+                                 Ticks="{Binding PassTicks}" Max="{Binding PassMax}"
+                                 IsVisible="{Binding PassLaneVisible}" />
               <Grid ColumnDefinitions="*,*" Height="52">
                 <controls:VuMeter Grid.Column="0"
                                   Active="{Binding IsRipping}"
