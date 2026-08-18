@@ -123,15 +123,31 @@ remembered answers.
 ## 6. Acceptance rows (draft)
 
 - S12-001: consent dialog appears once, records the answer, and never
-  submits without an explicit yes.
+  submits without an explicit yes. DONE 2026-08-18: shown live on a real
+  verify; twelve unit tests pin the ask-once flow, both remembered
+  answers, and every eligibility block; the shipped run asked exactly
+  once and uploaded only after Share was clicked.
 - S12-002: a submitted disc is retrievable from CTDB afterwards by TOC
-  id, proven by a fresh lookup from a clean profile.
+  id, proven by a fresh lookup from a clean profile. DONE 2026-08-18:
+  after one live submission (Steely Dan - Aja, AR 205/216), the server
+  replied "TOCID has been confirmed" into the redacted diagnostic log,
+  and a raw lookup2.php GET with no app state showed the matching entry
+  at confidence 797, up from 796 before the click, total 821 from 820,
+  variant pressings unchanged. The two dialog deadlock bugs found on the
+  way (a preview without an event loop, then Ask blocking the UI thread
+  under ShowDialog) are fixed and pinned by tests.
 - S12-003: declining leaves zero outbound submission traffic, proven
-  by a network capture.
+  by a network capture. OPEN: unit tests prove declining returns before
+  the upload call, but the capture-level proof has not been run.
 - S12-004: a failed submission degrades to a status message and never
-  changes the verify verdict.
+  changes the verify verdict. DONE in tests 2026-08-18, including the
+  case where the engine refuses to send (never-queried database): the
+  outcome says "Could not share" rather than claiming success.
 - S12-005: the manual texts in section 4 are updated in the same
-  batch.
+  batch. DONE 2026-08-18: pages/install.md gained "Sharing a rip with
+  CTDB, if you say yes" and a corrected "What never goes out";
+  notes/install.md carries the payload list and the live evidence;
+  needs-verification entry 16 is closed by it.
 
 ## 7. What remains, and why it waits
 

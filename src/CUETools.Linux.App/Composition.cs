@@ -179,9 +179,16 @@ public static class Composition
         return hashes;
     }
 
+    /// <param name="submissionPrompt">
+    /// SLICE-012 consent surface. Null, the default, means no submission is ever offered:
+    /// the service treats a missing prompt as a refusal. Tests and every caller that does
+    /// not pass one therefore cannot upload anything, which is the behaviour that shipped
+    /// before the dialog existed.
+    /// </param>
     public static AppGraph CreateAppGraph(
         IFileDialogService dialogs, IUserPrompt prompts, IUiDispatcher dispatcher,
-        AppLaunchOptions? launchOptions = null)
+        AppLaunchOptions? launchOptions = null,
+        ICtdbSubmissionPrompt? submissionPrompt = null)
     {
         launchOptions ??= new AppLaunchOptions();
         CUEConfig config = CreateDefaultConfig();
@@ -200,7 +207,14 @@ public static class Composition
         settingsStore.Load(config, appSettings);
 
         var journal = new JournalStore();
-        IVerifyService engineVerify = new VerifyService(config, log);
+        // One service for the whole session, so a remembered answer applies everywhere.
+        // Null prompt means it can only ever refuse, which is what keeps every non-GUI
+        // caller unable to upload.
+        var submissions = submissionPrompt == null
+            ? null
+            : new CtdbSubmissionService(config, submissionPrompt, log);
+        var engineVerifyService = new VerifyService(config, log) { Submissions = submissions };
+        IVerifyService engineVerify = engineVerifyService;
         // Probe the databases the way the lookups will actually reach them. Without the
         // proxy, a network that allows only proxied outbound reported offline for services
         // the app could reach, journaling every verify and failing every replay the same way.
@@ -261,7 +275,10 @@ public static class Composition
                     $"requested drive {launchOptions.PreferredDrive}: is not attached");
         }
         IRipService ripService = new RipService(
-            config, log, appSettings, catalog, calStore, verifyHistory, calService);
+            config, log, appSettings, catalog, calStore, verifyHistory, calService)
+        {
+            Submissions = submissions,
+        };
         IHistoryStore ripHistory = new HistoryStore(log);
         IAlbumArtService albumArt = new AlbumArtService(
             config, appSettings, log, new SkiaImageTranscoder());

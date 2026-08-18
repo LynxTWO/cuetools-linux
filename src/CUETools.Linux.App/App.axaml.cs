@@ -16,6 +16,25 @@ public partial class App : Application
     {
         if (ApplicationLifetime is IClassicDesktopStyleApplicationLifetime desktop)
         {
+#if RIP_DIAGNOSTIC
+            // Dev-only: show the real consent dialog and nothing else, so its wording and
+            // layout can be reviewed on a real display. Handled here rather than in Main
+            // because a window needs the application's own styles and a running event
+            // loop; an earlier attempt drove the dispatcher by hand and produced a
+            // transparent, unpainted window. Returns before any graph exists, so no
+            // CtdbSubmissionService is ever constructed and Share cannot upload.
+            if (desktop.Args?.Contains("--ctdb-consent-preview") == true)
+            {
+                // Same two lines the real path uses, so the preview shows the dialog in
+                // whichever theme the user actually runs.
+                var previewTheme = new ThemeState();
+                previewTheme.Apply(previewTheme.Current);
+                desktop.MainWindow = Services.CtdbConsentPreview.BuildWindow();
+                base.OnFrameworkInitializationCompleted();
+                return;
+            }
+#endif
+
             Composition.RegisterManagedCodecs();
 
             var theme = new ThemeState();
@@ -41,7 +60,12 @@ public partial class App : Application
                 new AvaloniaFileDialogService(() => windowRef),
                 autoRepair ? new AutoConfirmPrompt() : new AvaloniaUserPrompt(() => windowRef),
                 new AvaloniaUiDispatcher(),
-                launchOptions);
+                launchOptions,
+                // Never AutoConfirmPrompt's equivalent, even under --repair. That flag is
+                // consent to repair the user's own files in place of a dialog; it is not
+                // consent to publish their disc identity to a public database, and the two
+                // must not be collapsed. Publishing always asks a human.
+                new Services.AvaloniaCtdbSubmissionPrompt(() => windowRef));
             foreach (string line in nativeLog) graph.Log.Info("codecs", line);
 
             // A Linux session manager stops apps with SIGTERM (and a terminal

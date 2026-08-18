@@ -304,7 +304,13 @@ CTDB client's `Submit`, so no submission occurs at all.
 `CUETools.App.Core/Services/CtdbSubmission.cs` is eligibility policy with
 no consent surface behind it.
 
-Status: unresolved, and it is a privacy-relevant claim in both
-directions. Either scope the sentence to what SLICE-012 would send once
-it ships, or remove it until then. Note that `notes/install.md` currently
-carries uncommitted owner edits, so coordinate before changing it.
+Status: RESOLVED 2026-08-18. SLICE-012 shipped: the Linux head now calls
+`Submit` after an explicit yes to a consent dialog, and the privacy
+sections in `pages/install.md` and `notes/install.md` describe the real
+payload, the per-machine identifier included. The claim is no longer
+about a path that does not run.
+
+Backed by a live submission the same day: the server confirmed the disc's
+TOCID in the redacted diagnostic log, and an independent raw lookup
+showed the matching entry's confidence rise from 796 to 797 while the
+variant pressings stayed unchanged (S12-002).
