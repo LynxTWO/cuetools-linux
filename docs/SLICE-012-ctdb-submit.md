@@ -137,8 +137,15 @@ remembered answers.
   way (a preview without an event loop, then Ask blocking the UI thread
   under ShowDialog) are fixed and pinned by tests.
 - S12-003: declining leaves zero outbound submission traffic, proven
-  by a network capture. OPEN: unit tests prove declining returns before
-  the upload call, but the capture-level proof has not been run.
+  by a network capture. DONE 2026-08-18: a verify of the previously
+  submitted album ran in a scratch profile with "never share" remembered,
+  under strace capturing every socket write (plain HTTP, so the request
+  lines themselves are the evidence). The capture holds two lookup2.php
+  GETs (startup disc identification and the verify's own lookup) and
+  zero submit2.php, while the run's diagnostic log records "submission
+  skipped: DeclinedPreviously". The capture proves the remembered-decline
+  path end to end; the live-dialog decline is pinned by unit tests to
+  return through the identical branch before the upload call.
 - S12-004: a failed submission degrades to a status message and never
   changes the verify verdict. DONE in tests 2026-08-18, including the
   case where the engine refuses to send (never-queried database): the
