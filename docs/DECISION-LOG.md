@@ -973,3 +973,27 @@ Presented in full at Phase 5 slice selection.
    governed refactor of CUETools.Wpf into the build order.
 3. D-023 theme port: the first visible slice carries real styling work; a
    stock-theme page does not meet the identity bar.
+
+DECISION: D-073 Settings page shape (owner interview 2026-08-18)
+STATUS: Confirmed
+CHOICE: Four calls, all the interview's recommended options. (1) Changes
+apply immediately and the file still writes once at exit, so D-043 is
+untouched; jobs keep freezing their options at start. (2) Settings is a
+rail page under SESSION, not a modal. (3) The Linux-only settings live in
+a named "Privacy & data" group: both consent re-arms (artwork lookup,
+CTDB sharing), log retention with the default-off keep-forever archive,
+and links to what-gets-sent. (4) Secondary drive windows hide Settings
+entirely; the primary window owns the profile and the contract stays
+impossible to violate.
+BECAUSE: Owner answers 2026-08-18, delegating detail to the recommended
+options. Immediate apply matches the theme button's existing behaviour;
+a rail page keeps the 1200 px width budget and adds no modal stacking;
+a named privacy group is findable by the user who wants to change a
+remembered consent, which is the strongest motivation for the page
+existing now; hiding in secondary windows removes rather than explains
+a rule.
+OPTIONS CONSIDERED: Apply/Revert staging; save-on-change; a WPF-style
+modal; a header-gear overlay; spreading privacy items across feature
+groups; read-only settings in secondary windows.
+REVISIT WHEN: A setting arrives that is dangerous to apply live, or the
+process-per-drive model changes who owns the profile.
