@@ -78,6 +78,38 @@ strip --strip-unneeded "$OUT/libFLAC_dynamic.so" "$OUT/wavpackdll.so" "$OUT/MACL
 
 python3 - <<'PYEOF'
 import hashlib, json, os
+
+# Version, licence, and upstream source per built library, so the shipped
+# third-party notices are generated from the manifest rather than from a list
+# somebody has to remember to update. Values match the fork's
+# eng/release/native-dependencies.json, which is the pin of record.
+PROVENANCE = {
+    'libFLAC_dynamic.so': {
+        'component': 'libFLAC',
+        'version': '1.5.0',
+        'license': 'BSD-3-Clause',
+        'source': 'https://github.com/xiph/flac',
+    },
+    'wavpackdll.so': {
+        'component': 'WavPack',
+        'version': '5.9.0',
+        'license': 'BSD-3-Clause',
+        'source': 'https://github.com/dbry/WavPack',
+    },
+    'MACLibDll.so': {
+        'component': "Monkey's Audio SDK",
+        'version': '13.20',
+        'license': 'BSD-3-Clause',
+        'source': 'https://monkeysaudio.com/developers.html',
+    },
+    'libmp3lame.so': {
+        'component': 'LAME',
+        'version': '3.100',
+        'license': 'LGPL-2.0-or-later',
+        'source': 'https://lame.sourceforge.io/',
+    },
+}
+
 out = 'obj/native'
 entries = []
 for name in sorted(os.listdir(out)):
@@ -85,11 +117,13 @@ for name in sorted(os.listdir(out)):
         continue
     path = os.path.join(out, name)
     digest = hashlib.sha256(open(path, 'rb').read()).hexdigest()
-    entries.append({
+    entry = {
         'file': name,
         'sha256': digest,
         'bytes': os.path.getsize(path),
-    })
+    }
+    entry.update(PROVENANCE.get(name, {}))
+    entries.append(entry)
 manifest = {'schemaVersion': 1, 'libraries': entries}
 with open(os.path.join(out, 'native-codecs.json'), 'w') as f:
     json.dump(manifest, f, indent=2)
