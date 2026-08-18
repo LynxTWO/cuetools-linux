@@ -107,6 +107,9 @@ public partial class App : Application
             {
                 window.Title = $"CUETools Linux - Drive {launchOptions.PreferredDrive}";
                 window.ShowRipPage();
+                // D-073: only the primary window owns the durable profile, so a
+                // secondary drive window has no Settings at all.
+                window.HideSettingsNav();
             }
             windowRef = window;
             window.Opened += (_, _) =>
