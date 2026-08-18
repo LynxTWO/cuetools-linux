@@ -16,6 +16,25 @@ public partial class App : Application
     {
         if (ApplicationLifetime is IClassicDesktopStyleApplicationLifetime desktop)
         {
+#if RIP_DIAGNOSTIC
+            // Dev-only: show the real consent dialog and nothing else, so its wording and
+            // layout can be reviewed on a real display. Handled here rather than in Main
+            // because a window needs the application's own styles and a running event
+            // loop; an earlier attempt drove the dispatcher by hand and produced a
+            // transparent, unpainted window. Returns before any graph exists, so no
+            // CtdbSubmissionService is ever constructed and Share cannot upload.
+            if (desktop.Args?.Contains("--ctdb-consent-preview") == true)
+            {
+                // Same two lines the real path uses, so the preview shows the dialog in
+                // whichever theme the user actually runs.
+                var previewTheme = new ThemeState();
+                previewTheme.Apply(previewTheme.Current);
+                desktop.MainWindow = Services.CtdbConsentPreview.BuildWindow();
+                base.OnFrameworkInitializationCompleted();
+                return;
+            }
+#endif
+
             Composition.RegisterManagedCodecs();
 
             var theme = new ThemeState();
@@ -339,17 +358,6 @@ public static class Program
         Startup.Start();
 
 #if RIP_DIAGNOSTIC
-        // Dev-only: show the CTDB consent dialog and print the answer, with no
-        // submission service behind it, so its wording and layout can be reviewed on a
-        // real display without a click being able to publish anything. Compiled out of
-        // Release builds. Reviewing the dialog through a genuine verify would arm a
-        // Share button wired to the live database, which is not what a look at the
-        // wording should risk.
-        if (args.Contains("--ctdb-consent-preview"))
-        {
-            Environment.Exit(Services.CtdbConsentPreview.Run());
-        }
-
         // Dev-only (D-053): the rip transport proof runs before any UI
         // exists and exits with the failed-drive count. Compiled out of
         // Release builds, where the flag does not exist.
