@@ -92,20 +92,20 @@ header .sub {
   font-size: 11px;
 }
 .layout { display: flex; max-width: 1060px; margin: 0 auto; }
-nav {
+nav.side {
   width: 210px; flex-shrink: 0; padding: 26px 14px;
   border-right: 1px solid var(--line); min-height: calc(100vh - 60px);
 }
-nav .group {
+.side .group {
   color: var(--muted); font-family: ui-monospace, monospace;
   font-size: 10.5px; letter-spacing: 0.08em; margin: 0 0 8px 10px;
 }
-nav a {
+.side a {
   display: block; color: var(--ink-dim); text-decoration: none;
   padding: 7px 10px; border-radius: 6px; font-size: 14px; margin-bottom: 2px;
 }
-nav a:hover { background: var(--glass); }
-nav a.current {
+.side a:hover { background: var(--glass); }
+.side a.current {
   background: var(--face); border: 1px solid var(--teal); color: var(--ink);
 }
 main { flex: 1; padding: 30px 34px 60px; min-width: 0; }
@@ -185,7 +185,7 @@ main a { color: var(--teal); }
   box-shadow: 0 8px 22px rgba(0,0,0,0.5);
 }
 main dl { margin: 0 0 12px; }
-a:focus-visible, nav a:focus-visible {
+a:focus-visible, .side a:focus-visible {
   outline: 2px solid var(--teal); outline-offset: 2px;
 }
 footer {
@@ -196,15 +196,15 @@ footer {
   position: absolute; width: 1px; height: 1px; padding: 0; margin: -1px;
   overflow: hidden; clip: rect(0 0 0 0); white-space: nowrap; border: 0;
 }
-nav .search { margin: 0 0 14px; }
-nav .search input {
+.side .search { margin: 0 0 14px; }
+.side .search input {
   width: 100%; background: var(--ground); color: var(--ink);
   border: 1px solid var(--line); border-radius: 6px;
   padding: 7px 10px; font: inherit; font-size: 13px;
   font-family: ui-monospace, 'Cascadia Mono', monospace;
 }
-nav .search input::placeholder { color: var(--muted); }
-nav .search input:focus {
+.side .search input::placeholder { color: var(--muted); }
+.side .search input:focus {
   outline: none; border-color: var(--teal);
 }
 #results .noresults {
@@ -260,7 +260,7 @@ a.result .rtext {
 }
 @media (max-width: 760px) {
   .layout { flex-direction: column; }
-  nav { width: auto; min-height: 0; border-right: none;
+  nav.side { width: auto; min-height: 0; border-right: none;
         border-bottom: 1px solid var(--line); }
   main { padding: 24px 18px 48px; }
   .pager { flex-direction: column; }
@@ -268,7 +268,7 @@ a.result .rtext {
 }
 @media print {
   body { background: #fff; color: #111; font-size: 11pt; }
-  header, nav, .pager, footer { display: none; }
+  header, .side, .pager, footer { display: none; }
   .layout { display: block; max-width: none; }
   main { padding: 0; }
   main h1, main h3, main strong, main .cards .ctitle { color: #000; }
@@ -301,7 +301,7 @@ SHELL = """<!DOCTYPE html>
   <span class="sub">user manual</span>
 </header>
 <div class="layout">
-<nav>
+<nav class="side">
   <form class="search" role="search" onsubmit="return false">
     <label class="sr-only" for="q">Search the manual</label>
     <input id="q" type="search" placeholder="Search the manual"

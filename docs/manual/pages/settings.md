@@ -199,11 +199,14 @@ this build at all. Setting `WpfTheAudioDbEnabled=1` by hand changes
 nothing, because the key it depends on is never loaded.
 
 The engine behind the app also understands two CTDB submission settings,
-`CTDBSubmit` and `CTDBAsk`. Neither appears in the file until something
-writes it, and adding either by hand does nothing, because this build has
-no submission path: nothing you do in this app sends a rip, a checksum,
-or recovery data to any database. See
-[what leaves your machine](install.md#what-leaves-your-machine).
+`CTDBSubmit` and `CTDBAsk`. These are the sharing question's memory: the
+first clean rip or verification asks whether to share the result with the
+CUETools Database, and ticking "remember" writes your answer to
+`CTDBSubmit` and stops the asking by setting `CTDBAsk` to `0`. To be asked
+again, set `CTDBAsk` back to `1` with the app closed. Nothing is ever
+shared without a yes, and a rip with unrecoverable errors is never shared
+at all. See
+[sharing a rip with CTDB](install.md#sharing-a-rip-with-ctdb-if-you-say-yes).
 
 ## If something goes wrong
 

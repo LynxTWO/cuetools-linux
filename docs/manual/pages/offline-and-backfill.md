@@ -284,8 +284,11 @@ cannot queue a fresh copy of the entry it is in the middle of resolving.
 
 A backfill sends the same lookups a verification sends: AccurateRip is
 asked about the disc's identifiers, and CTDB is asked what it holds for
-the disc's table of contents. Nothing in this build sends your audio,
-your checksums, or your reports to either database.
+the disc's table of contents. A backfill never sends your audio or your
+reports anywhere, and it never shares a rip on its own: the sharing
+question described in
+[what leaves your machine](install.md#sharing-a-rip-with-ctdb-if-you-say-yes)
+is asked by a verification you run yourself, not by the catch-up pass.
 
 ## Related topics
 
