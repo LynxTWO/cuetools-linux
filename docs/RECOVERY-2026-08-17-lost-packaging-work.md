@@ -41,6 +41,14 @@ survived intact and are unchanged:
 
 ## Lost, and only partly reconstructable
 
+CLOSED 2026-08-18: both files below were reconstructed at the owner's
+request (PR #67). The provenance table turned out to be fully captured
+and is restored verbatim, corroborated by the surviving collector's
+licence file names and its manifest reads. The README keeps every
+captured sentence verbatim and updates only facts that changed after the
+loss. The section below stays as written, as the record of what the
+fragments were.
+
 Both were reviewed with truncated output, so only fragments are available.
 Neither file has been touched: both sit at master's version, so nothing
 half-restored is masquerading as complete. The fragments below are what the
