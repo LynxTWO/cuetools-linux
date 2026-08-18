@@ -548,6 +548,11 @@ is not established. Reading the same disc in a different drive would
 separate the two, and the Rip page's troubleshooting currently cannot
 tell a reader how to make that distinction.
 
+Still not established as of 2026-08-17, and F-40 records the same open
+question about the same drive and disc. Note the wording above says "a
+second bad master", which assumed an identification that later turned out
+to be wrong: see the correction at the head of F-40.
+
 ## F-38 The 2.38 glibc floor is set by the build machine, not the code
 
 Measured 2026-08-17 with `objdump -T` over every shipped native binary in
@@ -609,11 +614,29 @@ Fixed in the fork. The comment now states the depth qualifier and warns
 against describing a fix at capacity as one error from unrecoverable
 without checking which rung it ran at.
 
-## F-40 A bad master exercises the reread path without touching the fatal path
+## F-40 A severely damaged disc exercises the reread path without touching the fatal path
 
-Measured 2026-08-17 on the PLDS drive (drive A) with the third disc of the
-owner's three-disc set, which the owner identified in advance as likely a
-bad master. Verify-only, so nothing was written.
+Measured 2026-08-17 on the PLDS drive (drive A). Verify-only, so nothing
+was written.
+
+Corrected the same day, and the correction matters. This entry first said
+the disc was "the third disc of the owner's three-disc set, which the owner
+identified in advance as likely a bad master". That was wrong. The owner
+later gave the arrangement as Reggae Roots CD1 (KBOX3604A) in the PLDS, CD2
+(KBOX3604B) in the ASUS, and CD3 (KBOX3604C) in the LG, so the disc ground
+here was **CD1, not the suspected bad master**, which had not been read at
+all at that point.
+
+The mistake came from taking "the PLDS has the bad master" as an
+identification when it was one of two conflicting statements, the other
+being that disc 3 was the suspect. Nothing in the run's own evidence could
+settle it: the log records `drive='PLDS     - DVD-RW DU8A5SH'` and
+`chosen_release=False` and carries no TOC, title, or track count. Two
+claims about which disc was where should have been recorded as a conflict
+and resolved by measurement, not by picking the more recent one.
+
+Every measurement below is unaffected, because they describe the disc that
+was actually in the drive. Only the identity attribution was wrong.
 
 The run was stopped deliberately after 17 minutes. What it showed by then:
 
@@ -636,7 +659,8 @@ Behaviour worth keeping, all measured:
   and moved on. No crash, no abort, no fatal classification.
 - The D11 stuck-drive classifier did not fire, correctly. No `24/00`, no
   `unresponsive-signature`. Bad media and a wedged drive are the
-  distinction that policy turns on, and a real bad master did not trip it.
+  distinction that policy turns on, and a genuinely unreadable disc did not
+  trip it.
 - The speed ladder was exercised: 16x, 12x and 8x requested, with recovery
   passes running at 0x and stepping back up on entering a fresh window.
 - The drive was healthy after an abort mid-read: `CDROM_DRIVE_STATUS`
@@ -650,6 +674,31 @@ for it. And the log carries only the `rip.recovery`, `rip.reread` and
 so the absence of sense data is not evidence that the drive reported none.
 Whether these reads succeeded with unstable payloads or failed with sense
 the log does not surface is unknown.
+
+What the drive can still do is worth recording next to that. All three
+drives returned a full TOC on demand afterwards, CD1 included: 20 tracks,
+64:43, CDDB `350f2914` from the PLDS, against 69:14 / `2a103814` for CD2 in
+the ASUS and 68:51 / `35102114` for CD3 in the LG. So the PLDS reads this
+disc's lead-in without difficulty and fails only in the audio payload, and
+the three discs are confirmed distinct rather than the same disc read three
+times.
+
+Whether CD1 is defective or the PLDS specifically cannot read it was left
+open here. It is now nearly closed, from the other end.
+
+CD3, the disc actually suspected of being a bad master, was verified in the
+LG later the same day and is the worst of the three: errors climbing to
+1,576 per window, 6% in 55 minutes. That confirms the owner's advance call
+and shows this failure shape is not particular to the PLDS.
+
+Then the PLDS read a different, known-good disc end to end to an accurate
+verdict at AccurateRip 226 of 262 (F-45). A drive that does that is
+working, so the remaining explanation for CD1 is the disc.
+
+Short of proof, and worth keeping short of it: only reading CD1 itself in a
+second drive proves it, and that still needs a physical swap. What has
+changed is that the drive-fault hypothesis now requires the PLDS to fail on
+one disc while succeeding on another, which is what a bad disc looks like.
 
 This disc cannot settle needs-verification entry 13. Damage at this density
 is far beyond what CTDB parity repairs, so no repair would ever run on it.
@@ -740,3 +789,170 @@ measurement.
 Separately, this run confirmed F-41 in the released artifact: the AppImage
 built 2026-08-14 printed `startup-to-window-ms=0`, so the broken stopwatch
 shipped rather than being a working-tree regression.
+
+## F-43 An unrecognised launch flag is silently ignored
+
+Found 2026-08-17 by losing 45 minutes to it. A verify-only run was started
+against the Release publish with `--rip-verify-cli C`. The app printed
+`startup-to-window-ms=656`, opened its window, and sat there until the
+timeout killed it 45 minutes later. Nothing said the flag had not been
+understood.
+
+The flag is real but Debug-only. `CUETools.Linux.App.csproj:22-33` defines
+`RIP_DIAGNOSTIC` and references `CUETools.Ripper.SCSI` only under
+`Configuration == Debug`, which is deliberate (D-053: the rip transport
+diagnostic is a dev-only surface and Release publishes are byte-unaffected).
+So `--rip-diagnostic`, `--rip-verify-cli` and `--rip-tc` exist in a Debug
+build and simply do not exist in a Release one.
+
+The defect is not that they are compiled out. It is that arguments are
+handled by a chain of `args.Contains(...)` tests in
+`App.axaml.cs:95-260` with no central parser and no final check for
+anything left over, so *any* argument the app does not recognise produces a
+normal silent launch. That covers a mistyped documented flag as much as a
+Debug-only one: `--quue` instead of `--queue`, or `--convert-to` without
+`--convert`, each opens the window on the Verify page as though nothing had
+been asked for.
+
+`pages/install.md` documents nine launch forms. A reader who mistypes one
+gets no signal that they did.
+
+Severity: low for a user, who sees a window open and can retry. Higher for
+automation and for evidence runs, where a silently ignored flag produces a
+process that looks alive and yields nothing, and where the operator may
+conclude the hardware or the disc was at fault. That is exactly what
+happened here: the first reading of the empty log was that the LG drive had
+wedged.
+
+Proposed fix, not implemented: collect the recognised arguments while
+parsing, and on any unconsumed argument write one line to stderr naming it
+and exit non-zero rather than opening a window. A Release build should say
+that a `RIP_DIAGNOSTIC` flag needs a Debug build, rather than ignoring it,
+because the flag name is knowable at compile time even when its
+implementation is not.
+
+## F-44 A stuck window does not mean a damaged rip
+
+Measured 2026-08-17 on the ASUS drive (drive B) with Reggae Roots CD2
+(KBOX3604B), verify-only. The first clean end-to-end result of the day, and
+the most useful one, because it is the control the other two discs lacked.
+
+The verdict: **AccurateRip accurate, 4 of 4. CTDB verified, confidence 4 of
+7.** Elapsed 741 seconds.
+
+The disc was not pristine. Three windows exhausted their rereads and were
+declared stuck:
+
+| Position | Unresolved sectors |
+| --- | --- |
+| 14% | 2 |
+| 15% | 2 |
+| 43% | 1 |
+
+And the rip was still bit-exact. That deduction is forced rather than
+guessed: AccurateRip compares an exact CRC over the audio program, all
+three positions sit inside it, and the result was `accurate=True` at 4 of 4.
+Had any of those five sectors carried wrong samples, the CRC could not have
+matched.
+
+So `stuck window` is a statement about read *stability*, not about
+correctness. The reread layer gives up when repeated passes stop agreeing,
+and this run shows that a sector whose passes never converged can still
+have been read correctly every time. Why the vote did not settle is not
+established here.
+
+That matters for what the manual tells a user. A log carrying "gave up on
+window ... (unreadable by drive)" reads like a ruined rip, and on this disc
+it accompanied a perfect one. The Rip page's troubleshooting should not
+equate the two.
+
+Every hardware-anomaly counter was zero: `control_transition_retries`,
+`read_communication_retries`, `cache_defeat_retries`,
+`cache_defeat_chunk_fallbacks`, `cache_defeat_wake_readiness_retries`,
+`payload_batch_fallbacks`, `pinpoint_retries`,
+`corroborated_unreadable_pinpoints`, `drive_reported_timeout_pinpoints`,
+`drive_reported_timeout_batches`. `c2_mode=3`, cache defeat flushing
+786,432 bytes per secure reread.
+
+### What this settles about the other two discs
+
+It is the control that kills the systematic-bug hypothesis. When CD1 and
+CD3 both stalled at window 0 in different drives, a structural fault in the
+read path looked plausible. CD2 read straight through the same code on a
+third drive and verified accurate, so the machinery is sound and the two
+bad discs are bad discs.
+
+The set, measured the same day, same code, one disc per drive:
+
+| Disc | Drive | Worst window | Outcome |
+| --- | --- | --- | --- |
+| CD1 (KBOX3604A) | PLDS | 683 errors, minFresh 236 | 1% in 16 min, abandoned |
+| CD2 (KBOX3604B) | ASUS | 2 errors | **accurate, AR 4/4, CTDB 4/7** |
+| CD3 (KBOX3604C) | LG | 1,475 errors and climbing | 4% in ~50 min, abandoned |
+
+The owner's advance call that disc 3 was likely a bad master is confirmed:
+CD3 is the worst of the three. CD1 being nearly as bad was not expected by
+anyone and remains the surprise of the set.
+
+Still not established: whether CD1 is defective or the PLDS specifically
+cannot read it. CD3 failing the same way in a different drive makes a
+PLDS-specific fault unlikely, but only reading CD1 in a second drive
+settles it, and that needs a physical swap. See F-40.
+
+## F-45 Three known-good discs, three drives, three accurate verdicts
+
+Measured 2026-08-17 at the owner's request, ahead of any CTDB submission:
+one known-good disc per drive, verify-only, run concurrently.
+
+| Drive | Tracks | Elapsed | AccurateRip | CTDB | Verdict | Stuck windows |
+| --- | --- | --- | --- | --- | --- | --- |
+| A, PLDS DU8A5SH | 4 | 791 s | 226/262 | 602/660 | accurate | 1 |
+| B, ASUS BW-16D1HT | 20 | 413 s | 6/6 | 12/13 | accurate | 0 |
+| C, LG WH16NS40 | 8 | 350 s | 245/388 | 799/835 | accurate | 0 |
+
+Three things follow, and each closes something that was open.
+
+### The PLDS is not a broken drive
+
+This is the one that matters most. F-40 left open whether Reggae Roots CD1
+was defective or the PLDS specifically could not read it, and the honest
+answer was that nothing had separated them. The PLDS has now read a
+different disc end to end to an accurate verdict at AccurateRip 226 of 262.
+A drive that does that is working.
+
+So the remaining explanation for CD1 is the disc. That is not the same as
+proof: only reading CD1 itself in a second drive proves it, and that still
+needs a physical swap. But the drive-fault hypothesis now requires the PLDS
+to fail on exactly one disc while succeeding on another, which is what a bad
+disc looks like.
+
+### F-44 holds on a second disc, in a second drive
+
+Drive A's disc had one stuck window, at 88% with a single unresolved sector,
+and verified accurate. That is an independent repeat of what CD2 showed on
+the ASUS: a window the reread layer gave up on, in a rip AccurateRip then
+confirmed bit-exact.
+
+Two discs, two drives, same result. A stuck window is a statement about read
+stability and not about the audio, and the manual can now say so on the
+strength of more than one disc.
+
+### The 3E/02 carve-out fired live and recovered
+
+Drive A's run recorded `drive_reported_timeout_batches=1`. That is the
+corroboration-gated HardwareError 3E/02 (TIMEOUT ON LOGICAL UNIT) path: a
+multi-sector batch where the drive surrendered, decomposed into independent
+single-sector reads rather than being treated as fatal.
+
+It happened during a run that finished accurate. The carve-out exists
+precisely so a drive's own surrender on one batch does not end a rip that is
+otherwise fine, and this is the first record of it doing that on a good disc
+with a clean verdict at the end. Every other anomaly counter was zero:
+`read_communication_retries`, `payload_batch_fallbacks`, `pinpoint_retries`.
+
+### For the submission evidence run
+
+Drive C's disc is the strongest candidate for S12-002. Its pressing already
+carries 835 CTDB submissions, so a new one adds confidence to a
+well-established entry rather than creating a fresh one that nothing else
+can corroborate.
