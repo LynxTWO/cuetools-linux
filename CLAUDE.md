@@ -20,6 +20,18 @@ and its tests live here. That has bitten this project repeatedly, so:
   `docs/manual/notes/settings.md`, `src/.../RipView.axaml`). Stage explicit
   paths. If something of theirs is caught anyway, `git reset --soft` and
   `git restore --staged <their paths>` before recommitting.
+- **Never run a command that discards working-tree state while the tree is
+  dirty.** `git reset --hard`, `git checkout -- .`, `git restore` without
+  explicit paths, `git clean`, and `git stash drop` all destroy the owner's
+  uncommitted work, and it is not in the object database, so nothing brings
+  it back. On 2026-08-17 a `git reset --hard origin/master`, run only to
+  return an already-merged branch to master, destroyed the owner's
+  packaging work in `README.md` and three `eng/` scripts. Two were rebuilt
+  from a review printed earlier in the same session; two were lost. See
+  `docs/RECOVERY-2026-08-17-lost-packaging-work.md`.
+  Run `git status` first, every time. To move a commit off a merged branch,
+  create the new branch from the current one and leave the old branch
+  alone, or reset it with `--keep`, which refuses rather than discarding.
 - A fork change reaches this repo only through a submodule pin bump, which is a
   D-028 owner-approval item.
 

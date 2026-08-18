@@ -40,6 +40,29 @@ install -m 755 "$PUBLISH/CUETools.Linux.App" "$APPDIR/usr/bin/cuetools-linux"
 for so in "$PUBLISH"/*.so; do
   install -m 644 "$so" "$APPDIR/usr/bin/"
 done
+
+# native/ and encoders/ sit beside the binary in the publish layout, so the
+# top-level *.so glob above never sees them (see package-deb.sh for the
+# receipt). The app resolves both relative to its own directory.
+for payload in native encoders; do
+  if [ -d "$PUBLISH/$payload" ]; then
+    mkdir -p "$APPDIR/usr/bin/$payload"
+    find "$PUBLISH/$payload" -maxdepth 1 -type f -print0 |
+      while IFS= read -r -d '' f; do
+        case "$f" in
+          *.exe) install -m 755 "$f" "$APPDIR/usr/bin/$payload/" ;;
+          *)     install -m 644 "$f" "$APPDIR/usr/bin/$payload/" ;;
+        esac
+      done
+  fi
+done
+
+"$(dirname "$0")/assert-payload.sh" "$APPDIR/usr/bin"
+
+# Third-party licence texts and the written source offer travel inside the
+# AppImage, which has no package manager to carry them.
+mkdir -p "$APPDIR/usr/share/doc/cuetools-linux"
+"$(dirname "$0")/collect-third-party-notices.sh" "$APPDIR/usr/share/doc/cuetools-linux"
 install -m 644 eng/packaging/cuetools-linux.desktop "$APPDIR/cuetools-linux.desktop"
 install -m 644 eng/packaging/cuetools-linux.png "$APPDIR/cuetools-linux.png"
 install -m 644 eng/packaging/cuetools-linux.png \

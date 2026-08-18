@@ -33,6 +33,29 @@ install -m 755 "$PUBLISH/CUETools.Linux.App" "$STAGE/usr/lib/cuetools-linux/cuet
 for so in "$PUBLISH"/*.so; do
   install -m 644 "$so" "$STAGE/usr/lib/cuetools-linux/"
 done
+
+# The vendored codecs (D-042) and curated CLI encoders (D-047) publish into
+# native/ and encoders/ subdirectories, so a top-level *.so glob misses every
+# one of them. It did: packages built before 2026-08-15 carried only Avalonia's
+# own Skia and HarfBuzz, and every native codec silently reported unavailable
+# in an installed app while working perfectly from the build tree.
+for payload in native encoders; do
+  if [ -d "$PUBLISH/$payload" ]; then
+    mkdir -p "$STAGE/usr/lib/cuetools-linux/$payload"
+    # Encoders must stay executable; libraries and manifests must not be.
+    find "$PUBLISH/$payload" -maxdepth 1 -type f -print0 |
+      while IFS= read -r -d '' f; do
+        case "$f" in
+          *.exe) install -m 755 "$f" "$STAGE/usr/lib/cuetools-linux/$payload/" ;;
+          *)     install -m 644 "$f" "$STAGE/usr/lib/cuetools-linux/$payload/" ;;
+        esac
+      done
+  fi
+done
+
+# Fail loudly rather than shipping a codec-less package again. Every library
+# and encoder the manifests name must be present in the staged tree.
+"$(dirname "$0")/assert-payload.sh" "$STAGE/usr/lib/cuetools-linux"
 ln -s ../lib/cuetools-linux/cuetools-linux "$STAGE/usr/bin/cuetools-linux"
 install -m 644 eng/packaging/cuetools-linux.desktop "$STAGE/usr/share/applications/"
 install -m 644 eng/packaging/cuetools-linux.png \
@@ -47,7 +70,16 @@ Copyright (C) 2026 Daniel Boyd and CUETools Linux contributors
 Licensed under the GNU General Public License, version 2 or (at your
 option) any later version. See /usr/share/common-licenses/GPL-2.
 Source: https://github.com/LynxTWO/cuetools-linux
+
+This package also ships third-party binaries under their own licences,
+including copyleft terms that carry a source obligation. See
+/usr/share/doc/cuetools-linux/THIRD-PARTY-NOTICES.md and the licences
+beside it.
 EOF
+
+# Third-party licence texts and the written source offer. Required because the
+# package ships LGPL and GPL binaries; see the script header.
+"$(dirname "$0")/collect-third-party-notices.sh" "$STAGE/usr/share/doc/cuetools-linux"
 
 INSTALLED_KB=$(du -sk "$STAGE/usr" | cut -f1)
 cat > "$STAGE/DEBIAN/control" <<EOF
