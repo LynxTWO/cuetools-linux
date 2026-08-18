@@ -252,9 +252,11 @@ the file.
 The lookup is CTDB's metadata search, asked at `db.cuetools.net` for the
 disc's track layout. If CTDB returns no metadata for the layout, the
 engine also asks freedb. Both requests are described in
-[what leaves your machine](install.md#what-leaves-your-machine). Nothing
-is submitted: this build has no submission path, so enriching an album
-adds nothing to any database.
+[what leaves your machine](install.md#what-leaves-your-machine). Enriching
+submits nothing: the sharing question described in
+[what leaves your machine](install.md#sharing-a-rip-with-ctdb-if-you-say-yes)
+belongs to ripping and verifying, and an enrichment lookup never triggers
+it, so enriching an album adds nothing to any database.
 
 The lookup answers with a list of candidate releases, and CUETools also
 puts your own album's current values into that list, once as the CUE
