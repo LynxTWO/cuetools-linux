@@ -132,6 +132,7 @@ public static class Composition
         VerifyViewModel Verify,
         ConvertViewModel Convert,
         QueueViewModel Queue,
+        SettingsViewModel SettingsPage,
         VerificationBackfillService Backfill,
         IDiagnosticLog Log,
         CUEConfig Config,
@@ -328,8 +329,12 @@ public static class Composition
             }
         };
 
+        // D-073: bound to the live config, applies immediately, saved once at exit by
+        // the existing save-on-exit contract. The dialog seam powers encoder Locate.
+        var settingsPage = new SettingsViewModel(config, appSettings, log, catalog, dialogs);
+
         return new AppGraph(
-            viewModel, convertViewModel, queueViewModel, backfill, log, config,
+            viewModel, convertViewModel, queueViewModel, settingsPage, backfill, log, config,
             catalog, appSettings, settingsStore, enrichment, journal, ripViewModel,
             albumArt);
     }

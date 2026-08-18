@@ -1,11 +1,17 @@
 # Settings (what persists, and where)
 
-## There is no settings screen yet
+## The settings screen shipped 2026-08-18 (D-073)
 
-This page describes what the app stores, not what you can change from the
-interface. There is no settings page today. What you can reach is what the
-Verify, Convert, and Rip pages put in front of you: output folder, format
-and codec, correction quality, and the layout choice.
+This section previously opened "There is no settings screen yet". There
+is now: a rail page under SESSION, immediate apply with the existing
+save-on-exit contract untouched, a named Privacy & data group holding
+both remembered consents and log retention, and no Settings entry at all
+in secondary drive windows. The interview record is D-073 in
+DECISION-LOG.md; the page content is documented in pages/settings.md.
+
+What the work pages put in front of you is unchanged: output folder,
+format and codec, correction quality, and the layout choice stay where
+the work happens.
 
 Everything else keeps its default, and two of those defaults are worth
 knowing about:

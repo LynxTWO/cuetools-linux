@@ -145,6 +145,24 @@
                          Foreground="{DynamicResource Muted}" />
             </StackPanel>
           </Border>
+          <Border x:Name="SettingsNav"
+                  Background="Transparent"
+                  BorderBrush="{DynamicResource Line}"
+                  BorderThickness="1"
+                  CornerRadius="6"
+                  Padding="12,9"
+                  Cursor="Hand"
+                  PointerPressed="OnSettingsNavPressed">
+            <StackPanel>
+              <TextBlock Text="Settings"
+                         FontSize="13"
+                         Foreground="{DynamicResource Ink}" />
+              <TextBlock Text="Options, privacy, encoders"
+                         FontFamily="{StaticResource Mono}"
+                         FontSize="10.5"
+                         Foreground="{DynamicResource Muted}" />
+            </StackPanel>
+          </Border>
         </StackPanel>
       </Border>
 
@@ -153,6 +171,7 @@
         <views:RipView x:Name="RipPage" IsVisible="False" />
         <views:ConvertView x:Name="ConvertPage" IsVisible="False" />
         <views:QueueView x:Name="QueuePage" IsVisible="False" />
+        <views:SettingsView x:Name="SettingsPage" IsVisible="False" />
       </Grid>
 
     </Grid>

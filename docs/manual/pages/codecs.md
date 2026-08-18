@@ -75,9 +75,12 @@ build:
 Each carries the same line underneath: "The encoder executable is not
 installed or did not pass its approval check." They are listed rather
 than hidden so the window shows everything the app knows about, and none
-of them can be selected. This build has no Settings page and no import
-button, so there is no way to supply one of these programs from inside
-the app.
+of them can be selected until its program is supplied. The Settings
+page's Encoders section is where that happens: **Download** opens the
+encoder's official project page, and **Locate...** imports the copy you
+downloaded. An import that is refused says why, under the encoder's
+status line. An imported encoder lights its formats up in this picker
+everywhere.
 
 ## Choosing the implementation, not just the format
 

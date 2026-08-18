@@ -25,6 +25,7 @@ public partial class MainWindow : Window
         ConvertPage.DataContext = convert;
         ConvertPage.Init(graph.Config, graph.Catalog);
         QueuePage.DataContext = graph.Queue;
+        SettingsPage.DataContext = graph.SettingsPage;
         RipPage.DataContext = graph.Rip;
         RipPage.Init(graph.Config, graph.Catalog, graph.Art);
         UpdateToggleText();
@@ -102,6 +103,12 @@ public partial class MainWindow : Window
     /// <summary>Startup navigation for the --queue launch flag.</summary>
     public void ShowQueuePage() => ShowPage(QueuePage, QueueNav);
 
+    public void ShowSettingsPage() => ShowPage(SettingsPage, SettingsNav);
+
+    /// <summary>D-073: a secondary drive window never publishes shared settings, so it
+    /// does not show the page at all. Removing the card beats explaining a read-only one.</summary>
+    public void HideSettingsNav() => SettingsNav.IsVisible = false;
+
     /// <summary>Startup navigation for the --rip-page launch flag.</summary>
     public void ShowRipPage() => ShowPage(RipPage, RipNav);
 
@@ -117,11 +124,14 @@ public partial class MainWindow : Window
     private void OnQueueNavPressed(object? sender, PointerPressedEventArgs e)
         => ShowPage(QueuePage, QueueNav);
 
+    private void OnSettingsNavPressed(object? sender, PointerPressedEventArgs e)
+        => ShowPage(SettingsPage, SettingsNav);
+
     private void ShowPage(Control page, Border nav)
     {
-        foreach (Control candidate in new Control[] { VerifyPage, ConvertPage, QueuePage, RipPage })
+        foreach (Control candidate in new Control[] { VerifyPage, ConvertPage, QueuePage, RipPage, SettingsPage })
             candidate.IsVisible = ReferenceEquals(candidate, page);
-        foreach (Border candidate in new[] { VerifyNav, ConvertNav, QueueNav, RipNav })
+        foreach (Border candidate in new[] { VerifyNav, ConvertNav, QueueNav, RipNav, SettingsNav })
             StyleNav(candidate, ReferenceEquals(candidate, nav));
     }
 
