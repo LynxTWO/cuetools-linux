@@ -337,3 +337,100 @@ public class CtdbConsentDialogTests
         Assert.Contains("barcode, if it has one", text);
     }
 }
+
+// The Test and Copy deferred-offer path (SLICE-012 step 2, second half). T&C may only
+// offer after its tie-break, from the committed read's capsule, judged on
+// transaction-level quality. These pin the capsule mechanics without hardware.
+public class CtdbSubmissionCapsuleTests
+{
+    private sealed class RecordingPrompt : ICtdbSubmissionPrompt
+    {
+        public int Asked;
+        public CtdbSubmissionCandidate? LastCandidate;
+        public CtdbSubmissionConsent Answer = new() { Submit = false, Remember = false };
+
+        public CtdbSubmissionConsent Ask(CtdbSubmissionCandidate candidate)
+        {
+            Asked++;
+            LastCandidate = candidate;
+            return Answer;
+        }
+    }
+
+    private sealed class NullLog : IDiagnosticLog
+    {
+        public string LogPath => "";
+        public void Info(string category, string message) { }
+        public void Warn(string category, string message) { }
+        public void Error(string category, string message, Exception? ex = null) { }
+        public void Redact(params string?[] sensitive) { }
+    }
+
+    private static CtdbSubmissionCapsule CleanCapsule() =>
+        new(
+            new CUEToolsDB(new CDImageLayout("0 400"), null!),
+            new CtdbSubmissionCandidate
+            {
+                RunCompleted = true,
+                FailedWindows = 0,
+                Salvaged = false,
+                Album = "Aja",
+                Artist = "Steely Dan",
+                Barcode = "0075992526227",
+                Confidence = 4,
+            });
+
+    private static CUEConfig AskingConfig()
+    {
+        CUEConfig config = Composition.CreateDefaultConfig();
+        config.advanced.CTDBAsk = true;
+        return config;
+    }
+
+    [Fact]
+    public void TransactionQualityOverridesTheSingleReadsFacts()
+    {
+        CtdbSubmissionCapsule capsule = CleanCapsule();
+
+        // The copy read was clean, but the transaction lost a window in the test read.
+        // The aggregate is what D-070 judges: a clean read inside an unclean transaction
+        // is not a clean transaction.
+        CtdbSubmissionCandidate judged = capsule.WithTransactionQuality(
+            failedWindows: 2, salvaged: true);
+
+        Assert.Equal(2, judged.FailedWindows);
+        Assert.True(judged.Salvaged);
+        // Identity facts survive the override untouched.
+        Assert.Equal("Aja", judged.Album);
+        Assert.Equal("Steely Dan", judged.Artist);
+        Assert.Equal("0075992526227", judged.Barcode);
+        Assert.Equal(4, judged.Confidence);
+    }
+
+    [Fact]
+    public void AnUncleanTransactionNeverReachesTheDialog()
+    {
+        var prompt = new RecordingPrompt { Answer = new CtdbSubmissionConsent { Submit = true } };
+        var service = new CtdbSubmissionService(AskingConfig(), prompt, new NullLog());
+        CtdbSubmissionCapsule capsule = CleanCapsule();
+
+        CtdbSubmissionOutcome outcome = service.Offer(
+            capsule, capsule.WithTransactionQuality(failedWindows: 1, salvaged: false));
+
+        Assert.Equal(CtdbSubmissionBlock.UnrecoverableWindows, outcome.Block);
+        Assert.Equal(0, prompt.Asked);
+    }
+
+    [Fact]
+    public void ACleanCapsuleOffersItsOwnCandidateWhenNoneIsGiven()
+    {
+        var prompt = new RecordingPrompt();
+        var service = new CtdbSubmissionService(AskingConfig(), prompt, new NullLog());
+        CtdbSubmissionCapsule capsule = CleanCapsule();
+
+        service.Offer(capsule);
+
+        Assert.Equal(1, prompt.Asked);
+        Assert.Same(capsule.Candidate, prompt.LastCandidate);
+    }
+}
