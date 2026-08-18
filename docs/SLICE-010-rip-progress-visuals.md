@@ -1,6 +1,6 @@
 # CUETools Linux Slice Brief: SLICE-010 rip progress visuals
 
-Version: 0.1 Draft. Date: 2026-08-14. Status: Proposed.
+Version: 0.2. Date: 2026-08-14, approved for build 2026-08-18. Status: Approved for build.
 Companion documents: ARCHITECTURE.md, ENGINEERING.md, DECISION-LOG.md.
 
 Design approved by the owner on 2026-08-14 (Conductor mini-interview,
@@ -135,7 +135,11 @@ written to settings, history, or output contracts.
 
 ---
 
-*Approved for build by: pending (design approved by owner 2026-08-14).
-Until then, this brief is a proposal. When section 11 closes with
-evidence, mark the status Done and update ADD section 15 before opening
-the next brief.*
+*Approved for build by the owner, 2026-08-18, design as written (the
+2026-08-14 D-057..D-059 decisions stand). One addition folded in at
+approval: the track grid gains its column headers, closing F-34, display
+only, same files. Evidence discs staged by the owner at approval time:
+the 2026-08-12 scratched disc (Telarc Surround) in the ASUS for S10-004,
+a scratched CDR in the PLDS, and Reggae Roots CD3 in the LG for the
+S10-005 salvage run. When section 11 closes with evidence, mark the
+status Done and update ADD section 15 before opening the next brief.*

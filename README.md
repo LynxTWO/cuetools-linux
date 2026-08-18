@@ -1,12 +1,49 @@
 # CUETools Linux
 
-A native Ubuntu-first desktop app bringing the CUETools 2026 experience to
-Linux: rip with calibrated assurance, verify, repair, and convert, matching
-the WPF build's look and function in a package a tenth the size.
+A native Linux desktop app bringing the CUETools 2026 experience to Linux:
+rip CDs with calibrated assurance, verify rips against AccurateRip and the
+CUETools Database, repair damaged rips from CTDB parity, and convert between
+lossless formats. Same engine as the Windows build, same evidence discipline,
+in a package a fraction of the size.
 
-**Status: designed, not yet built.** The full architecture and engineering
-interview is complete; the first slice (Verify) is proposed. Start reading
-at [docs/ARCHITECTURE.md](docs/ARCHITECTURE.md).
+**Status: built, unreleased, and not yet recommended for strangers.** Twelve
+slices are complete with evidence, from verification through ripping to
+database contribution. There is no published release yet, and several things
+a first-time user needs are still missing. See
+[Known limitations](#known-limitations) before trying it.
+
+## What works today
+
+| Capability | State |
+| --- | --- |
+| Verify a rip against AccurateRip and CTDB | Built, evidenced |
+| Repair a damaged rip from CTDB parity | Built, evidenced on a real scratched disc |
+| Convert between lossless formats | Built, evidenced across FLAC, ALAC, APE, WavPack |
+| Batch queue for verify and convert | Built, evidenced |
+| Rip a CD, including secure and Test and Copy modes | Built, evidenced on three drives |
+| Metadata and cover-art enrichment | Built, evidenced |
+| Offline journal and automatic backfill | Built, evidenced |
+| Share a verified rip with the CUETools Database, by consent | Built, one live submission confirmed by independent lookup |
+| Settings page, including privacy and consent controls | Built, evidenced |
+
+Every claim above traces to a slice brief in `docs/` with its own evidence
+section. Nothing here is inferred from a screenshot.
+
+## Known limitations
+
+Read these before installing. They are the reason there is no release yet.
+
+- The current binary needs glibc 2.38 or newer, so it does not start on
+  Ubuntu 22.04 or Debian 12 despite those being the intended floor. The
+  floor is a build-machine artifact, not a code requirement; the fix is a
+  build-environment change. See F-38 in the findings.
+- A wedged USB drive still needs guidance the app does not give yet:
+  SLICE-011 (guided drive recovery) is the gate the first public preview
+  waits for (D-065).
+- The output naming template has no editor; changing it means editing
+  `~/.config/CUETools2026/settings.txt` with the app closed.
+- Keep-awake is not wired up on Linux, so the machine may sleep during a
+  long rip. The switch exists on the Settings page and says so.
 
 ## The documents
 
