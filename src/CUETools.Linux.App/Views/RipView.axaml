@@ -339,6 +339,19 @@
                              Foreground="{DynamicResource Muted}" />
                 </StackPanel>
               </Border>
+              <!-- SLICE-011: shown only after a failure the engine classified as the
+                   characterized stuck-drive state, on a head whose probe can verify. -->
+              <Border Background="{DynamicResource Glass}" CornerRadius="6"
+                      Padding="8,6" IsVisible="{Binding RecoveryOfferVisible}">
+                <StackPanel Spacing="6">
+                  <TextBlock Text="{Binding RecoveryOfferText}"
+                             FontSize="11.5" TextWrapping="Wrap"
+                             Foreground="{DynamicResource StatusWarning}" />
+                  <Button Content="Recover the drive..."
+                          Command="{Binding RecoverDriveCommand}"
+                          HorizontalAlignment="Stretch" />
+                </StackPanel>
+              </Border>
             </StackPanel>
           </Border>
 

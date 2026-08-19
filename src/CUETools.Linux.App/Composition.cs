@@ -280,6 +280,12 @@ public static class Composition
         {
             Submissions = submissions,
         };
+        // SLICE-011: the guided-recovery affordance. The probe is the Linux sysfs +
+        // ioctl implementation; a platform without one would leave Recovery unset and
+        // the offer never shows.
+        var recoveryServices = new CUETools.Wpf.Accuracy.DriveRecoveryServices(
+            new LinuxDriveRecoveryProbe(log),
+            new CUETools.Wpf.Accuracy.DriveRecoveryIncidentStore());
         IHistoryStore ripHistory = new HistoryStore(log);
         IAlbumArtService albumArt = new AlbumArtService(
             config, appSettings, log, new SkiaImageTranscoder());
@@ -304,6 +310,7 @@ public static class Composition
             new AvaloniaArtworkPreviewFactory(),
             new LinuxPlatformCapabilities(),
             dialogs);
+        ripViewModel.Recovery = recoveryServices;
 
         // A rip makes its own database contact rather than going through the journaled verify
         // service, so an offline rip used to finish with no verdict and nothing queued: the
