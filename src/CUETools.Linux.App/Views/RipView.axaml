@@ -155,8 +155,15 @@
               <ItemsControl.ItemTemplate>
                 <DataTemplate x:DataType="models:TrackItem">
                   <Border BorderBrush="{DynamicResource Line}"
-                          BorderThickness="0,0,0,1" Padding="4,5">
-                    <Grid ColumnDefinitions="30,*,58,66,66,84,84">
+                          BorderThickness="0,0,0,1">
+                   <Panel>
+                    <!-- SLICE-010: the row's own progress, painted behind its text.
+                         Faint during Test, stronger during Copy; accent edge = active. -->
+                    <controls:TrackRowFill Progress="{Binding Progress}"
+                                           TestProgress="{Binding TestProgress}"
+                                           IsActive="{Binding Active}"
+                                           CurrentHollow="{Binding $parent[UserControl].((vm:RipViewModel)DataContext).CurrentFillHollow}" />
+                    <Grid ColumnDefinitions="30,*,58,66,66,84,84" Margin="4,5">
                       <TextBlock Grid.Column="0" Text="{Binding Number}"
                                  FontFamily="{StaticResource Mono}" FontSize="12"
                                  Foreground="{DynamicResource Muted}" />
@@ -179,6 +186,7 @@
                                  FontFamily="{StaticResource Mono}" FontSize="11.5"
                                  Foreground="{DynamicResource Muted}" />
                     </Grid>
+                   </Panel>
                   </Border>
                 </DataTemplate>
               </ItemsControl.ItemTemplate>
@@ -293,23 +301,23 @@
                                    Tracks="{Binding Tracks}"
                                    CurrentHollow="{Binding CurrentFillHollow}"
                                    ShowRetained="{Binding PhaseIsCopy}" />
-              <DockPanel LastChildFill="True">
-                <Border DockPanel.Dock="Left" Background="{DynamicResource Glass}"
-                        CornerRadius="4" Padding="7,2" Margin="0,0,6,0"
+              <!-- The strip above is the job's progress display now (owner's call
+                   2026-08-19: the old whole-job bar duplicated it and crowded the
+                   mode chip). The chips stand alone. -->
+              <StackPanel Orientation="Horizontal" Spacing="6">
+                <Border Background="{DynamicResource Glass}"
+                        CornerRadius="4" Padding="7,2"
                         IsVisible="{Binding PhaseChipVisible}">
                   <TextBlock Text="{Binding PhaseChip}" FontFamily="{StaticResource Mono}"
                              FontSize="10" Foreground="{DynamicResource Ink}" />
                 </Border>
-                <Border DockPanel.Dock="Left" Background="{DynamicResource Glass}"
-                        CornerRadius="4" Padding="7,2" Margin="0,0,8,0"
+                <Border Background="{DynamicResource Glass}"
+                        CornerRadius="4" Padding="7,2"
                         IsVisible="{Binding ModeChipVisible}">
                   <TextBlock Text="{Binding ModeChip}" FontFamily="{StaticResource Mono}"
                              FontSize="10" Foreground="{DynamicResource Muted}" />
                 </Border>
-                <ProgressBar Minimum="0" Maximum="1"
-                             Value="{Binding RipProgress}" Height="8"
-                             VerticalAlignment="Center" />
-              </DockPanel>
+              </StackPanel>
               <!-- Window-scoped pass ticks; hidden entirely for one-pass modes (D-058). -->
               <controls:PassLane Height="6"
                                  Ticks="{Binding PassTicks}" Max="{Binding PassMax}"
