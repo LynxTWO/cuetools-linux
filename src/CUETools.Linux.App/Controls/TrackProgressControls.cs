@@ -191,3 +191,57 @@ public sealed class PassLane : Control
         }
     }
 }
+
+/// <summary>
+/// SLICE-010 grid-row fill: the same per-track progress painted behind the track's own
+/// row in the grid, filling left to right under the text (the brief's "track grid rows
+/// fill left to right; the active track carries an accent edge"). Pure progress by
+/// design: no damage marks in the grid (D-058), those live on the strip. The Test fill
+/// paints faint and the Copy fill paints stronger over the retained Test extent, so the
+/// phase story reads in the grid too without the strip's outline machinery.
+/// </summary>
+public sealed class TrackRowFill : Control
+{
+    public static readonly StyledProperty<double> ProgressProperty =
+        AvaloniaProperty.Register<TrackRowFill, double>(nameof(Progress));
+    public static readonly StyledProperty<double> TestProgressProperty =
+        AvaloniaProperty.Register<TrackRowFill, double>(nameof(TestProgress));
+    public static readonly StyledProperty<bool> IsActiveProperty =
+        AvaloniaProperty.Register<TrackRowFill, bool>(nameof(IsActive));
+    public static readonly StyledProperty<bool> CurrentHollowProperty =
+        AvaloniaProperty.Register<TrackRowFill, bool>(nameof(CurrentHollow));
+
+    public double Progress { get => GetValue(ProgressProperty); set => SetValue(ProgressProperty, value); }
+    public double TestProgress { get => GetValue(TestProgressProperty); set => SetValue(TestProgressProperty, value); }
+    public bool IsActive { get => GetValue(IsActiveProperty); set => SetValue(IsActiveProperty, value); }
+
+    /// <summary>Test phase: the current fill paints at the faint tint.</summary>
+    public bool CurrentHollow { get => GetValue(CurrentHollowProperty); set => SetValue(CurrentHollowProperty, value); }
+
+    static TrackRowFill() => AffectsRender<TrackRowFill>(
+        ProgressProperty, TestProgressProperty, IsActiveProperty, CurrentHollowProperty);
+
+    public override void Render(DrawingContext context)
+    {
+        base.Render(context);
+        double w = Bounds.Width, h = Bounds.Height;
+        if (w <= 0 || h <= 0) return;
+
+        Color accent = this.TryFindResource("StatusAccent", out object? a) && a is ISolidColorBrush sb
+            ? sb.Color : Colors.Teal;
+        // Faint enough that the row text stays the subject; the fill is context.
+        var testTint = new SolidColorBrush(accent, 0.10);
+        var copyTint = new SolidColorBrush(accent, 0.22);
+
+        // Retained Test extent under the Copy fill, the grid's quiet echo of D-057.
+        if (TestProgress > 0)
+            context.FillRectangle(testTint, new Rect(0, 0, w * Math.Clamp(TestProgress, 0, 1), h));
+        if (Progress > 0)
+            context.FillRectangle(CurrentHollow ? testTint : copyTint,
+                new Rect(0, 0, w * Math.Clamp(Progress, 0, 1), h));
+
+        if (IsActive)
+            context.FillRectangle(new SolidColorBrush(accent),
+                new Rect(0, 0, 2.5, h));
+    }
+}
