@@ -95,6 +95,7 @@ public partial class MainWindow : Window
     {
         _theme.Toggle();
         UpdateToggleText();
+        RestyleNavs();
     }
 
     /// <summary>Startup navigation for the --convert launch flag.</summary>
@@ -127,12 +128,24 @@ public partial class MainWindow : Window
     private void OnSettingsNavPressed(object? sender, PointerPressedEventArgs e)
         => ShowPage(SettingsPage, SettingsNav);
 
+    private Border? _activeNav;
+
     private void ShowPage(Control page, Border nav)
     {
+        _activeNav = nav;
         foreach (Control candidate in new Control[] { VerifyPage, ConvertPage, QueuePage, RipPage, SettingsPage })
             candidate.IsVisible = ReferenceEquals(candidate, page);
+        RestyleNavs();
+    }
+
+    /// <summary>StyleNav assigns brushes resolved at call time, so a theme flip left the
+    /// active card wearing the OLD theme's Face brush: a black, unreadable box on the
+    /// light page (owner-reported from a live walkthrough screenshot). Restyled on every
+    /// toggle with the new theme's own brushes.</summary>
+    private void RestyleNavs()
+    {
         foreach (Border candidate in new[] { VerifyNav, ConvertNav, QueueNav, RipNav, SettingsNav })
-            StyleNav(candidate, ReferenceEquals(candidate, nav));
+            StyleNav(candidate, ReferenceEquals(candidate, _activeNav));
     }
 
     private void StyleNav(Border nav, bool active)
