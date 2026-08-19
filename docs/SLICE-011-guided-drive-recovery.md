@@ -124,7 +124,18 @@ content, hardware identity and counters only (scrub rule holds).
   and the unidentifiable-drive hand-instructions path.
 - [ ] One live wedge session end to end (grind, dialog, verified rungs,
   cure, incident record, retry), counters recorded in this brief.
-- [ ] Scrub audit of the incident record and dialog text.
+- [x] Scrub audit of the incident record and dialog text, 2026-08-18.
+  The incident record carries five fields: TimestampUtc, Trigger (one of
+  the two classifier names), TriggerContext (the scrubbed reader counters
+  RipService stamps, which by the scrubbed-logging rule carry command
+  shapes and counts, never payload), RungsAttempted (rung names), and
+  CuringRung (a rung name or empty). The store key is the normalized
+  drive signature, hardware identity only. The dialog's text shows the
+  drive letter, rung instructions, and rung titles; the fingerprint holds
+  vendor, model, revision, serial, and sr node. No field anywhere in the
+  path can carry an album, artist, track, or file name. Verified by
+  reading every assignment into DriveRecoveryIncident and every TextBlock
+  in DriveRecoveryDialog.
 
 ## 10. Agent guardrails for this build
 
