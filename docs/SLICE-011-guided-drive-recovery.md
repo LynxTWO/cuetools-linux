@@ -116,7 +116,12 @@ content, hardware identity and counters only (scrub rule holds).
 
 ## 9. Verification evidence required
 
-- [ ] Policy, store, and probe unit tests passing in CI.
+- [x] Policy, store, and probe unit tests passing in CI (fork suite,
+  2026-08-15), plus the dialog walkthrough driven by a scripted probe on
+  the Linux head (six tests, 2026-08-18): rung wording, advancement on a
+  failed rung, cure with retry, the proven-cure lead after two
+  consecutive cures, the uncured terminal with its recorded incident,
+  and the unidentifiable-drive hand-instructions path.
 - [ ] One live wedge session end to end (grind, dialog, verified rungs,
   cure, incident record, retry), counters recorded in this brief.
 - [ ] Scrub audit of the incident record and dialog text.

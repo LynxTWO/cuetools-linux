@@ -13,7 +13,21 @@ public partial class RipView : UserControl
     private EncoderCatalog? _catalog;
     private IAlbumArtService? _art;
 
-    public RipView() => InitializeComponent();
+    public RipView()
+    {
+        InitializeComponent();
+        // SLICE-011: the VM prepares the ladder; this view owns the window. Subscribed
+        // on DataContext change so the secondary-drive window's own VM gets its own hook.
+        DataContextChanged += (_, _) =>
+        {
+            if (DataContext is CUETools.Wpf.ViewModels.RipViewModel vm)
+                vm.RecoveryRequested += (ladder, retry) =>
+                {
+                    if (TopLevel.GetTopLevel(this) is Window owner)
+                        _ = DriveRecoveryDialog.ShowAsync(owner, ladder, retry);
+                };
+        };
+    }
 
     /// <summary>The config, catalog, and art service the pickers work on;
     /// same pattern as ConvertView.</summary>
