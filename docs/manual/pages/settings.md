@@ -46,10 +46,14 @@ bundle, with a **Download** link to each official project and a
 **Locate...** that imports your downloaded copy. An import that is
 refused says why, in red, under the encoder's status line.
 
-One switch on the page does nothing on this platform yet, and says so
-here rather than pretending: **Prevent sleep during a rip** has no power
-request wired up on Linux, and each rip logs
-`keep-awake not implemented on this platform`.
+**Prevent sleep during a rip** holds a system sleep inhibitor for
+exactly as long as a rip or verify runs, the same request a video
+player makes during playback, so a long secure rip is not cut short by
+an idle timeout. The rip log says when the hold begins; if the machine
+cannot grant one (no systemd, for instance), the log says
+`the system may sleep during this rip` instead of pretending. The
+screen may still blank - only sleep is held off, and a crashed app
+releases the hold by itself.
 
 A window CUETools opened for a second drive has no Settings entry at
 all. Only the main window owns the saved profile, so the page lives
