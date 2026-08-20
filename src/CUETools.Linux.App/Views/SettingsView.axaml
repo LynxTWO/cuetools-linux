@@ -7,7 +7,7 @@
     <Style Selector="TextBlock.sec">
       <Setter Property="FontSize" Value="10" />
       <Setter Property="FontWeight" Value="Bold" />
-      <Setter Property="Foreground" Value="{StaticResource Teal}" />
+      <Setter Property="Foreground" Value="{DynamicResource StatusAccent}" />
       <Setter Property="Margin" Value="0,18,0,6" />
     </Style>
     <Style Selector="Border.row">
@@ -56,6 +56,24 @@
           </DockPanel>
         </Border>
 
+        <!-- blue bulbs: color-coded category (lit-panel-controls one-knob recolor) -->
+        <StackPanel>
+          <StackPanel.Resources>
+            <Color x:Key="LampCore">#EAF6FF</Color>
+            <Color x:Key="LampLight">#79C4EC</Color>
+            <Color x:Key="LampBase">#2E86B8</Color>
+            <Color x:Key="LampDark">#123D57</Color>
+            <Color x:Key="LampEdge">#071925</Color>
+            <Color x:Key="LampHalo">#46B8E0</Color>
+            <Color x:Key="LampCapCore">#B8EFF9FF</Color>
+            <Color x:Key="LampCapMid">#5A5CB2DE</Color>
+            <Color x:Key="LampCapEdge">#0046B8E0</Color>
+          </StackPanel.Resources>
+          <StackPanel.Styles>
+            <Style Selector="ToggleButton.lit /template/ Border#halo">
+              <Setter Property="BoxShadow" Value="0 0 12 0 #B346B8E0" />
+            </Style>
+          </StackPanel.Styles>
         <TextBlock Classes="sec" Text="ACCURATERIP &amp; CTDB" />
         <Border Classes="row" ToolTip.Tip="Store AccurateRip results as tags when encoding."><DockPanel><ToggleButton Classes="row lit" IsChecked="{Binding WriteArTagsOnEncode}" /><TextBlock Classes="rowlabel" Text="AccurateRip tags on encode" /></DockPanel></Border>
         <Border Classes="row" ToolTip.Tip="Store AccurateRip results as tags when verifying."><DockPanel><ToggleButton Classes="row lit" IsChecked="{Binding WriteArTagsOnVerify}" /><TextBlock Classes="rowlabel" Text="AccurateRip tags on verify" /></DockPanel></Border>
@@ -64,6 +82,7 @@
         <Border Classes="row" ToolTip.Tip="Write the verify report into the album's own folder rather than the output folder."><DockPanel><ToggleButton Classes="row lit" IsChecked="{Binding ArLogToSourceFolder}" /><TextBlock Classes="rowlabel" Text="Report beside the source files" /></DockPanel></Border>
         <Border Classes="row" ToolTip.Tip="Per-track detail in AccurateRip reports."><DockPanel><ToggleButton Classes="row lit" IsChecked="{Binding ArLogVerbose}" /><TextBlock Classes="rowlabel" Text="Verbose reports" /></DockPanel></Border>
 
+        </StackPanel>
         <TextBlock Classes="sec" Text="FILE NAMING &amp; OUTPUT" />
         <Border Classes="row" ToolTip.Tip="The template for track file names. %tracknumber%, %title%, %artist%, %album% and more.">
           <DockPanel>
@@ -88,6 +107,24 @@
 
       <!-- Right column -->
       <StackPanel Grid.Column="2" Margin="0,58,0,0">
+        <!-- amber bulbs: color-coded category (lit-panel-controls one-knob recolor) -->
+        <StackPanel>
+          <StackPanel.Resources>
+            <Color x:Key="LampCore">#FFF6E9</Color>
+            <Color x:Key="LampLight">#F0C784</Color>
+            <Color x:Key="LampBase">#C8871F</Color>
+            <Color x:Key="LampDark">#7A5416</Color>
+            <Color x:Key="LampEdge">#241804</Color>
+            <Color x:Key="LampHalo">#E9A63F</Color>
+            <Color x:Key="LampCapCore">#B8FFF8EE</Color>
+            <Color x:Key="LampCapMid">#5AE0A94A</Color>
+            <Color x:Key="LampCapEdge">#00E9A63F</Color>
+          </StackPanel.Resources>
+          <StackPanel.Styles>
+            <Style Selector="ToggleButton.lit /template/ Border#halo">
+              <Setter Property="BoxShadow" Value="0 0 12 0 #B3E9A63F" />
+            </Style>
+          </StackPanel.Styles>
         <TextBlock Classes="sec" Text="TAGGING" />
         <Border Classes="row" ToolTip.Tip="Write artist, title, and track tags from the CUE sheet data."><DockPanel><ToggleButton Classes="row lit" IsChecked="{Binding BasicTagsFromCue}" /><TextBlock Classes="rowlabel" Text="Basic tags from CUE data" /></DockPanel></Border>
         <Border Classes="row" ToolTip.Tip="Copy standard tags from source files when converting."><DockPanel><ToggleButton Classes="row lit" IsChecked="{Binding CopyBasicTags}" /><TextBlock Classes="rowlabel" Text="Copy basic tags" /></DockPanel></Border>
@@ -106,6 +143,25 @@
           </DockPanel>
         </Border>
 
+        </StackPanel>
+        <!-- rose bulbs: color-coded category (lit-panel-controls one-knob recolor) -->
+        <StackPanel>
+          <StackPanel.Resources>
+            <Color x:Key="LampCore">#FFEEF6</Color>
+            <Color x:Key="LampLight">#EFA3C8</Color>
+            <Color x:Key="LampBase">#C25789</Color>
+            <Color x:Key="LampDark">#5E2743</Color>
+            <Color x:Key="LampEdge">#29101E</Color>
+            <Color x:Key="LampHalo">#E37DAD</Color>
+            <Color x:Key="LampCapCore">#B8FFF2F8</Color>
+            <Color x:Key="LampCapMid">#5AD685B2</Color>
+            <Color x:Key="LampCapEdge">#00E37DAD</Color>
+          </StackPanel.Resources>
+          <StackPanel.Styles>
+            <Style Selector="ToggleButton.lit /template/ Border#halo">
+              <Setter Property="BoxShadow" Value="0 0 12 0 #B3E37DAD" />
+            </Style>
+          </StackPanel.Styles>
         <TextBlock Classes="sec" Text="PRIVACY &amp; DATA" />
         <Border Classes="row" ToolTip.Tip="Look up a front cover automatically when a disc is read. Changing this here counts as answering the first-run question, so the app will not ask again.">
           <DockPanel><ToggleButton Classes="row lit" IsChecked="{Binding ArtworkAutoLookup}" /><TextBlock Classes="rowlabel" Text="Look up cover art automatically" /></DockPanel>
@@ -126,12 +182,32 @@
           </StackPanel>
         </Border>
 
+        </StackPanel>
+        <!-- green bulbs: color-coded category (lit-panel-controls one-knob recolor) -->
+        <StackPanel>
+          <StackPanel.Resources>
+            <Color x:Key="LampCore">#EAFFF1</Color>
+            <Color x:Key="LampLight">#9FE9B8</Color>
+            <Color x:Key="LampBase">#3FB877</Color>
+            <Color x:Key="LampDark">#1E5E38</Color>
+            <Color x:Key="LampEdge">#06210F</Color>
+            <Color x:Key="LampHalo">#5CCB8B</Color>
+            <Color x:Key="LampCapCore">#B8EFFBEF</Color>
+            <Color x:Key="LampCapMid">#5A7AD89A</Color>
+            <Color x:Key="LampCapEdge">#005CCB8B</Color>
+          </StackPanel.Resources>
+          <StackPanel.Styles>
+            <Style Selector="ToggleButton.lit /template/ Border#halo">
+              <Setter Property="BoxShadow" Value="0 0 12 0 #B35CCB8B" />
+            </Style>
+          </StackPanel.Styles>
         <TextBlock Classes="sec" Text="HDCD" />
         <Border Classes="row" ToolTip.Tip="Detect HDCD encoding while reading."><DockPanel><ToggleButton Classes="row lit" IsChecked="{Binding DetectHdcd}" /><TextBlock Classes="rowlabel" Text="Detect HDCD" /></DockPanel></Border>
         <Border Classes="row" ToolTip.Tip="Decode HDCD to its full range when converting."><DockPanel><ToggleButton Classes="row lit" IsChecked="{Binding DecodeHdcd}" /><TextBlock Classes="rowlabel" Text="Decode HDCD" /></DockPanel></Border>
         <Border Classes="row" ToolTip.Tip="Write decoded HDCD as 24-bit output."><DockPanel><ToggleButton Classes="row lit" IsChecked="{Binding DecodeHdcdTo24}" /><TextBlock Classes="rowlabel" Text="Decode HDCD to 24-bit" /></DockPanel></Border>
         <Border Classes="row" ToolTip.Tip="Wait 750 frames before deciding a disc is not HDCD."><DockPanel><ToggleButton Classes="row lit" IsChecked="{Binding Wait750ForHdcd}" /><TextBlock Classes="rowlabel" Text="Wait 750 frames for HDCD" /></DockPanel></Border>
 
+        </StackPanel>
         <TextBlock Classes="sec" Text="ENCODERS" />
         <TextBlock FontSize="11" Foreground="{DynamicResource Muted}" TextWrapping="Wrap" Margin="2,0,0,8"
                    Text="Built in and ready: FLAC, ALAC, WavPack, Monkey's Audio, WAV, and MP3 (bundled LAME). Optional command encoders below are packaged only when their licenses permit it. Download opens the official project; Locate imports a hash-bound user copy that overrides any packaged version." />

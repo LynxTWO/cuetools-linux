@@ -1,0 +1,89 @@
+using Avalonia.Controls;
+using Avalonia.Headless.XUnit;
+using Avalonia.Media;
+using Avalonia.Styling;
+using Xunit;
+
+namespace CUETools.Linux.Tests;
+
+// WCAG AA, pinned: every text-role brush must reach 4.5:1 over every surface
+// it can sit on, in both themes. This is the accessibility audit as a contract,
+// so a palette edit that quietly washes out the light theme fails the build
+// instead of shipping. Decorative constants (Teal, Good, Amber) are exactly
+// that - decoration - and no view may use them as text Foreground; the sweep
+// test below keeps them out.
+public class ContrastContractTests
+{
+    private static readonly string[] TextRoles =
+        { "Ink", "InkDim", "Muted", "StatusAccent", "StatusGood", "StatusWarning", "StatusDanger" };
+    private static readonly string[] Surfaces = { "Ground", "Bar", "Face", "Panel", "Glass" };
+
+    private static double Luminance(Color c)
+    {
+        static double F(double v) => v <= 0.04045 ? v / 12.92 : Math.Pow((v + 0.055) / 1.055, 2.4);
+        double r = F(c.R / 255.0), g = F(c.G / 255.0), b = F(c.B / 255.0);
+        return 0.2126 * r + 0.7152 * g + 0.0722 * b;
+    }
+
+    private static double Ratio(Color fg, Color bg)
+    {
+        double a = Luminance(fg), b = Luminance(bg);
+        return (Math.Max(a, b) + 0.05) / (Math.Min(a, b) + 0.05);
+    }
+
+    private static Color Resolve(string key, ThemeVariant variant)
+    {
+        Assert.True(Avalonia.Application.Current!.TryGetResource(key, variant, out object? value),
+            $"palette key {key} missing");
+        return Assert.IsAssignableFrom<ISolidColorBrush>(value).Color;
+    }
+
+    [AvaloniaFact]
+    public void EveryTextRoleReadsAtWcagAaOverEverySurfaceInBothThemes()
+    {
+        foreach (ThemeVariant variant in new[] { ThemeVariant.Dark, ThemeVariant.Light })
+        foreach (string role in TextRoles)
+        foreach (string surface in Surfaces)
+        {
+            double r = Ratio(Resolve(role, variant), Resolve(surface, variant));
+            Assert.True(r >= 4.5,
+                $"{variant} {role} on {surface}: {r:0.00}:1 is under WCAG AA 4.5:1");
+        }
+    }
+
+    [AvaloniaFact]
+    public void NoViewUsesADecorativeConstantAsTextForeground()
+    {
+        // the decorative accents are variant-invariant and fail AA on the light
+        // surfaces (measured 1.6:1); text must ride the Status* brushes instead
+        string root = FindRepoRoot();
+        var offenders = new List<string>();
+        foreach (string file in Directory.GetFiles(
+            Path.Combine(root, "src", "CUETools.Linux.App"), "*.axaml", SearchOption.AllDirectories))
+        {
+            string text = File.ReadAllText(file);
+            foreach (string bad in new[]
+            {
+                "Foreground=\"{StaticResource Teal}\"",
+                "Foreground=\"{StaticResource Teal2}\"",
+                "Foreground=\"{StaticResource Good}\"",
+                "Foreground=\"{StaticResource Amber}\"",
+                "Property=\"Foreground\" Value=\"{StaticResource Teal}\"",
+                "Property=\"Foreground\" Value=\"{StaticResource Good}\"",
+                "Property=\"Foreground\" Value=\"{StaticResource Amber}\"",
+            })
+                if (text.Contains(bad))
+                    offenders.Add($"{Path.GetFileName(file)}: {bad}");
+        }
+        Assert.Empty(offenders);
+    }
+
+    private static string FindRepoRoot()
+    {
+        string? dir = AppContext.BaseDirectory;
+        while (dir != null && !File.Exists(Path.Combine(dir, "eng", "build.sh")))
+            dir = Path.GetDirectoryName(dir);
+        Assert.NotNull(dir);
+        return dir!;
+    }
+}
