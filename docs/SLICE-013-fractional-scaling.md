@@ -1,6 +1,6 @@
 # CUETools Linux Slice Brief: SLICE-013 fractional scaling
 
-Version: 0.1. Date: 2026-08-20. Status: Awaiting approval.
+Version: 0.2. Date: 2026-08-20. Status: Approved for build.
 Companion documents: ARCHITECTURE.md, ENGINEERING.md, DECISION-LOG.md
 (D-074, D-075, D-076).
 
@@ -151,6 +151,8 @@ contracts.
 
 ---
 
-*Awaiting approval. When the owner stamps this Approved for build,
-the icon set is the first build item and section 9's first checkbox
-is the first gate.*
+*Approved for build by the owner, 2026-08-20 (D-078), design as
+written. Sequencing note: the D-077 house-voice writing pass lands
+before this slice's build begins; within the slice, the icon set is
+the first build item and section 9's first checkbox is the first
+gate.*

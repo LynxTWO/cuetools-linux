@@ -1080,3 +1080,51 @@ before icons; the full analog pass before any reflow.
 REVISIT WHEN: Render evidence shows a breakpoint number producing a
 broken intermediate state, or the icon set proves illegible at strip
 size (reopens D-075's options).
+
+DECISION: D-077 House voice: warmth, never manufactured errors (owner interview 2026-08-20)
+STATUS: Confirmed
+CHOICE: Everything written that is not code gets a deliberate human
+warmth, adapted from the owner's Internet Human Mode skill with its
+dial recalibrated for durable documents: the levels are kept, the
+manufactured errors are not. Nothing in these repositories fakes
+typos, dropped apostrophes, or rushed typing to look human; humanity
+comes from voice (contractions, direct address, varied rhythm, plain
+verbs, honest humor), never from damage. The surface map: manual
+pages and glossary at level 1 (warm precision, zero errors);
+engineering records (ARCHITECTURE, ENGINEERING, DECISION-LOG, slice
+briefs, findings) at level 1 with receipt discipline untouched;
+README, release notes, and pull-request prose at level 2; assistant
+reports to the owner at level 2; the How a CD Works manual page at
+level 2-3, because a lesson may carry personality a reference should
+not; commit messages unchanged (already governed); code comments
+exempt (the file's idiom wins). Emoji and the skill's comic
+archetypes stay out of the repositories entirely. Codified in three
+layers so it binds future sessions: a house-voice skill in the fork's
+.claude/skills, warmth rulings in the manual's VOICE.md, and an
+amendment to the fork CLAUDE.md writing rules. Implementation runs
+golden-sample-first: one reference page and the lesson page rewritten
+and approved before the full sweep.
+BECAUSE: Owner request 2026-08-20, level choice delegated to the
+assistant and set at 1-2 (3 ceiling for the lesson). The skill's own
+guidance marks levels 1-3 as the band where credibility still
+matters; a manual with deliberate misspellings breaks search, quotes
+UI strings wrong, and spends the trust the receipts earned; and
+injected errors in prose the assistant writes would fake provenance,
+the arms race the skill's demo post argues against.
+OPTIONS CONSIDERED: Real roughness with visible typing texture
+(declined); level 1 flat everywhere; per-surface markup by the owner;
+codifying in fewer layers.
+REVISIT WHEN: A community surface appears where real internet texture
+genuinely fits (a social account, a forum presence), which reopens
+the upper dial for that surface only.
+
+DECISION: D-078 SLICE-013 approved; the writing pass runs first
+STATUS: Confirmed
+CHOICE: The owner approves SLICE-013 fractional scaling as written.
+Sequencing: the D-077 writing pass lands before the slice's build
+begins; within the slice, the icon set remains build item one.
+BECAUSE: Owner answers 2026-08-20 ("it looks good", stamp-now option
+chosen with the writing pass explicitly queued ahead).
+OPTIONS CONSIDERED: Holding the stamp until the brief was re-read in
+the new voice.
+REVISIT WHEN: Nothing pending; the stamp stands.

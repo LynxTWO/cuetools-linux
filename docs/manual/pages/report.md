@@ -1,21 +1,22 @@
 # The Report page, the last job's certificate
 
-The **Report** page shows the certificate for the most recent rip or
+The **Report** page is the certificate for your most recent rip or
 verify: one headline verdict, the album it belongs to, the two database
-answers, and the full rip log. It reads what the job already wrote and
-writes nothing itself, so you can open it at any time without touching
-your files.
+answers, and the full rip log. It only reads what the job already
+wrote - it writes nothing itself - so open it whenever you like without
+touching your files.
 
-Before the first job of a session finishes, the page says **No report
+Until the session's first job finishes, the page says **No report
 yet**, with one line telling you where reports come from: "Run a Verify
-or Rip on the Rip page and the accuracy certificate lands here." The
-page fills in the moment a job completes, and each later job replaces
-the certificate with its own.
+or Rip on the Rip page and the accuracy certificate lands here." It
+fills in the moment a job completes, and each later job replaces the
+certificate with its own.
 
 ## The headline
 
 The headline is the whole result in one phrase. One row per distinct
-message:
+message, because these mean different things and the difference is the
+point:
 
 | Headline | What it means |
 | --- | --- |
@@ -27,14 +28,15 @@ message:
 | **Not confirmed** | The job finished, but nothing confirmed the audio: no database match, no agreeing re-reads. |
 
 A damaged rip never gets a verification headline, whatever else
-matched: the certificate never says more than the log. The wax seal
-next to the headline is green when the result is confirmed and amber
-otherwise.
+matched: the certificate never says more than the log does. The wax
+seal next to the headline is green when the result is confirmed, amber
+when it isn't.
 
 ## The two database cards
 
-The cards report each database's answer separately, because they are
-separate databases with separate submissions:
+The two cards answer separately because they are separate databases
+with separate submissions - one can know your disc while the other has
+never heard of it:
 
 - **ACCURATERIP** shows `confidence N` when your rip matched (N people
   ripped the same bytes), `N / M` when the disc is known but your rip
@@ -49,13 +51,13 @@ agrees with, not a percentage.
 ## The log and the checksum
 
 **RIP LOG** is the full text the job wrote, selectable so you can copy
-it. Under it, the integrity line explains the digest printed in the
-footer: a checksum calculated over the log text above it. It is not a
-signature; it is a number you can keep, so that if you save the
-certificate today and read it again next year, you can tell whether the
-text changed. The same line names the read evidence in plain terms
-(which databases confirmed the rip, or how many optical reads agreed),
-and whether the final encoded output was decoded and compared after
+it out. Under it, the integrity line explains the digest printed in the
+footer: a checksum calculated over the log text above it. It's not a
+signature - it's a number you can keep, so if you save the certificate
+today and read it again next year, you can tell whether the text
+changed. The same line names the read evidence in plain terms (which
+databases confirmed the rip, or how many optical reads agreed), and
+whether the final encoded output was decoded and compared after
 tagging.
 
 ## Related topics
