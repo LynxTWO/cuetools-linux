@@ -45,6 +45,7 @@ public class BackfillEvidenceTests
     [Fact]
     public void AMultiDiscFolderPreservesTheReplayedDiscsOwnReport()
     {
+        if (ReplayPlatform.Unsupported) return;   // pinned instead by MacReplayFailsClosedTests
         string album = NewDir();
         (JournalStore journal, string journalDir) = NewJournal();
         try
@@ -82,6 +83,7 @@ public class BackfillEvidenceTests
     [Fact]
     public void AnEntryStaysPendingWhenNoDatabaseAnswered()
     {
+        if (ReplayPlatform.Unsupported) return;   // pinned instead by MacReplayFailsClosedTests
         string album = NewDir();
         (JournalStore journal, string journalDir) = NewJournal();
         try
@@ -121,6 +123,7 @@ public class BackfillEvidenceTests
     [Fact]
     public void AnEntryResolvesWhenADatabaseActuallyAnswered()
     {
+        if (ReplayPlatform.Unsupported) return;   // pinned instead by MacReplayFailsClosedTests
         string album = NewDir();
         (JournalStore journal, string journalDir) = NewJournal();
         try
@@ -240,6 +243,7 @@ public class BackfillEvidenceTests
     [Fact]
     public void TheClaimIsReleasedSoTheNextReplayProceeds()
     {
+        if (ReplayPlatform.Unsupported) return;   // pinned instead by MacReplayFailsClosedTests
         string album = NewDir();
         (JournalStore journal, string journalDir) = NewJournal();
         try
