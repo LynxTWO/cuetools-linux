@@ -20,7 +20,7 @@ What you see on the way down is the real geometry of the format:
 
 - At arm's length: the center hole, the clamping ring, the mirror
   band, and the broad data band that fills most of the disc. Familiar
-  territory - you've held this a thousand times.
+  territory. You've held this a thousand times.
 - Around the point where the scale bar reads tens of micrometres,
   something appears out of the blank metal: the spiral. Parallel turns
   wound 1.6 um apart, which is why the disc you've been squinting at
@@ -29,8 +29,8 @@ What you see on the way down is the real geometry of the format:
 - Closer still, each turn breaks into pits and lands: dashes of 0.83
   to 3.05 um (the format's legal pit lengths), about half a micrometre
   wide, sitting on the continuous track line. That dash pattern is the
-  music. All of it - every album you own on CD - is a five-kilometre
-  line of bumps too small to see.
+  music: every album you own on CD is a five-kilometre line of bumps
+  too small to see.
 
 One honest note: the pit pattern is illustrative. The lengths and the
 track geometry are the real CD specification, but the particular
@@ -42,7 +42,7 @@ teaches the geometry, not the content.
 The right side explains what you're looking at. The spiral: one
 continuous track about 5 km long, read from the inside out, not
 concentric rings. Pits and lands: it's the transitions that carry the
-bits - a change is a 1, no change is a 0. Constant data rate: the disc
+bits: a change is a 1, no change is a 0. Constant data rate: the disc
 spins faster at the hub and slower at the rim so the track passes the
 laser at a constant speed, which is exactly why a rip's read position
 races through the early tracks and settles down toward the rim. You've

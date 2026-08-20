@@ -3,7 +3,7 @@
 The **Report** page is the certificate for your most recent rip or
 verify: one headline verdict, the album it belongs to, the two database
 answers, and the full rip log. It only reads what the job already
-wrote - it writes nothing itself - so open it whenever you like without
+wrote (it writes nothing itself) so open it whenever you like without
 touching your files.
 
 Until the session's first job finishes, the page says **No report
@@ -21,9 +21,9 @@ point:
 | Headline | What it means |
 | --- | --- |
 | **Accurately ripped** | The rip matched other people's rips in a database (AccurateRip or CTDB). |
-| **Verified by independent reads** | No database confirmed it, but the drive read the disc several times and every track agreed across the required number of reads. The evidence line at the bottom carries the counts. |
+| **Verified by independent reads** | No database confirmed it, but the drive read the disc several times and every track agreed across the required number of reads. The evidence line at the bottom carries the counts: how many optical reads ran, and the minimum number that agreed on every track. |
 | **Consistent - damage recorded** | The reads agreed with each other, but some sectors could not be read at all. The log records exactly which ones. |
-| **Salvaged capture - damage recorded** | A Salvage-mode capture with unreadable sectors: the audio is the best the disc would give, and the damage is listed. |
+| **Salvaged capture - damage recorded** | A Salvage-mode capture with unreadable sectors: the audio is the best the disc would give, and the damage to the disc, and where, is listed. |
 | **Salvaged capture - not verified** | A Salvage capture with no database match and no independent confirmation. |
 | **Not confirmed** | The job finished, but nothing confirmed the audio: no database match, no agreeing re-reads. |
 
@@ -35,8 +35,8 @@ when it isn't.
 ## The two database cards
 
 The two cards answer separately because they are separate databases
-with separate submissions - one can know your disc while the other has
-never heard of it:
+with separate submissions. Basically, one database can know your disc,
+while the other has never heard of it:
 
 - **ACCURATERIP** shows `confidence N` when your rip matched (N people
   ripped the same bytes), `N / M` when the disc is known but your rip
@@ -52,10 +52,10 @@ agrees with, not a percentage.
 
 **RIP LOG** is the full text the job wrote, selectable so you can copy
 it out. Under it, the integrity line explains the digest printed in the
-footer: a checksum calculated over the log text above it. It's not a
-signature - it's a number you can keep, so if you save the certificate
-today and read it again next year, you can tell whether the text
-changed. The same line names the read evidence in plain terms (which
+footer: a checksum calculated over the log text above it. The checksum is not
+a signature, it is a number you can keep, so if you save the
+certificate today and read it again next year, you can tell whether
+the text changed. The same line names the read evidence in plain terms (which
 databases confirmed the rip, or how many optical reads agreed), and
 whether the final encoded output was decoded and compared after
 tagging.
