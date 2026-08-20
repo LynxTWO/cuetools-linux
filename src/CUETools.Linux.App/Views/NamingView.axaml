@@ -1,0 +1,108 @@
+<UserControl xmlns="https://github.com/avaloniaui"
+             xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
+             xmlns:vm="using:CUETools.Wpf.ViewModels"
+             x:Class="CUETools.Linux.App.Views.NamingView"
+             x:DataType="vm:NamingViewModel">
+  <UserControl.Styles>
+    <Style Selector="TextBlock.sec">
+      <Setter Property="FontSize" Value="10" />
+      <Setter Property="FontWeight" Value="Bold" />
+      <Setter Property="Foreground" Value="{StaticResource Teal}" />
+      <Setter Property="Margin" Value="0,18,0,6" />
+    </Style>
+    <Style Selector="Border.row">
+      <Setter Property="Background" Value="{DynamicResource Panel}" />
+      <Setter Property="BorderBrush" Value="{DynamicResource Line}" />
+      <Setter Property="BorderThickness" Value="1" />
+      <Setter Property="CornerRadius" Value="8" />
+      <Setter Property="Padding" Value="12,7" />
+      <Setter Property="Margin" Value="0,0,0,6" />
+    </Style>
+    <Style Selector="TextBlock.rowlabel">
+      <Setter Property="FontSize" Value="12.5" />
+      <Setter Property="Foreground" Value="{DynamicResource Ink}" />
+      <Setter Property="VerticalAlignment" Value="Center" />
+      <Setter Property="TextWrapping" Value="Wrap" />
+    </Style>
+  </UserControl.Styles>
+
+  <ScrollViewer VerticalScrollBarVisibility="Auto" Background="{DynamicResource Ground}">
+    <Grid ColumnDefinitions="1*,24,1*" Margin="26,18,26,40" MaxWidth="1080">
+      <!-- Left: the scheme -->
+      <StackPanel Grid.Column="0">
+        <TextBlock Text="{Binding Title}" FontFamily="{StaticResource Serif}"
+                   FontSize="26" Foreground="{DynamicResource Ink}" />
+        <TextBlock Text="{Binding Subtitle}" Foreground="{DynamicResource Muted}"
+                   FontSize="12.5" Margin="0,2,0,4" TextWrapping="Wrap" />
+
+        <TextBlock Classes="sec" Text="PRESET" />
+        <Border Classes="row">
+          <ComboBox x:Name="PresetBox" MinWidth="230" HorizontalAlignment="Left"
+                    PlaceholderText="Start from a preset..."
+                    ItemsSource="{Binding PresetNames}"
+                    SelectionChanged="OnPresetChanged" />
+        </Border>
+
+        <TextBlock Classes="sec" Text="TEMPLATE" />
+        <Border Classes="row" ToolTip.Tip="The folder part and the file part, divided by /. Square brackets mark a piece that disappears when its field is empty.">
+          <TextBox x:Name="TemplateBox" Text="{Binding Template}"
+                   FontFamily="{StaticResource Mono}" FontSize="12.5"
+                   AcceptsReturn="False" TextWrapping="NoWrap" />
+        </Border>
+
+        <TextBlock Classes="sec" Text="FIELDS" />
+        <TextBlock FontSize="11" Foreground="{DynamicResource Muted}" TextWrapping="Wrap" Margin="2,0,0,6"
+                   Text="Click a field to insert it at the cursor." />
+        <ItemsControl ItemsSource="{Binding PaletteFields}">
+          <ItemsControl.ItemsPanel>
+            <ItemsPanelTemplate>
+              <WrapPanel />
+            </ItemsPanelTemplate>
+          </ItemsControl.ItemsPanel>
+          <ItemsControl.ItemTemplate>
+            <DataTemplate x:DataType="x:String">
+              <Button Content="{Binding}" Click="OnFieldClick" Margin="0,0,6,6"
+                      Padding="8,3" FontFamily="{StaticResource Mono}" FontSize="11" />
+            </DataTemplate>
+          </ItemsControl.ItemTemplate>
+        </ItemsControl>
+
+        <TextBlock Classes="sec" Text="CLEAN-UP RULES" />
+        <Border Classes="row" ToolTip.Tip="A guest credit in the track artist moves to the end of the file name, as (feat. Guest)."><DockPanel><ToggleButton Classes="row lit" DockPanel.Dock="Right" IsChecked="{Binding ExtractFeatured}" /><TextBlock Classes="rowlabel" Text="Extract featured artists" /></DockPanel></Border>
+        <Border Classes="row" ToolTip.Tip="Separators between collaborating artists become an ampersand."><DockPanel><ToggleButton Classes="row lit" DockPanel.Dock="Right" IsChecked="{Binding UnifySeparators}" /><TextBlock Classes="rowlabel" Text="Unify artist separators" /></DockPanel></Border>
+        <Border Classes="row" ToolTip.Tip="A leading article moves to the end of an artist name, so folders sort by the name people look for. Titles are left alone."><DockPanel><ToggleButton Classes="row lit" DockPanel.Dock="Right" IsChecked="{Binding HandleArticles}" /><TextBlock Classes="rowlabel" Text="Move leading articles" /></DockPanel></Border>
+        <Border Classes="row" ToolTip.Tip="A colon becomes a spaced hyphen; asterisks, question marks, angle brackets, and pipes are removed."><DockPanel><ToggleButton Classes="row lit" DockPanel.Dock="Right" IsChecked="{Binding StripIllegal}" /><TextBlock Classes="rowlabel" Text="Strip awkward characters" /></DockPanel></Border>
+        <Border Classes="row" ToolTip.Tip="The album folder carries a bracketed descriptor: the year, and 2-CD Set and similar for multi-disc releases."><DockPanel><ToggleButton Classes="row lit" DockPanel.Dock="Right" IsChecked="{Binding ReleaseDescriptor}" /><TextBlock Classes="rowlabel" Text="Release descriptor in the folder" /></DockPanel></Border>
+      </StackPanel>
+
+      <!-- Right: the live preview -->
+      <StackPanel Grid.Column="2" Margin="0,58,0,0">
+        <TextBlock Classes="sec" Text="LIVE PREVIEW" />
+        <TextBlock FontSize="11" Foreground="{DynamicResource Muted}" TextWrapping="Wrap" Margin="2,0,0,8"
+                   Text="Rendered with the exact engine the rip and convert paths use, so the preview equals the output. The disc in the tray leads when one is loaded." />
+        <ItemsControl ItemsSource="{Binding Preview}">
+          <ItemsControl.ItemTemplate>
+            <DataTemplate x:DataType="vm:NamingPreviewGroup">
+              <Border Classes="row">
+                <StackPanel>
+                  <TextBlock Text="{Binding Label}" FontSize="11" FontWeight="SemiBold"
+                             Foreground="{DynamicResource Muted}" Margin="0,0,0,4" />
+                  <ItemsControl ItemsSource="{Binding Lines}">
+                    <ItemsControl.ItemTemplate>
+                      <DataTemplate x:DataType="x:String">
+                        <TextBlock Text="{Binding}" FontFamily="{StaticResource Mono}"
+                                   FontSize="11" Foreground="{DynamicResource Ink}"
+                                   TextTrimming="CharacterEllipsis"
+                                   ToolTip.Tip="{Binding}" />
+                      </DataTemplate>
+                    </ItemsControl.ItemTemplate>
+                  </ItemsControl>
+                </StackPanel>
+              </Border>
+            </DataTemplate>
+          </ItemsControl.ItemTemplate>
+        </ItemsControl>
+      </StackPanel>
+    </Grid>
+  </ScrollViewer>
+</UserControl>

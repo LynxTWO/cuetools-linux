@@ -134,6 +134,7 @@ public static class Composition
         QueueViewModel Queue,
         SettingsViewModel SettingsPage,
         ReportViewModel Report,
+        NamingViewModel Naming,
         VerificationBackfillService Backfill,
         IDiagnosticLog Log,
         CUEConfig Config,
@@ -316,6 +317,8 @@ public static class Composition
             new LinuxPlatformCapabilities(),
             dialogs);
         ripViewModel.Recovery = recoveryServices;
+        // The tray-disc preview pulls the Rip page lazily through the seam.
+        var namingPage = new NamingViewModel(config, appSettings, () => ripViewModel);
 
         // A rip makes its own database contact rather than going through the journaled verify
         // service, so an offline rip used to finish with no verdict and nothing queued: the
@@ -347,7 +350,7 @@ public static class Composition
         var reportPage = new ReportViewModel(reports);
 
         return new AppGraph(
-            viewModel, convertViewModel, queueViewModel, settingsPage, reportPage, backfill, log, config,
+            viewModel, convertViewModel, queueViewModel, settingsPage, reportPage, namingPage, backfill, log, config,
             catalog, appSettings, settingsStore, enrichment, journal, ripViewModel,
             albumArt);
     }
