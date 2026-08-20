@@ -997,3 +997,54 @@ modal; a header-gear overlay; spreading privacy items across feature
 groups; read-only settings in secondary windows.
 REVISIT WHEN: A setting arrives that is dangerous to apply live, or the
 process-per-drive model changes who owns the profile.
+
+DECISION: D-074 Scaling design intake and strategy (owner interview 2026-08-20)
+STATUS: Confirmed
+CHOICE: The fractional-scaling design covers both heads at 100 through
+200 percent, is designed and built on the Linux head first with the
+Windows port following on its lessons, and its core strategy is reflow
+then scroll: pages restack as logical space shrinks (two columns become
+one, the rail narrows), and only below a hard floor does scrolling
+appear. Instrument visuals shrink proportionally but each declares a
+minimum legible size, below which the page reflows around the
+instrument instead of shrinking it further (the S10-007 legibility rule
+extended to every instrument). Tier-one scale-proofing covers the Rip
+and Verify pages: designed and render-verified at all five factors in
+both themes before the slice closes; other pages get the reflow
+mechanics with lighter verification. The compact low-resolution mode is
+Deferred: no real target machine exists, so it waits with a written
+revisit trigger (the day a small-screen machine enters the owner's
+world) rather than being designed against a guess. Build starts as soon
+as the owner approves the brief.
+BECAUSE: Owner answers 2026-08-20, intake restatement confirmed as
+given. Reflow-then-scroll does the most work at every size and matches
+the Rip page's existing bounded-layout rules; proportional-with-floors
+keeps the honesty commitments (strip legibility, damage ticks, CRC
+evidence) explicit instead of letting instruments clip silently; Rip
+and Verify are where clipped controls cost most, with a drive spinning.
+OPTIONS CONSIDERED: Fixed layout with scrollbars; uniform shrink;
+fixed instrument sizes; simplified small-mode instrument variants;
+all-work-pages or all-eleven-pages tier one; both heads in one pass;
+compact mode designed speculatively.
+REVISIT WHEN: A real small-screen machine appears (reopens compact
+mode), or the Windows port begins (imports these decisions with fresh
+evidence).
+
+DECISION: D-075 The rail collapses to an icon strip when width is tight
+STATUS: Confirmed
+CHOICE: Below the width threshold the nav rail collapses to a narrow
+icon strip, one icon per page, tooltips carrying the full names. This
+commits the project to designing an icon language it does not yet have:
+eleven rail entries need icons that read in the 2026 bench identity,
+in both themes, at strip sizes.
+BECAUSE: Owner choice 2026-08-20. AI recommendation differed: the
+interview recommended auto-narrowing with short text labels to avoid
+the icon-design project; the owner chose the icon strip, which saves
+the most horizontal space and can share its design language with the
+planned analog-controls pass (etched, backlit legends). The extra work
+is accepted, not accidental.
+OPTIONS CONSIDERED: Auto-narrow with short labels (recommended);
+collapsible drawer behind a hamburger button.
+REVISIT WHEN: The icon set proves illegible at strip sizes in render
+checks, or the analog-controls pass changes the visual language the
+icons must speak.
