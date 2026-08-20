@@ -33,9 +33,10 @@ What you see on the way down is the real geometry of the format:
   too small to see.
 
 One honest note: the pit pattern is illustrative. The lengths and the
-track geometry are the real CD specification, but the particular
-sequence is generated, not read from any actual disc. The stage
-teaches the geometry, not the content.
+track geometry are indeed the real CD specification, but the
+particular sequence is generated, not read or recreated from any
+actual disc. The stage teaches the geometry of the CD specs, but
+obviously not the content of any one particular CD.
 
 ## The lesson panel
 
