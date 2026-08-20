@@ -434,22 +434,43 @@ run. The check happens before the drive is claimed, so nothing was read.
 A rip that fails reports the drive's own error on the status line and
 records the full detail in `~/.config/CUETools2026/logs/`.
 
-One failure has a specific cure. When the drive starts rejecting every
+One failure has a guided cure. When the drive starts rejecting every
 read shape, down to single sectors, in regions it read a moment earlier,
 CUETools stops and says so:
 
 > The drive is rejecting every read shape, down to single sectors, in
 > regions it read successfully before. This stuck state has been observed
-> on USB drives after extended recovery of damaged media; live
-> characterization (2026-08-14) showed it survives every software reset
-> and even a cable replug, and only a full power cycle has cleared it.
-> Power the drive off and on (for external drives, replugging the USB
-> cable alone may not be enough), then retry; the disc and any completed
-> evidence are unaffected.
+> on USB drives after extended recovery of damaged media, and it survives
+> every software reset. Unplugging and reconnecting the drive has cured it
+> at least once (2026-08-19); other wedges have needed a full power cycle
+> (2026-08-14). Try the cable first, then power the drive off and on, and
+> retry; the disc and any completed evidence are unaffected.
 
-Do exactly that. This is a firmware state that survives unplugging the
-data cable, so the drive needs to lose power. The disc is unharmed, and a
-completed Test & Copy read that was already held stays held.
+An amber notice also appears on the Rip page's right side, under the
+meters: "Drive X appears wedged", with a **Recover the drive...** button.
+That opens a dialog that walks the same two steps with you and checks the
+drive after each one, so you know whether a step worked instead of
+guessing. You do the physical part; CUETools only watches for the drive
+to come back and answer a table-of-contents read.
+
+- It asks for the cheaper step first: unplug the drive's USB cable, wait
+  two seconds, plug it back in.
+- If the drive still does not answer, it moves on: unplug the drive's
+  power cord (or switch it off), wait two seconds, restore power.
+- When the drive answers again, the dialog says so, remembers which step
+  cured this drive, and offers **Retry now**, which starts a fresh
+  operation. The failed run stays failed; nothing resumes.
+
+The cure that worked is kept per drive, so after it cures the same drive
+twice in a row the dialog leads with it next time. That memory lives in
+`~/.config/CUETools2026/recovery-incidents.json` and holds hardware
+identity and step names only, never anything about your discs or music.
+
+Software cannot clear this state, so if neither step brings the drive
+back, the dialog says that too: try a different USB port or cable, or
+another machine, and if it stays dead there the drive may need service.
+Whatever happens, the disc is unharmed, and a completed Test & Copy read
+that was already held stays held.
 
 ### An album is missing, and a `.cuetools-incomplete-...` folder is not
 

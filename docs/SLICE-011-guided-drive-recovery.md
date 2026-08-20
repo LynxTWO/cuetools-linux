@@ -1,6 +1,6 @@
 # CUETools Linux Slice Brief: SLICE-011 guided drive recovery
 
-Version: 0.2. Date: 2026-08-14. Status: Approved for build
+Version: 1.0. Date: 2026-08-14, completed 2026-08-19. Status: Done
 (2026-08-15, D-064). Also carries the two evidence rows transferred
 from SLICE-009 (D-063): S11-007 and S11-008 below.
 Companion documents: ARCHITECTURE.md, ENGINEERING.md, DECISION-LOG.md,
@@ -175,9 +175,15 @@ content, hardware identity and counters only (scrub rule holds).
 
 ## 11. Slice definition of done
 
-- [ ] All acceptance criteria pass with linked evidence.
-- [ ] Documents updated; incident-store contract recorded.
-- [ ] Human walkthrough completed and approved by the owner.
+- [x] All acceptance criteria pass with linked evidence (section 9:
+  suite + dialog tests, live wedge session 2026-08-19, scrub audit).
+- [x] Documents updated; incident-store contract recorded (scrub audit
+  names every field; the manual's rip page now documents the banner, the
+  dialog, both rungs, the per-drive memory, and the honest terminal).
+- [x] Human walkthrough completed and approved by the owner: the owner
+  drove the entire live session on 2026-08-19 (wedge, dialog, cable-replug
+  cure, recorded incident, fresh retry) and signed the slice off the same
+  evening.
 
 ## 12. What this unlocks
 
