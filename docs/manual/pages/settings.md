@@ -62,8 +62,10 @@ only there.
 ## What you can change from the work pages
 
 The rail on the left holds **Rip**, **Verify & Repair**, **Convert**, and
-**Queue**, with **Settings** below them. The only control in the window
-frame itself is the theme button in the top right.
+**Queue**, then the session pages (**Report**, **Naming**,
+**Drive & Read**, **Settings**, **Advanced**) and **How a CD Works**
+under LEARN. The only control in the window frame itself is the theme
+button in the top right.
 
 | Control | Where it is | Kept for next time |
 | --- | --- | --- |
@@ -188,7 +190,7 @@ with the app closed:
 
 | Key | Default | What it does |
 | --- | --- | --- |
-| `WpfNamingTemplate`, and the five `WpfNaming...` keys | see below | The folder and file names rips and conversions are written under. The template has no editor in this build; the five clean-up switches are described below. |
+| `WpfNamingTemplate`, and the five `WpfNaming...` keys | see below | The folder and file names rips and conversions are written under. The [Naming page](naming.md) edits all of them with a live preview; the table below records the exact keys and rules. |
 
 The [Rip page](rip.md) describes what the read modes do; deep recovery
 and adaptive read speed are covered there in
