@@ -101,12 +101,33 @@ written to settings, history, or output contracts.
 
 ## 9. Verification evidence required
 
-- [ ] Suite additions for S10-006 passing in CI.
-- [ ] Live evidence runs for S10-001..005 and S10-007 recorded in the
-  brief (screenshots stay local per the scrub rule; the brief records
-  counts and outcomes only).
-- [ ] Honesty audit: every displayed number traced to a literal engine
-  value; smoothing confined to animation.
+- [x] Suite additions for S10-006 passing in CI: thirteen
+  TrackProgressModel tests (fraction math, phase ladder, outline
+  immutability, window-vs-report counting, attribution, Burst's absent
+  lane, terminal survival, reset, one-track image layout, empty guard).
+- [x] Live evidence, 2026-08-19, owner-driven, on the scratched Telarc
+  reference disc (ASUS, Secure and Paranoid Test and Copy, three full
+  transactions). S10-001: owner screenshots show rows and strip filling
+  in step at 4%, 13%, and 18% with the active track visually distinct
+  (accent edge), and the row fill behind the track names was added
+  mid-walkthrough at the owner's direction when its omission was caught.
+  S10-002: TEST-phase hollow fill witnessed in screenshots; the COPY and
+  READ 3 phases ran live in all three transactions with the owner
+  watching the chips flip (a third read ran in the final transaction).
+  S10-004: amber ticks appeared on exactly the damaged tracks; the
+  logged re-read windows (60%, 83-87%, 92-94%) map to those tracks'
+  segments, and the given-up sectors (3+3/4+1 across the damage
+  cluster) rendered the red-edged terminals. S10-007: every screenshot
+  is at the default width with the 24-track strip legible.
+- [ ] S10-003's Burst half (no pass lane on a live Burst run) and
+  S10-005's formal Salvage-path run are the two rows not yet witnessed
+  live; the lane's absence for Burst and the terminal marking are
+  pinned by unit tests, and the red terminal rendered live on the
+  Secure runs. Owner to decide whether a dedicated Salvage run on the
+  Reggae Roots disc is still wanted.
+- [x] Honesty audit: every displayed number is a literal engine value or
+  arithmetic over TOC boundaries (TrackProgressModel doc contract); the
+  only smoothing anywhere is animation, and the model owns no clock.
 
 ## 10. Agent guardrails for this build
 
