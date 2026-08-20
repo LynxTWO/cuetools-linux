@@ -59,15 +59,22 @@ public static class ThemeCrossfade
     {
         try
         {
+            // Render the whole top level, not the content control: the window paints
+            // its background, so every pixel of the held frame is opaque. A content
+            // grid leaves its gaps transparent, and the compositor's white clear
+            // color flashed through those holes mid-swap (owner-reported, pixel-
+            // probed: grid capture corner A=0, window capture A=255).
             var top = TopLevel.GetTopLevel(root);
+            Visual target = top ?? root;
+            Rect bounds = top?.Bounds ?? root.Bounds;
             double scale = top?.RenderScaling ?? 1.0;
             var size = new PixelSize(
-                (int)Math.Ceiling(root.Bounds.Width * scale),
-                (int)Math.Ceiling(root.Bounds.Height * scale));
+                (int)Math.Ceiling(bounds.Width * scale),
+                (int)Math.Ceiling(bounds.Height * scale));
             if (size.Width <= 0 || size.Height <= 0)
                 return null;
             var bmp = new RenderTargetBitmap(size, new Vector(96 * scale, 96 * scale));
-            bmp.Render(root);
+            bmp.Render(target);
             return bmp;
         }
         catch
