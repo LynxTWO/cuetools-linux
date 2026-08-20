@@ -136,6 +136,7 @@ public static class Composition
         ReportViewModel Report,
         NamingViewModel Naming,
         DriveViewModel DrivePage,
+        AdvancedViewModel Advanced,
         VerificationBackfillService Backfill,
         IDiagnosticLog Log,
         CUEConfig Config,
@@ -350,9 +351,10 @@ public static class Composition
         // the existing save-on-exit contract. The dialog seam powers encoder Locate.
         var settingsPage = new SettingsViewModel(config, appSettings, log, catalog, dialogs);
         var reportPage = new ReportViewModel(reports);
+        var advancedPage = new AdvancedViewModel(config, log);
 
         return new AppGraph(
-            viewModel, convertViewModel, queueViewModel, settingsPage, reportPage, namingPage, drivePage, backfill, log, config,
+            viewModel, convertViewModel, queueViewModel, settingsPage, reportPage, namingPage, drivePage, advancedPage, backfill, log, config,
             catalog, appSettings, settingsStore, enrichment, journal, ripViewModel,
             albumArt);
     }
