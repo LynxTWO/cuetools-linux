@@ -41,7 +41,7 @@
                    FontSize="12.5" Margin="0,2,0,4" TextWrapping="Wrap" />
 
         <TextBlock Classes="sec" Text="RIPPING" />
-        <Border Classes="row" ToolTip.Tip="Keep the machine awake while a rip runs."><DockPanel><ToggleButton Classes="row lit" IsChecked="{Binding PreventSleepDuringRip}" /><TextBlock Classes="rowlabel" Text="Prevent sleep during a rip" /></DockPanel></Border>
+        <Border Classes="row" ToolTip.Tip="Hold a system sleep inhibitor while a rip runs. The screen may still blank; only sleep is held off."><DockPanel><ToggleButton Classes="row lit" IsChecked="{Binding PreventSleepDuringRip}" /><TextBlock Classes="rowlabel" Text="Prevent sleep during a rip" /></DockPanel></Border>
         <Border Classes="row" ToolTip.Tip="Lock the drive tray while a rip runs, so a bumped eject button cannot end it."><DockPanel><ToggleButton Classes="row lit" IsChecked="{Binding LockTrayDuringRip}" /><TextBlock Classes="rowlabel" Text="Lock the tray during a rip" /></DockPanel></Border>
         <Border Classes="row" ToolTip.Tip="Stop the rip when a sector stays unreadable after every retry, instead of writing a rip that carries the damage."><DockPanel><ToggleButton Classes="row lit" IsChecked="{Binding StopOnUnrecoverable}" /><TextBlock Classes="rowlabel" Text="Stop on unrecoverable sectors" /></DockPanel></Border>
         <Border Classes="row" ToolTip.Tip="When normal rereads stop converging, keep working the damaged window at low speed instead of giving up early."><DockPanel><ToggleButton Classes="row lit" IsChecked="{Binding DeepRecovery}" /><TextBlock Classes="rowlabel" Text="Deep recovery" /></DockPanel></Border>
