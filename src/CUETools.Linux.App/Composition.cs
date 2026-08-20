@@ -133,6 +133,7 @@ public static class Composition
         ConvertViewModel Convert,
         QueueViewModel Queue,
         SettingsViewModel SettingsPage,
+        ReportViewModel Report,
         VerificationBackfillService Backfill,
         IDiagnosticLog Log,
         CUEConfig Config,
@@ -208,6 +209,10 @@ public static class Composition
         settingsStore.Load(config, appSettings);
 
         var journal = new JournalStore();
+        // One report store for the whole graph. Verify and Rip each built their own
+        // before the Report page existed; with a page listening for Changed, split
+        // stores would show only one lane's receipts.
+        var reports = new ReportStore(log);
         // One service for the whole session, so a remembered answer applies everywhere.
         // Null prompt means it can only ever refuse, which is what keeps every non-GUI
         // caller unable to upload.
@@ -224,7 +229,7 @@ public static class Composition
             new JournalingVerifyService(engineVerify, journal, ProbeOnline);
         var viewModel = new VerifyViewModel(
             journaledVerify,
-            new ReportStore(log),
+            reports,
             new VerificationSourceDiscovery(config),
             dialogs,
             prompts,
@@ -294,7 +299,7 @@ public static class Composition
             ripService,
             engineVerify,
             convert,
-            new ReportStore(log),
+            reports,
             ripHistory,
             config,
             albumArt,
@@ -339,9 +344,10 @@ public static class Composition
         // D-073: bound to the live config, applies immediately, saved once at exit by
         // the existing save-on-exit contract. The dialog seam powers encoder Locate.
         var settingsPage = new SettingsViewModel(config, appSettings, log, catalog, dialogs);
+        var reportPage = new ReportViewModel(reports);
 
         return new AppGraph(
-            viewModel, convertViewModel, queueViewModel, settingsPage, backfill, log, config,
+            viewModel, convertViewModel, queueViewModel, settingsPage, reportPage, backfill, log, config,
             catalog, appSettings, settingsStore, enrichment, journal, ripViewModel,
             albumArt);
     }
