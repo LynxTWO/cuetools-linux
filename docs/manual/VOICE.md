@@ -62,6 +62,28 @@ into print.
   text `.m3u` listing the audio files in album order, one per line,
   works. Troubleshooting may tell the reader to write one.
 
+## Warmth (D-077, 2026-08-20)
+
+The house adaptation of the owner's Internet Human Mode skill. Its core
+rule survives intact: change the surface, never the thought. Its upper
+levels do not: nothing here manufactures typos, dropped apostrophes, or
+rushed-typing texture to look human. Humanity comes from voice, not
+damage.
+
+- Write like a person talking to a person: contractions, direct "you",
+  varied sentence length, plain verbs. If a sentence would sound stiff
+  read aloud at the bench, recast it.
+- Manual pages and the glossary sit at level 1: warm precision. Every
+  fact rule in this file still binds; warmth never spends a receipt.
+- How a CD Works sits at level 2-3: a lesson may carry personality
+  (wonder, a wry aside) that a reference page should not. The numbers
+  stay exact.
+- Humor must be true. A joke that bends a fact is a fact error with a
+  smile on it.
+- Emoji and comic archetypes stay out, same as every other typographic
+  flourish. The no-Unicode rule already covers them; this line makes it
+  explicit.
+
 ## UI text
 
 - UI strings are quoted verbatim in the manual, even when a nicer
