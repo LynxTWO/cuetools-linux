@@ -80,6 +80,16 @@ damage.
   stay exact.
 - Humor must be true. A joke that bends a fact is a fact error with a
   smile on it.
+- The aside rule binds at every warmth level: parentheses, never paired
+  " - " dashes (the first level-1 golden broke this and the owner
+  caught it, 2026-08-20).
+- When a " - " connector joins two halves that could stand alone,
+  prefer the sentence break, and a plain pivot ("Basically,") is
+  welcome. Owner rulings on the report.md golden, 2026-08-20.
+- Name what a number counts and what a pronoun points at: "the counts"
+  became "how many optical reads ran, and the minimum number that
+  agreed on every track"; "It is not a signature" became "The checksum
+  is not a signature." Same rulings, same date.
 - Emoji and comic archetypes stay out, same as every other typographic
   flourish. The no-Unicode rule already covers them; this line makes it
   explicit.
