@@ -90,7 +90,7 @@
                                Foreground="{DynamicResource InkDim}"
                                FontSize="12.5" VerticalAlignment="Center"
                                MinWidth="150" />
-                    <ToggleSwitch DockPanel.Dock="Right"
+                    <ToggleButton Classes="lit" DockPanel.Dock="Right"
                                   IsChecked="{Binding BoolValue}"
                                   IsVisible="{Binding IsBool}" />
                     <ComboBox DockPanel.Dock="Right"

@@ -1,0 +1,156 @@
+<Styles xmlns="https://github.com/avaloniaui"
+        xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml">
+  <!-- The lit panel switch (lit-panel-controls): a colored bulb behind translucent
+       plastic, four layers back to front - housing, lens glow, occlusion, cap with
+       bleed. One knob recolors it: the Lamp* ramp, teal by default (Palette.axaml),
+       overridable per scope. The halo BoxShadow carries a literal color because a
+       shadow is not a brush; everything emissive else resolves the ramp. -->
+
+  <Style Selector="ToggleButton.lit">
+    <Setter Property="Width" Value="50" />
+    <Setter Property="Height" Value="23" />
+    <Setter Property="Background" Value="Transparent" />
+    <Setter Property="BorderThickness" Value="0" />
+    <Setter Property="Cursor" Value="Hand" />
+    <Setter Property="Template">
+      <ControlTemplate>
+        <Grid>
+          <!-- housing: recessed neutral plastic -->
+          <Border x:Name="housing" CornerRadius="12" BorderThickness="1"
+                  BorderBrush="#0A0F0B">
+            <Border.Background>
+              <LinearGradientBrush StartPoint="0%,0%" EndPoint="0%,100%">
+                <GradientStop Color="#0A0E0B" Offset="0" />
+                <GradientStop Color="#131A14" Offset="1" />
+              </LinearGradientBrush>
+            </Border.Background>
+          </Border>
+
+          <!-- lens glow: hotspot on the EXPOSED side (left when checked), halo via
+               BoxShadow. Opacity carries the warm/cool curve. -->
+          <Border x:Name="glow" CornerRadius="12" Margin="1" Opacity="0"
+                  BoxShadow="0 0 12 0 #B334CFC0">
+            <Border.Background>
+              <RadialGradientBrush GradientOrigin="30%,50%" Center="30%,50%"
+                                   RadiusX="72%" RadiusY="115%">
+                <GradientStop Color="{DynamicResource LampCore}" Offset="0" />
+                <GradientStop Color="{DynamicResource LampLight}" Offset="0.26" />
+                <GradientStop Color="{DynamicResource LampBase}" Offset="0.52" />
+                <GradientStop Color="{DynamicResource LampDark}" Offset="0.78" />
+                <GradientStop Color="{DynamicResource LampEdge}" Offset="1" />
+              </RadialGradientBrush>
+            </Border.Background>
+          </Border>
+
+          <!-- mover: cap + everything riding with it -->
+          <Grid x:Name="mover" Width="21" Height="19"
+                HorizontalAlignment="Left" VerticalAlignment="Center"
+                Margin="2,0,0,0">
+            <Grid.RenderTransform>
+              <TranslateTransform X="0" />
+            </Grid.RenderTransform>
+
+            <!-- occlusion: light falls off under the cap -->
+            <Border x:Name="occlude" Width="23" Height="21" CornerRadius="6"
+                    HorizontalAlignment="Center" VerticalAlignment="Center"
+                    Opacity="0">
+              <Border.Background>
+                <RadialGradientBrush GradientOrigin="50%,50%" Center="50%,50%"
+                                     RadiusX="62%" RadiusY="62%">
+                  <GradientStop Color="#73000000" Offset="0" />
+                  <GradientStop Color="#3C000000" Offset="0.65" />
+                  <GradientStop Color="#00000000" Offset="1" />
+                </RadialGradientBrush>
+              </Border.Background>
+            </Border>
+
+            <!-- the plastic cap -->
+            <Border x:Name="thumb" Width="21" Height="19" CornerRadius="5"
+                    BoxShadow="0 1.5 5 0 #8C000000">
+              <Border.Background>
+                <LinearGradientBrush StartPoint="0%,0%" EndPoint="0%,100%">
+                  <GradientStop Color="#5A6356" Offset="0" />
+                  <GradientStop Color="#333C34" Offset="0.5" />
+                  <GradientStop Color="#242B25" Offset="1" />
+                </LinearGradientBrush>
+              </Border.Background>
+            </Border>
+
+            <!-- bulb light bleeding through the cap's edge nearest the lens -->
+            <Border x:Name="capBleed" Width="21" Height="19" CornerRadius="5"
+                    Opacity="0">
+              <Border.Background>
+                <RadialGradientBrush GradientOrigin="10%,62%" Center="10%,62%"
+                                     RadiusX="95%" RadiusY="100%">
+                  <GradientStop Color="{DynamicResource LampCapCore}" Offset="0" />
+                  <GradientStop Color="{DynamicResource LampCapMid}" Offset="0.35" />
+                  <GradientStop Color="{DynamicResource LampCapEdge}" Offset="0.9" />
+                </RadialGradientBrush>
+              </Border.Background>
+            </Border>
+
+            <Border x:Name="sheen" Width="15" Height="3" CornerRadius="2"
+                    VerticalAlignment="Top" HorizontalAlignment="Center"
+                    Margin="0,3,0,0" Background="#26FFFFFF" />
+          </Grid>
+        </Grid>
+      </ControlTemplate>
+    </Setter>
+  </Style>
+
+  <!-- Motion: the cap slides with a slight mechanical settle; the bulb warms fast
+       and cools with a longer dim tail, like a filament. -->
+  <Style Selector="ToggleButton.lit /template/ Grid#mover">
+    <Setter Property="Transitions">
+      <Transitions>
+        <TransformOperationsTransition Property="RenderTransform"
+                                       Duration="0:0:0.15"
+                                       Easing="CubicEaseOut" />
+      </Transitions>
+    </Setter>
+  </Style>
+  <Style Selector="ToggleButton.lit /template/ Border#glow">
+    <Setter Property="Transitions">
+      <Transitions>
+        <DoubleTransition Property="Opacity" Duration="0:0:0.34" Easing="CubicEaseOut" />
+      </Transitions>
+    </Setter>
+  </Style>
+  <Style Selector="ToggleButton.lit:checked /template/ Border#glow">
+    <Setter Property="Opacity" Value="1" />
+    <Setter Property="Transitions">
+      <Transitions>
+        <DoubleTransition Property="Opacity" Duration="0:0:0.18" Easing="CubicEaseOut" />
+      </Transitions>
+    </Setter>
+  </Style>
+  <Style Selector="ToggleButton.lit /template/ Border#capBleed">
+    <Setter Property="Transitions">
+      <Transitions>
+        <DoubleTransition Property="Opacity" Duration="0:0:0.30" />
+      </Transitions>
+    </Setter>
+  </Style>
+  <Style Selector="ToggleButton.lit /template/ Border#occlude">
+    <Setter Property="Transitions">
+      <Transitions>
+        <DoubleTransition Property="Opacity" Duration="0:0:0.20" />
+      </Transitions>
+    </Setter>
+  </Style>
+
+  <Style Selector="ToggleButton.lit:checked /template/ Grid#mover">
+    <Setter Property="RenderTransform" Value="translateX(25px)" />
+  </Style>
+  <Style Selector="ToggleButton.lit:checked /template/ Border#capBleed">
+    <Setter Property="Opacity" Value="0.5" />
+  </Style>
+  <Style Selector="ToggleButton.lit:checked /template/ Border#occlude">
+    <Setter Property="Opacity" Value="1" />
+  </Style>
+
+  <!-- Keyboard reachability: the housing shows the focus ring. -->
+  <Style Selector="ToggleButton.lit:focus-visible /template/ Border#housing">
+    <Setter Property="BorderBrush" Value="{DynamicResource StatusAccent}" />
+  </Style>
+</Styles>

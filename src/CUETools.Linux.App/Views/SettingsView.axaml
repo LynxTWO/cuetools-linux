@@ -24,10 +24,8 @@
       <Setter Property="VerticalAlignment" Value="Center" />
       <Setter Property="TextWrapping" Value="Wrap" />
     </Style>
-    <Style Selector="ToggleSwitch.row">
+    <Style Selector="ToggleButton.row">
       <Setter Property="DockPanel.Dock" Value="Right" />
-      <Setter Property="OnContent" Value="{x:Null}" />
-      <Setter Property="OffContent" Value="{x:Null}" />
       <Setter Property="Margin" Value="8,0,0,0" />
       <Setter Property="VerticalAlignment" Value="Center" />
     </Style>
@@ -43,12 +41,12 @@
                    FontSize="12.5" Margin="0,2,0,4" TextWrapping="Wrap" />
 
         <TextBlock Classes="sec" Text="RIPPING" />
-        <Border Classes="row" ToolTip.Tip="Keep the machine awake while a rip runs."><DockPanel><ToggleSwitch Classes="row" IsChecked="{Binding PreventSleepDuringRip}" /><TextBlock Classes="rowlabel" Text="Prevent sleep during a rip" /></DockPanel></Border>
-        <Border Classes="row" ToolTip.Tip="Lock the drive tray while a rip runs, so a bumped eject button cannot end it."><DockPanel><ToggleSwitch Classes="row" IsChecked="{Binding LockTrayDuringRip}" /><TextBlock Classes="rowlabel" Text="Lock the tray during a rip" /></DockPanel></Border>
-        <Border Classes="row" ToolTip.Tip="Stop the rip when a sector stays unreadable after every retry, instead of writing a rip that carries the damage."><DockPanel><ToggleSwitch Classes="row" IsChecked="{Binding StopOnUnrecoverable}" /><TextBlock Classes="rowlabel" Text="Stop on unrecoverable sectors" /></DockPanel></Border>
-        <Border Classes="row" ToolTip.Tip="When normal rereads stop converging, keep working the damaged window at low speed instead of giving up early."><DockPanel><ToggleSwitch Classes="row" IsChecked="{Binding DeepRecovery}" /><TextBlock Classes="rowlabel" Text="Deep recovery" /></DockPanel></Border>
-        <Border Classes="row" ToolTip.Tip="Let the drive slow down over damaged regions and speed back up after them."><DockPanel><ToggleSwitch Classes="row" IsChecked="{Binding AdaptiveReadSpeed}" /><TextBlock Classes="rowlabel" Text="Adaptive read speed" /></DockPanel></Border>
-        <Border Classes="row" ToolTip.Tip="Open the tray when a rip finishes."><DockPanel><ToggleSwitch Classes="row" IsChecked="{Binding EjectAfterRip}" /><TextBlock Classes="rowlabel" Text="Eject after rip" /></DockPanel></Border>
+        <Border Classes="row" ToolTip.Tip="Keep the machine awake while a rip runs."><DockPanel><ToggleButton Classes="row lit" IsChecked="{Binding PreventSleepDuringRip}" /><TextBlock Classes="rowlabel" Text="Prevent sleep during a rip" /></DockPanel></Border>
+        <Border Classes="row" ToolTip.Tip="Lock the drive tray while a rip runs, so a bumped eject button cannot end it."><DockPanel><ToggleButton Classes="row lit" IsChecked="{Binding LockTrayDuringRip}" /><TextBlock Classes="rowlabel" Text="Lock the tray during a rip" /></DockPanel></Border>
+        <Border Classes="row" ToolTip.Tip="Stop the rip when a sector stays unreadable after every retry, instead of writing a rip that carries the damage."><DockPanel><ToggleButton Classes="row lit" IsChecked="{Binding StopOnUnrecoverable}" /><TextBlock Classes="rowlabel" Text="Stop on unrecoverable sectors" /></DockPanel></Border>
+        <Border Classes="row" ToolTip.Tip="When normal rereads stop converging, keep working the damaged window at low speed instead of giving up early."><DockPanel><ToggleButton Classes="row lit" IsChecked="{Binding DeepRecovery}" /><TextBlock Classes="rowlabel" Text="Deep recovery" /></DockPanel></Border>
+        <Border Classes="row" ToolTip.Tip="Let the drive slow down over damaged regions and speed back up after them."><DockPanel><ToggleButton Classes="row lit" IsChecked="{Binding AdaptiveReadSpeed}" /><TextBlock Classes="rowlabel" Text="Adaptive read speed" /></DockPanel></Border>
+        <Border Classes="row" ToolTip.Tip="Open the tray when a rip finishes."><DockPanel><ToggleButton Classes="row lit" IsChecked="{Binding EjectAfterRip}" /><TextBlock Classes="rowlabel" Text="Eject after rip" /></DockPanel></Border>
         <Border Classes="row" ToolTip.Tip="Rip to separate track files, or to one image file with an embedded CUE sheet.">
           <DockPanel>
             <ComboBox DockPanel.Dock="Right" MinWidth="190" Margin="8,0,0,0"
@@ -59,12 +57,12 @@
         </Border>
 
         <TextBlock Classes="sec" Text="ACCURATERIP &amp; CTDB" />
-        <Border Classes="row" ToolTip.Tip="Store AccurateRip results as tags when encoding."><DockPanel><ToggleSwitch Classes="row" IsChecked="{Binding WriteArTagsOnEncode}" /><TextBlock Classes="rowlabel" Text="AccurateRip tags on encode" /></DockPanel></Border>
-        <Border Classes="row" ToolTip.Tip="Store AccurateRip results as tags when verifying."><DockPanel><ToggleSwitch Classes="row" IsChecked="{Binding WriteArTagsOnVerify}" /><TextBlock Classes="rowlabel" Text="AccurateRip tags on verify" /></DockPanel></Border>
-        <Border Classes="row" ToolTip.Tip="Write a named AccurateRip report next to converted output."><DockPanel><ToggleSwitch Classes="row" IsChecked="{Binding WriteArLogOnConvert}" /><TextBlock Classes="rowlabel" Text="AccurateRip report on convert" /></DockPanel></Border>
-        <Border Classes="row" ToolTip.Tip="Write a named AccurateRip report next to the album on verify. The Verify page's evidence trail expects this on."><DockPanel><ToggleSwitch Classes="row" IsChecked="{Binding WriteArLogOnVerify}" /><TextBlock Classes="rowlabel" Text="AccurateRip report on verify" /></DockPanel></Border>
-        <Border Classes="row" ToolTip.Tip="Write the verify report into the album's own folder rather than the output folder."><DockPanel><ToggleSwitch Classes="row" IsChecked="{Binding ArLogToSourceFolder}" /><TextBlock Classes="rowlabel" Text="Report beside the source files" /></DockPanel></Border>
-        <Border Classes="row" ToolTip.Tip="Per-track detail in AccurateRip reports."><DockPanel><ToggleSwitch Classes="row" IsChecked="{Binding ArLogVerbose}" /><TextBlock Classes="rowlabel" Text="Verbose reports" /></DockPanel></Border>
+        <Border Classes="row" ToolTip.Tip="Store AccurateRip results as tags when encoding."><DockPanel><ToggleButton Classes="row lit" IsChecked="{Binding WriteArTagsOnEncode}" /><TextBlock Classes="rowlabel" Text="AccurateRip tags on encode" /></DockPanel></Border>
+        <Border Classes="row" ToolTip.Tip="Store AccurateRip results as tags when verifying."><DockPanel><ToggleButton Classes="row lit" IsChecked="{Binding WriteArTagsOnVerify}" /><TextBlock Classes="rowlabel" Text="AccurateRip tags on verify" /></DockPanel></Border>
+        <Border Classes="row" ToolTip.Tip="Write a named AccurateRip report next to converted output."><DockPanel><ToggleButton Classes="row lit" IsChecked="{Binding WriteArLogOnConvert}" /><TextBlock Classes="rowlabel" Text="AccurateRip report on convert" /></DockPanel></Border>
+        <Border Classes="row" ToolTip.Tip="Write a named AccurateRip report next to the album on verify. The Verify page's evidence trail expects this on."><DockPanel><ToggleButton Classes="row lit" IsChecked="{Binding WriteArLogOnVerify}" /><TextBlock Classes="rowlabel" Text="AccurateRip report on verify" /></DockPanel></Border>
+        <Border Classes="row" ToolTip.Tip="Write the verify report into the album's own folder rather than the output folder."><DockPanel><ToggleButton Classes="row lit" IsChecked="{Binding ArLogToSourceFolder}" /><TextBlock Classes="rowlabel" Text="Report beside the source files" /></DockPanel></Border>
+        <Border Classes="row" ToolTip.Tip="Per-track detail in AccurateRip reports."><DockPanel><ToggleButton Classes="row lit" IsChecked="{Binding ArLogVerbose}" /><TextBlock Classes="rowlabel" Text="Verbose reports" /></DockPanel></Border>
 
         <TextBlock Classes="sec" Text="FILE NAMING &amp; OUTPUT" />
         <Border Classes="row" ToolTip.Tip="The template for track file names. %tracknumber%, %title%, %artist%, %album% and more.">
@@ -73,31 +71,31 @@
             <TextBlock Classes="rowlabel" Text="Track filename template" />
           </DockPanel>
         </Border>
-        <Border Classes="row" ToolTip.Tip="Write a .cue file alongside track-mode output."><DockPanel><ToggleSwitch Classes="row" IsChecked="{Binding CreateCueInTracksMode}" /><TextBlock Classes="rowlabel" Text=".cue file in tracks mode" /></DockPanel></Border>
-        <Border Classes="row" ToolTip.Tip="Also write a standalone .cue when the sheet is embedded in the audio file."><DockPanel><ToggleSwitch Classes="row" IsChecked="{Binding CreateCueWhenEmbedded}" /><TextBlock Classes="rowlabel" Text=".cue file when embedded" /></DockPanel></Border>
-        <Border Classes="row" ToolTip.Tip="Write an .m3u playlist next to the tracks."><DockPanel><ToggleSwitch Classes="row" IsChecked="{Binding CreateM3U}" /><TextBlock Classes="rowlabel" Text="Write .m3u playlist" /></DockPanel></Border>
-        <Border Classes="row" ToolTip.Tip="Write a detailed rip log in the Exact Audio Copy format."><DockPanel><ToggleSwitch Classes="row" IsChecked="{Binding CreateEacLog}" /><TextBlock Classes="rowlabel" Text="EAC-style rip log" /></DockPanel></Border>
-        <Border Classes="row" ToolTip.Tip="Embed the rip log inside formats that can carry it."><DockPanel><ToggleSwitch Classes="row" IsChecked="{Binding EmbedLog}" /><TextBlock Classes="rowlabel" Text="Embed rip log" /></DockPanel></Border>
-        <Border Classes="row" ToolTip.Tip="Prefix the .cue file with a UTF-8 byte-order mark so players reliably detect the encoding."><DockPanel><ToggleSwitch Classes="row" IsChecked="{Binding WriteUtf8Bom}" /><TextBlock Classes="rowlabel" Text="UTF-8 byte-order mark in .cue" /></DockPanel></Border>
-        <Border Classes="row" ToolTip.Tip="Always write .cue files as UTF-8, even when the text would fit the ANSI code page."><DockPanel><ToggleSwitch Classes="row" IsChecked="{Binding AlwaysWriteUtf8Cue}" /><TextBlock Classes="rowlabel" Text="Always UTF-8 .cue" /></DockPanel></Border>
-        <Border Classes="row" ToolTip.Tip="Fill missing performer and title fields in the .cue from the album metadata."><DockPanel><ToggleSwitch Classes="row" IsChecked="{Binding FillUpCue}" /><TextBlock Classes="rowlabel" Text="Fill up sparse .cue fields" /></DockPanel></Border>
+        <Border Classes="row" ToolTip.Tip="Write a .cue file alongside track-mode output."><DockPanel><ToggleButton Classes="row lit" IsChecked="{Binding CreateCueInTracksMode}" /><TextBlock Classes="rowlabel" Text=".cue file in tracks mode" /></DockPanel></Border>
+        <Border Classes="row" ToolTip.Tip="Also write a standalone .cue when the sheet is embedded in the audio file."><DockPanel><ToggleButton Classes="row lit" IsChecked="{Binding CreateCueWhenEmbedded}" /><TextBlock Classes="rowlabel" Text=".cue file when embedded" /></DockPanel></Border>
+        <Border Classes="row" ToolTip.Tip="Write an .m3u playlist next to the tracks."><DockPanel><ToggleButton Classes="row lit" IsChecked="{Binding CreateM3U}" /><TextBlock Classes="rowlabel" Text="Write .m3u playlist" /></DockPanel></Border>
+        <Border Classes="row" ToolTip.Tip="Write a detailed rip log in the Exact Audio Copy format."><DockPanel><ToggleButton Classes="row lit" IsChecked="{Binding CreateEacLog}" /><TextBlock Classes="rowlabel" Text="EAC-style rip log" /></DockPanel></Border>
+        <Border Classes="row" ToolTip.Tip="Embed the rip log inside formats that can carry it."><DockPanel><ToggleButton Classes="row lit" IsChecked="{Binding EmbedLog}" /><TextBlock Classes="rowlabel" Text="Embed rip log" /></DockPanel></Border>
+        <Border Classes="row" ToolTip.Tip="Prefix the .cue file with a UTF-8 byte-order mark so players reliably detect the encoding."><DockPanel><ToggleButton Classes="row lit" IsChecked="{Binding WriteUtf8Bom}" /><TextBlock Classes="rowlabel" Text="UTF-8 byte-order mark in .cue" /></DockPanel></Border>
+        <Border Classes="row" ToolTip.Tip="Always write .cue files as UTF-8, even when the text would fit the ANSI code page."><DockPanel><ToggleButton Classes="row lit" IsChecked="{Binding AlwaysWriteUtf8Cue}" /><TextBlock Classes="rowlabel" Text="Always UTF-8 .cue" /></DockPanel></Border>
+        <Border Classes="row" ToolTip.Tip="Fill missing performer and title fields in the .cue from the album metadata."><DockPanel><ToggleButton Classes="row lit" IsChecked="{Binding FillUpCue}" /><TextBlock Classes="rowlabel" Text="Fill up sparse .cue fields" /></DockPanel></Border>
 
         <TextBlock Classes="sec" Text="GAPS &amp; HTOA" />
-        <Border Classes="row" ToolTip.Tip="Read track pregap lengths from the disc."><DockPanel><ToggleSwitch Classes="row" IsChecked="{Binding DetectGaps}" /><TextBlock Classes="rowlabel" Text="Detect gaps" /></DockPanel></Border>
-        <Border Classes="row" ToolTip.Tip="Keep audio hidden before track one as its own file."><DockPanel><ToggleSwitch Classes="row" IsChecked="{Binding PreserveHtoa}" /><TextBlock Classes="rowlabel" Text="Preserve hidden track (HTOA)" /></DockPanel></Border>
-        <Border Classes="row" ToolTip.Tip="Only keep a hidden pre-track longer than about 5 seconds, so tiny silent gaps are ignored."><DockPanel><ToggleSwitch Classes="row" IsChecked="{Binding UseHtoaThreshold}" /><TextBlock Classes="rowlabel" Text="HTOA length threshold (5 s)" /></DockPanel></Border>
+        <Border Classes="row" ToolTip.Tip="Read track pregap lengths from the disc."><DockPanel><ToggleButton Classes="row lit" IsChecked="{Binding DetectGaps}" /><TextBlock Classes="rowlabel" Text="Detect gaps" /></DockPanel></Border>
+        <Border Classes="row" ToolTip.Tip="Keep audio hidden before track one as its own file."><DockPanel><ToggleButton Classes="row lit" IsChecked="{Binding PreserveHtoa}" /><TextBlock Classes="rowlabel" Text="Preserve hidden track (HTOA)" /></DockPanel></Border>
+        <Border Classes="row" ToolTip.Tip="Only keep a hidden pre-track longer than about 5 seconds, so tiny silent gaps are ignored."><DockPanel><ToggleButton Classes="row lit" IsChecked="{Binding UseHtoaThreshold}" /><TextBlock Classes="rowlabel" Text="HTOA length threshold (5 s)" /></DockPanel></Border>
       </StackPanel>
 
       <!-- Right column -->
       <StackPanel Grid.Column="2" Margin="0,58,0,0">
         <TextBlock Classes="sec" Text="TAGGING" />
-        <Border Classes="row" ToolTip.Tip="Write artist, title, and track tags from the CUE sheet data."><DockPanel><ToggleSwitch Classes="row" IsChecked="{Binding BasicTagsFromCue}" /><TextBlock Classes="rowlabel" Text="Basic tags from CUE data" /></DockPanel></Border>
-        <Border Classes="row" ToolTip.Tip="Copy standard tags from source files when converting."><DockPanel><ToggleSwitch Classes="row" IsChecked="{Binding CopyBasicTags}" /><TextBlock Classes="rowlabel" Text="Copy basic tags" /></DockPanel></Border>
-        <Border Classes="row" ToolTip.Tip="Copy non-standard tags from source files when converting."><DockPanel><ToggleSwitch Classes="row" IsChecked="{Binding CopyUnknownTags}" /><TextBlock Classes="rowlabel" Text="Copy unknown tags" /></DockPanel></Border>
+        <Border Classes="row" ToolTip.Tip="Write artist, title, and track tags from the CUE sheet data."><DockPanel><ToggleButton Classes="row lit" IsChecked="{Binding BasicTagsFromCue}" /><TextBlock Classes="rowlabel" Text="Basic tags from CUE data" /></DockPanel></Border>
+        <Border Classes="row" ToolTip.Tip="Copy standard tags from source files when converting."><DockPanel><ToggleButton Classes="row lit" IsChecked="{Binding CopyBasicTags}" /><TextBlock Classes="rowlabel" Text="Copy basic tags" /></DockPanel></Border>
+        <Border Classes="row" ToolTip.Tip="Copy non-standard tags from source files when converting."><DockPanel><ToggleButton Classes="row lit" IsChecked="{Binding CopyUnknownTags}" /><TextBlock Classes="rowlabel" Text="Copy unknown tags" /></DockPanel></Border>
 
         <TextBlock Classes="sec" Text="ALBUM ART" />
-        <Border Classes="row" ToolTip.Tip="Embed the front cover into formats that can carry it."><DockPanel><ToggleSwitch Classes="row" IsChecked="{Binding EmbedAlbumArt}" /><TextBlock Classes="rowlabel" Text="Embed album art" /></DockPanel></Border>
-        <Border Classes="row" ToolTip.Tip="Extract embedded art to folder.jpg when converting."><DockPanel><ToggleSwitch Classes="row" IsChecked="{Binding ExtractAlbumArt}" /><TextBlock Classes="rowlabel" Text="Extract album art" /></DockPanel></Border>
+        <Border Classes="row" ToolTip.Tip="Embed the front cover into formats that can carry it."><DockPanel><ToggleButton Classes="row lit" IsChecked="{Binding EmbedAlbumArt}" /><TextBlock Classes="rowlabel" Text="Embed album art" /></DockPanel></Border>
+        <Border Classes="row" ToolTip.Tip="Extract embedded art to folder.jpg when converting."><DockPanel><ToggleButton Classes="row lit" IsChecked="{Binding ExtractAlbumArt}" /><TextBlock Classes="rowlabel" Text="Extract album art" /></DockPanel></Border>
         <Border Classes="row" ToolTip.Tip="Covers larger than this are scaled down before embedding (100 to 10000 pixels).">
           <DockPanel>
             <NumericUpDown DockPanel.Dock="Right" MinWidth="130" Margin="8,0,0,0"
@@ -110,7 +108,7 @@
 
         <TextBlock Classes="sec" Text="PRIVACY &amp; DATA" />
         <Border Classes="row" ToolTip.Tip="Look up a front cover automatically when a disc is read. Changing this here counts as answering the first-run question, so the app will not ask again.">
-          <DockPanel><ToggleSwitch Classes="row" IsChecked="{Binding ArtworkAutoLookup}" /><TextBlock Classes="rowlabel" Text="Look up cover art automatically" /></DockPanel>
+          <DockPanel><ToggleButton Classes="row lit" IsChecked="{Binding ArtworkAutoLookup}" /><TextBlock Classes="rowlabel" Text="Look up cover art automatically" /></DockPanel>
         </Border>
         <Border Classes="row" ToolTip.Tip="Whether a clean rip or verify is offered to the CUETools Database. Ask shows the sharing dialog each time; the manual's privacy page lists exactly what sharing sends. Damaged, salvaged, and held rips are never shared regardless of this choice.">
           <DockPanel>
@@ -122,17 +120,17 @@
         </Border>
         <Border Classes="row" ToolTip.Tip="Keep every diagnostic log forever, for archiving. Off, the retention rule below applies. Logs are structural only: no album, artist, or track names.">
           <StackPanel>
-            <DockPanel><ToggleSwitch Classes="row" IsChecked="{Binding KeepLogsForever}" /><TextBlock Classes="rowlabel" Text="Keep logs forever" /></DockPanel>
+            <DockPanel><ToggleButton Classes="row lit" IsChecked="{Binding KeepLogsForever}" /><TextBlock Classes="rowlabel" Text="Keep logs forever" /></DockPanel>
             <TextBlock Text="{Binding LogRetentionText}" FontSize="10.5"
                        Foreground="{DynamicResource Muted}" TextWrapping="Wrap" Margin="0,4,0,0" />
           </StackPanel>
         </Border>
 
         <TextBlock Classes="sec" Text="HDCD" />
-        <Border Classes="row" ToolTip.Tip="Detect HDCD encoding while reading."><DockPanel><ToggleSwitch Classes="row" IsChecked="{Binding DetectHdcd}" /><TextBlock Classes="rowlabel" Text="Detect HDCD" /></DockPanel></Border>
-        <Border Classes="row" ToolTip.Tip="Decode HDCD to its full range when converting."><DockPanel><ToggleSwitch Classes="row" IsChecked="{Binding DecodeHdcd}" /><TextBlock Classes="rowlabel" Text="Decode HDCD" /></DockPanel></Border>
-        <Border Classes="row" ToolTip.Tip="Write decoded HDCD as 24-bit output."><DockPanel><ToggleSwitch Classes="row" IsChecked="{Binding DecodeHdcdTo24}" /><TextBlock Classes="rowlabel" Text="Decode HDCD to 24-bit" /></DockPanel></Border>
-        <Border Classes="row" ToolTip.Tip="Wait 750 frames before deciding a disc is not HDCD."><DockPanel><ToggleSwitch Classes="row" IsChecked="{Binding Wait750ForHdcd}" /><TextBlock Classes="rowlabel" Text="Wait 750 frames for HDCD" /></DockPanel></Border>
+        <Border Classes="row" ToolTip.Tip="Detect HDCD encoding while reading."><DockPanel><ToggleButton Classes="row lit" IsChecked="{Binding DetectHdcd}" /><TextBlock Classes="rowlabel" Text="Detect HDCD" /></DockPanel></Border>
+        <Border Classes="row" ToolTip.Tip="Decode HDCD to its full range when converting."><DockPanel><ToggleButton Classes="row lit" IsChecked="{Binding DecodeHdcd}" /><TextBlock Classes="rowlabel" Text="Decode HDCD" /></DockPanel></Border>
+        <Border Classes="row" ToolTip.Tip="Write decoded HDCD as 24-bit output."><DockPanel><ToggleButton Classes="row lit" IsChecked="{Binding DecodeHdcdTo24}" /><TextBlock Classes="rowlabel" Text="Decode HDCD to 24-bit" /></DockPanel></Border>
+        <Border Classes="row" ToolTip.Tip="Wait 750 frames before deciding a disc is not HDCD."><DockPanel><ToggleButton Classes="row lit" IsChecked="{Binding Wait750ForHdcd}" /><TextBlock Classes="rowlabel" Text="Wait 750 frames for HDCD" /></DockPanel></Border>
 
         <TextBlock Classes="sec" Text="ENCODERS" />
         <TextBlock FontSize="11" Foreground="{DynamicResource Muted}" TextWrapping="Wrap" Margin="2,0,0,8"
