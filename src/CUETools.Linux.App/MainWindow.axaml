@@ -235,6 +235,29 @@
                          Foreground="{DynamicResource Muted}" />
             </StackPanel>
           </Border>
+          <TextBlock Text="LEARN"
+                     FontFamily="{StaticResource Mono}"
+                     FontSize="11"
+                     Foreground="{DynamicResource Muted}"
+                     Margin="10,12,0,4" />
+          <Border x:Name="ExploreNav"
+                  Background="Transparent"
+                  BorderBrush="{DynamicResource Line}"
+                  BorderThickness="1"
+                  CornerRadius="6"
+                  Padding="12,9"
+                  Cursor="Hand"
+                  PointerPressed="OnExploreNavPressed">
+            <StackPanel>
+              <TextBlock Text="How a CD Works"
+                         FontSize="13"
+                         Foreground="{DynamicResource Ink}" />
+              <TextBlock Text="Zoom into the disc itself"
+                         FontFamily="{StaticResource Mono}"
+                         FontSize="10.5"
+                         Foreground="{DynamicResource Muted}" />
+            </StackPanel>
+          </Border>
         </StackPanel>
       </Border>
 
@@ -248,6 +271,7 @@
         <views:DriveView x:Name="DrivePage" IsVisible="False" />
         <views:SettingsView x:Name="SettingsPage" IsVisible="False" />
         <views:AdvancedView x:Name="AdvancedPage" IsVisible="False" />
+        <views:ExploreView x:Name="ExplorePage" IsVisible="False" />
       </Grid>
 
     </Grid>
