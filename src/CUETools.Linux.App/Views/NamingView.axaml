@@ -7,7 +7,7 @@
     <Style Selector="TextBlock.sec">
       <Setter Property="FontSize" Value="10" />
       <Setter Property="FontWeight" Value="Bold" />
-      <Setter Property="Foreground" Value="{StaticResource Teal}" />
+      <Setter Property="Foreground" Value="{DynamicResource StatusAccent}" />
       <Setter Property="Margin" Value="0,18,0,6" />
     </Style>
     <Style Selector="Border.row">

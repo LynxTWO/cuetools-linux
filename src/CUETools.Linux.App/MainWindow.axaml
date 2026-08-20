@@ -10,7 +10,8 @@
   <!-- Shell structure mirroring the WPF MainWindow: faceplate header bar,
        grouped nav rail on the left, page host on the right. Pages arrive
        with milestone M4; the Verify placeholder marks the seam. -->
-  <Grid RowDefinitions="56,*">
+  <Panel>
+  <Grid x:Name="Shell" RowDefinitions="56,*">
 
     <Border Grid.Row="0"
             Background="{DynamicResource Bar}"
@@ -277,4 +278,7 @@
     </Grid>
   </Grid>
 
+  <!-- the filament fade: holds the old theme's frame while the new one dims in -->
+  <Image x:Name="ThemeFadeOverlay" IsVisible="False" IsHitTestVisible="False" Stretch="Fill" />
+  </Panel>
 </Window>

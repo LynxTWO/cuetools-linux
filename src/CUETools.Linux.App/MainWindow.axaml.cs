@@ -96,11 +96,15 @@ public partial class MainWindow : Window
         RefreshEnrichPending();
     }
 
-    private void OnThemeToggleClick(object? sender, RoutedEventArgs e)
+    private async void OnThemeToggleClick(object? sender, RoutedEventArgs e)
     {
-        _theme.Toggle();
-        UpdateToggleText();
-        RestyleNavs();
+        bool goingDark = _theme.Current == AppTheme.Light;
+        await ThemeCrossfade.Run(Shell, ThemeFadeOverlay, goingDark, () =>
+        {
+            _theme.Toggle();
+            UpdateToggleText();
+            RestyleNavs();
+        });
     }
 
     /// <summary>Startup navigation for the --convert launch flag.</summary>

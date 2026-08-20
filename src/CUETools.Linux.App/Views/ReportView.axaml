@@ -63,7 +63,7 @@
                   <TextBlock Text="ACCURATERIP" FontSize="9.5" FontWeight="Bold"
                              Foreground="{DynamicResource Muted}" />
                   <TextBlock Text="{Binding ArText}" FontFamily="{StaticResource Serif}"
-                             FontSize="19" Foreground="{StaticResource Teal}"
+                             FontSize="19" Foreground="{DynamicResource StatusAccent}"
                              Margin="0,2,0,0" />
                 </StackPanel>
               </Border>
@@ -74,7 +74,7 @@
                   <TextBlock Text="CUETOOLS DB" FontSize="9.5" FontWeight="Bold"
                              Foreground="{DynamicResource Muted}" />
                   <TextBlock Text="{Binding CtdbText}" FontFamily="{StaticResource Serif}"
-                             FontSize="19" Foreground="{StaticResource Teal}"
+                             FontSize="19" Foreground="{DynamicResource StatusAccent}"
                              Margin="0,2,0,0" />
                 </StackPanel>
               </Border>

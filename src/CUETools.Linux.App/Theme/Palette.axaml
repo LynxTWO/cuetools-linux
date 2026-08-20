@@ -63,7 +63,7 @@
       <SolidColorBrush x:Key="Line" Color="#CAD2C2" />
       <SolidColorBrush x:Key="Ink" Color="#1A211B" />
       <SolidColorBrush x:Key="InkDim" Color="#414A40" />
-      <SolidColorBrush x:Key="Muted" Color="#6C766A" />
+      <SolidColorBrush x:Key="Muted" Color="#5C665A" />
       <SolidColorBrush x:Key="StatusAccent" Color="#087067" />
       <SolidColorBrush x:Key="StatusGood" Color="#246D3C" />
       <SolidColorBrush x:Key="StatusWarning" Color="#835600" />

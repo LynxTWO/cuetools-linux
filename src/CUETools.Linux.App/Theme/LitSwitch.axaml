@@ -12,9 +12,19 @@
     <Setter Property="Background" Value="Transparent" />
     <Setter Property="BorderThickness" Value="0" />
     <Setter Property="Cursor" Value="Hand" />
+    <Setter Property="ClipToBounds" Value="False" />
     <Setter Property="Template">
       <ControlTemplate>
-        <Grid>
+        <Grid ClipToBounds="False">
+          <!-- halo: the bulb's light spilling onto the panel around the switch.
+               A BoxShadow follows the pill's own contour (a rectangular gradient
+               cannot), so the spill hugs the housing with no hard boundary. The
+               shadow color is a literal because a shadow resolves no resources;
+               a scoped ramp recolors it with a sibling style on Border#halo. -->
+          <Border x:Name="halo" CornerRadius="12" Margin="1" Opacity="0"
+                  Background="Transparent"
+                  BoxShadow="0 0 12 0 #B334CFC0" />
+
           <!-- housing: recessed neutral plastic -->
           <Border x:Name="housing" CornerRadius="12" BorderThickness="1"
                   BorderBrush="#0A0F0B">
@@ -28,8 +38,7 @@
 
           <!-- lens glow: hotspot on the EXPOSED side (left when checked), halo via
                BoxShadow. Opacity carries the warm/cool curve. -->
-          <Border x:Name="glow" CornerRadius="12" Margin="1" Opacity="0"
-                  BoxShadow="0 0 12 0 #B334CFC0">
+          <Border x:Name="glow" CornerRadius="12" Margin="1" Opacity="0">
             <Border.Background>
               <RadialGradientBrush GradientOrigin="30%,50%" Center="30%,50%"
                                    RadiusX="72%" RadiusY="115%">
@@ -40,6 +49,18 @@
                 <GradientStop Color="{DynamicResource LampEdge}" Offset="1" />
               </RadialGradientBrush>
             </Border.Background>
+            <!-- The plastic thickens toward the rim, so the light must die out
+                 before any edge or corner: a vignette mask takes the glow to
+                 zero inside the housing instead of clipping it at the border
+                 (owner-reported hard stop at the corners). -->
+            <Border.OpacityMask>
+              <RadialGradientBrush GradientOrigin="38%,50%" Center="38%,50%"
+                                   RadiusX="64%" RadiusY="72%">
+                <GradientStop Color="#FFFFFFFF" Offset="0" />
+                <GradientStop Color="#FFFFFFFF" Offset="0.42" />
+                <GradientStop Color="#00FFFFFF" Offset="0.97" />
+              </RadialGradientBrush>
+            </Border.OpacityMask>
           </Border>
 
           <!-- mover: cap + everything riding with it -->
@@ -117,6 +138,21 @@
     </Setter>
   </Style>
   <Style Selector="ToggleButton.lit:checked /template/ Border#glow">
+    <Setter Property="Opacity" Value="1" />
+    <Setter Property="Transitions">
+      <Transitions>
+        <DoubleTransition Property="Opacity" Duration="0:0:0.18" Easing="CubicEaseOut" />
+      </Transitions>
+    </Setter>
+  </Style>
+  <Style Selector="ToggleButton.lit /template/ Border#halo">
+    <Setter Property="Transitions">
+      <Transitions>
+        <DoubleTransition Property="Opacity" Duration="0:0:0.34" Easing="CubicEaseOut" />
+      </Transitions>
+    </Setter>
+  </Style>
+  <Style Selector="ToggleButton.lit:checked /template/ Border#halo">
     <Setter Property="Opacity" Value="1" />
     <Setter Property="Transitions">
       <Transitions>

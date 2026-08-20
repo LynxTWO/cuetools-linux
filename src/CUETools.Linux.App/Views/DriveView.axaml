@@ -38,7 +38,7 @@
       <Setter Property="Fill" Value="{DynamicResource StatusWarning}" />
     </Style>
     <Style Selector="Ellipse.lamp.teal">
-      <Setter Property="Fill" Value="{StaticResource Teal}" />
+      <Setter Property="Fill" Value="{DynamicResource StatusAccent}" />
     </Style>
     <!-- declared last so a lit lamp is green even when it also carries the
          warn (off = amber) class - document order decides equal specificity -->
@@ -60,7 +60,7 @@
     <Style Selector="TextBlock.rowval">
       <Setter Property="FontFamily" Value="{StaticResource Mono}" />
       <Setter Property="FontSize" Value="12" />
-      <Setter Property="Foreground" Value="{StaticResource Teal}" />
+      <Setter Property="Foreground" Value="{DynamicResource StatusAccent}" />
       <Setter Property="VerticalAlignment" Value="Center" />
     </Style>
   </UserControl.Styles>
@@ -118,7 +118,7 @@
           <StackPanel DockPanel.Dock="Right" VerticalAlignment="Center" Margin="20,0,0,0"
                       ToolTip.Tip="Every drive reads a few audio samples early or late compared to a reference drive. AccurateRip publishes each model's fixed offset; the ripper shifts every read by this many samples so your rip lines up bit-for-bit with everyone else's and can be verified. '--' means this drive is not in the offset database yet.">
             <TextBlock Classes="sec" Text="READ OFFSET" HorizontalAlignment="Right" />
-            <TextBlock Text="{Binding Details.OffsetText}" FontFamily="{StaticResource Mono}" FontSize="24" Foreground="{StaticResource Teal}" HorizontalAlignment="Right" />
+            <TextBlock Text="{Binding Details.OffsetText}" FontFamily="{StaticResource Mono}" FontSize="24" Foreground="{DynamicResource StatusAccent}" HorizontalAlignment="Right" />
             <TextBlock Text="AccurateRip, samples" FontSize="9" Foreground="{DynamicResource Muted}" HorizontalAlignment="Right" />
           </StackPanel>
         </DockPanel>
