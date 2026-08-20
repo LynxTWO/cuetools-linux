@@ -1,0 +1,241 @@
+<UserControl xmlns="https://github.com/avaloniaui"
+             xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
+             xmlns:vm="using:CUETools.Wpf.ViewModels"
+             xmlns:m="using:CUETools.Wpf.Models"
+             x:Class="CUETools.Linux.App.Views.DriveView"
+             x:DataType="vm:DriveViewModel">
+  <UserControl.Styles>
+    <Style Selector="TextBlock.sec">
+      <Setter Property="FontSize" Value="9" />
+      <Setter Property="FontWeight" Value="Bold" />
+      <Setter Property="Foreground" Value="{DynamicResource Muted}" />
+    </Style>
+    <Style Selector="Border.card">
+      <Setter Property="Background" Value="{DynamicResource Panel}" />
+      <Setter Property="BorderBrush" Value="{DynamicResource Line}" />
+      <Setter Property="BorderThickness" Value="1" />
+      <Setter Property="CornerRadius" Value="11" />
+      <Setter Property="Padding" Value="14,13" />
+    </Style>
+    <Style Selector="TextBlock.cardtitle">
+      <Setter Property="FontSize" Value="12.5" />
+      <Setter Property="FontWeight" Value="SemiBold" />
+      <Setter Property="Foreground" Value="{DynamicResource Ink}" />
+    </Style>
+    <Style Selector="TextBlock.cardsub">
+      <Setter Property="FontFamily" Value="{StaticResource Mono}" />
+      <Setter Property="FontSize" Value="10.5" />
+      <Setter Property="Foreground" Value="{DynamicResource Muted}" />
+    </Style>
+    <Style Selector="Ellipse.lamp">
+      <Setter Property="Width" Value="15" />
+      <Setter Property="Height" Value="15" />
+      <Setter Property="Fill" Value="{DynamicResource Muted}" />
+      <Setter Property="VerticalAlignment" Value="Center" />
+      <Setter Property="Margin" Value="0,0,12,0" />
+    </Style>
+    <Style Selector="Ellipse.lamp.warn">
+      <Setter Property="Fill" Value="{DynamicResource StatusWarning}" />
+    </Style>
+    <Style Selector="Ellipse.lamp.teal">
+      <Setter Property="Fill" Value="{StaticResource Teal}" />
+    </Style>
+    <!-- declared last so a lit lamp is green even when it also carries the
+         warn (off = amber) class - document order decides equal specificity -->
+    <Style Selector="Ellipse.lamp.on">
+      <Setter Property="Fill" Value="{DynamicResource StatusGood}" />
+    </Style>
+    <Style Selector="TextBlock.rowname">
+      <Setter Property="Foreground" Value="{DynamicResource InkDim}" />
+      <Setter Property="FontSize" Value="12.5" />
+      <Setter Property="VerticalAlignment" Value="Center" />
+      <Setter Property="MinWidth" Value="160" />
+    </Style>
+    <Style Selector="Ellipse.lampdot">
+      <Setter Property="Fill" Value="{DynamicResource Line}" />
+    </Style>
+    <Style Selector="Ellipse.lampdot.on">
+      <Setter Property="Fill" Value="{DynamicResource StatusGood}" />
+    </Style>
+    <Style Selector="TextBlock.rowval">
+      <Setter Property="FontFamily" Value="{StaticResource Mono}" />
+      <Setter Property="FontSize" Value="12" />
+      <Setter Property="Foreground" Value="{StaticResource Teal}" />
+      <Setter Property="VerticalAlignment" Value="Center" />
+    </Style>
+  </UserControl.Styles>
+
+  <ScrollViewer Background="{DynamicResource Ground}" VerticalScrollBarVisibility="Auto">
+    <StackPanel Margin="24,20" MaxWidth="820" HorizontalAlignment="Left">
+      <DockPanel LastChildFill="False">
+        <StackPanel DockPanel.Dock="Left">
+          <TextBlock Text="{Binding Title}" FontFamily="{StaticResource Serif}" FontSize="26" Foreground="{DynamicResource Ink}" />
+          <TextBlock Text="{Binding Subtitle}" Foreground="{DynamicResource Muted}" FontSize="12.5" Margin="0,2,0,0" TextWrapping="Wrap" MaxWidth="500" />
+        </StackPanel>
+        <StackPanel DockPanel.Dock="Right" Orientation="Horizontal" VerticalAlignment="Top">
+          <StackPanel Margin="0,0,10,0">
+            <TextBlock Classes="sec" Text="DRIVE" Margin="2,0,0,3" />
+            <ComboBox ItemsSource="{Binding Drives}" SelectedItem="{Binding SelectedDrive, Mode=TwoWay}"
+                      IsEnabled="{Binding IsDriveSelectionEnabled}" MinWidth="68" Padding="9,5"
+                      ToolTip.Tip="Choose which attached optical drive to inspect. This selection stays synchronized with the Rip page and is locked while a job owns the drive.">
+              <ComboBox.ItemTemplate>
+                <DataTemplate>
+                  <TextBlock FontFamily="{StaticResource Mono}" Text="{Binding StringFormat='{}{0}:'}" />
+                </DataTemplate>
+              </ComboBox.ItemTemplate>
+            </ComboBox>
+          </StackPanel>
+          <Button Content="Calibrate" Command="{Binding CalibrateCommand}" Padding="14,8" Margin="0,15,10,0" VerticalAlignment="Top"
+                  ToolTip.Tip="Probe this drive's read behaviour with the loaded disc: cache size/defeat, lead-in and lead-out overread, and its read-speed range. Read-only - it reads audio sectors and writes nothing. Saved per drive; Rip, Verify, and Test &amp; Copy do this automatically on first use." />
+          <Button Content="Detect" Command="{Binding DetectCommand}" Classes="accent" Padding="16,8" Margin="0,15,0,0" VerticalAlignment="Top"
+                  ToolTip.Tip="Re-read the selected drive over SCSI (identity, capabilities, speeds, offset)." />
+        </StackPanel>
+      </DockPanel>
+
+      <!-- identity + read offset -->
+      <Border Classes="card" CornerRadius="12" Padding="18,16" Margin="0,16,0,14" IsVisible="{Binding HasDetails}">
+        <DockPanel LastChildFill="False">
+          <StackPanel DockPanel.Dock="Left"
+                      ToolTip.Tip="The drive's own identity from the SCSI INQUIRY command: maker, model, firmware version, and a revision/serial string - read straight from the hardware, no disc needed. The top line shows the drive and the media type currently in the tray. The AccurateRip name is the exact key used to look this drive up in the shared offset database.">
+            <StackPanel Orientation="Horizontal" Spacing="0">
+              <TextBlock Classes="cardsub" FontSize="11.5" Text="{Binding DriveLetter}" />
+              <TextBlock Classes="cardsub" FontSize="11.5" Text="  -  " />
+              <TextBlock Classes="cardsub" FontSize="11.5" Text="{Binding Details.CurrentProfile}" />
+              <TextBlock Classes="cardsub" FontSize="11.5" Text=" loaded" />
+            </StackPanel>
+            <TextBlock Text="{Binding Details.Model}" FontFamily="{StaticResource Serif}" FontSize="22" Foreground="{DynamicResource Ink}" Margin="0,2,0,0" />
+            <StackPanel Orientation="Horizontal" Margin="0,4,0,0">
+              <TextBlock Classes="cardsub" FontSize="11" Foreground="{DynamicResource InkDim}" Text="firmware " />
+              <TextBlock Classes="cardsub" FontSize="11" Foreground="{DynamicResource InkDim}" Text="{Binding Details.Firmware}" />
+              <TextBlock Classes="cardsub" FontSize="11" Foreground="{DynamicResource InkDim}" Text="   rev " />
+              <TextBlock Classes="cardsub" FontSize="11" Foreground="{DynamicResource InkDim}" Text="{Binding Details.ProductRevision}" />
+            </StackPanel>
+            <StackPanel Orientation="Horizontal" Margin="0,2,0,0">
+              <TextBlock Classes="cardsub" FontSize="11" Text="AccurateRip name  " />
+              <TextBlock Classes="cardsub" FontSize="11" Text="{Binding Details.ARName}" />
+            </StackPanel>
+          </StackPanel>
+          <StackPanel DockPanel.Dock="Right" VerticalAlignment="Center" Margin="20,0,0,0"
+                      ToolTip.Tip="Every drive reads a few audio samples early or late compared to a reference drive. AccurateRip publishes each model's fixed offset; the ripper shifts every read by this many samples so your rip lines up bit-for-bit with everyone else's and can be verified. '--' means this drive is not in the offset database yet.">
+            <TextBlock Classes="sec" Text="READ OFFSET" HorizontalAlignment="Right" />
+            <TextBlock Text="{Binding Details.OffsetText}" FontFamily="{StaticResource Mono}" FontSize="24" Foreground="{StaticResource Teal}" HorizontalAlignment="Right" />
+            <TextBlock Text="AccurateRip, samples" FontSize="9" Foreground="{DynamicResource Muted}" HorizontalAlignment="Right" />
+          </StackPanel>
+        </DockPanel>
+      </Border>
+
+      <!-- real capability lamps (read from GET CONFIGURATION - not hardcoded) -->
+      <Grid ColumnDefinitions="1*,10,1*" RowDefinitions="Auto,10,Auto,10,Auto" IsVisible="{Binding HasDetails}">
+        <Border Grid.Row="0" Grid.Column="0" Classes="card"
+                ToolTip.Tip="Which disc families this drive can READ, from its GET CONFIGURATION profile list - CD, DVD, and/or Blu-ray. Every audio CD ripper needs at least CD read.">
+          <DockPanel>
+            <Ellipse DockPanel.Dock="Left" Classes="lamp on" />
+            <StackPanel><TextBlock Classes="cardtitle" Text="Reads" /><TextBlock Classes="cardsub" Text="{Binding Details.ReadsSummary}" /></StackPanel>
+          </DockPanel>
+        </Border>
+        <Border Grid.Row="0" Grid.Column="2" Classes="card"
+                ToolTip.Tip="Which disc families this drive can BURN. A read-only drive lights nothing here. CUETools reads discs; writing is the drive's own capability.">
+          <DockPanel>
+            <Ellipse DockPanel.Dock="Left" Classes="lamp" Classes.on="{Binding Details.CanWriteCD}" />
+            <StackPanel><TextBlock Classes="cardtitle" Text="Writes" /><TextBlock Classes="cardsub" Text="{Binding Details.WritesSummary}" /></StackPanel>
+          </DockPanel>
+        </Border>
+        <Border Grid.Row="2" Grid.Column="0" Classes="card"
+                ToolTip.Tip="C2 is a flag the drive can return for each audio frame meaning 'this sample may be wrong'. A secure ripper uses C2 to know exactly which samples to re-read, instead of re-reading everything - faster and more accurate. Amber here means the drive does not report C2.">
+          <DockPanel>
+            <Ellipse DockPanel.Dock="Left" Classes="lamp warn" Classes.on="{Binding Details.C2ErrorPointers}" />
+            <StackPanel><TextBlock Classes="cardtitle" Text="C2 error pointers" /><TextBlock Classes="cardsub" Text="reports read errors per sector" /></StackPanel>
+          </DockPanel>
+        </Border>
+        <Border Grid.Row="2" Grid.Column="2" Classes="card"
+                ToolTip.Tip="Some audio CDs store the artist and track titles in the disc's lead-in area (CD-Text). If the drive can read it and the disc carries it, those titles can fill in even with no internet lookup.">
+          <DockPanel>
+            <Ellipse DockPanel.Dock="Left" Classes="lamp" Classes.on="{Binding Details.CdText}" />
+            <StackPanel><TextBlock Classes="cardtitle" Text="CD-Text" /><TextBlock Classes="cardsub" Text="reads disc-embedded titles" /></StackPanel>
+          </DockPanel>
+        </Border>
+        <Border Grid.Row="4" Grid.Column="0" Classes="card"
+                ToolTip.Tip="The fastest read the drive advertises (1x CD = 176 KB/s, so ~48x is about 8.5 MB/s). Audio ripping usually runs slower than the maximum on purpose - a lower, steadier speed produces fewer read errors on scratched or pressed discs.">
+          <DockPanel>
+            <Ellipse DockPanel.Dock="Left" Classes="lamp teal" />
+            <StackPanel><TextBlock Classes="cardtitle" Text="Max read speed" /><TextBlock Classes="cardsub" Text="{Binding Details.ReadSpeedText}" /></StackPanel>
+          </DockPanel>
+        </Border>
+        <Border Grid.Row="4" Grid.Column="2" Classes="card"
+                ToolTip.Tip="The largest block of data the driver will move in a single SCSI command. Bigger transfers mean fewer round-trips to read each second of audio, which helps sustain speed.">
+          <DockPanel>
+            <Ellipse DockPanel.Dock="Left" Classes="lamp teal" />
+            <StackPanel><TextBlock Classes="cardtitle" Text="Max transfer" /><TextBlock Classes="cardsub" Text="{Binding Details.MaxTransferText}" /></StackPanel>
+          </DockPanel>
+        </Border>
+      </Grid>
+
+      <!-- per-drive calibration (probed with a disc; persisted) -->
+      <Border Classes="card" Padding="15,13" Margin="0,10,0,0" IsVisible="{Binding HasDetails}">
+        <StackPanel>
+          <DockPanel LastChildFill="False" Margin="0,0,0,8">
+            <TextBlock DockPanel.Dock="Left" Classes="sec" Text="CALIBRATION" VerticalAlignment="Center" />
+            <TextBlock DockPanel.Dock="Right" Classes="cardsub" FontSize="10" Text="{Binding CalWhenText}" VerticalAlignment="Center" />
+          </DockPanel>
+          <DockPanel Margin="0,3" ToolTip.Tip="Whether the drive serves a repeated read from its own cache. If it does, a Secure/Paranoid re-read is not genuine until the measured in-program flush evicts that cache. Confirmed means the behavior and, when needed, a working flush size were measured.">
+            <TextBlock DockPanel.Dock="Left" Classes="rowname" Text="Cache behaviour" />
+            <TextBlock Classes="rowval" Text="{Binding CacheText}" />
+          </DockPanel>
+          <DockPanel Margin="0,3" ToolTip.Tip="Whether this drive accepted real audio reads immediately before track 1 and immediately after the audio program. A proven edge supplies the samples needed for offset correction; an unsupported edge is safely zero-padded.">
+            <TextBlock DockPanel.Dock="Left" Classes="rowname" Text="Overread" />
+            <TextBlock Classes="rowval" Text="{Binding OverreadText}" />
+          </DockPanel>
+          <DockPanel Margin="0,3" ToolTip.Tip="The drive's top read speed, used as the ceiling for adaptive read speed.">
+            <TextBlock DockPanel.Dock="Left" Classes="rowname" Text="Max read speed" />
+            <TextBlock Classes="rowval" Foreground="{DynamicResource Ink}" Text="{Binding CalMaxSpeedText}" />
+          </DockPanel>
+          <DockPanel Margin="0,3" ToolTip.Tip="The drive's lowest read speed, probed - can be sub-1x on some drives.">
+            <TextBlock DockPanel.Dock="Left" Classes="rowname" Text="Min read speed" />
+            <TextBlock Classes="rowval" Foreground="{DynamicResource Ink}" Text="{Binding CalMinSpeedText}" />
+          </DockPanel>
+          <TextBlock Text="Calibration runs automatically before this drive's first Rip, Verify, or Test &amp; Copy. Secure and Paranoid always apply a measured cache flush when the drive caches re-reads."
+                     Foreground="{DynamicResource Muted}" FontSize="10.5" TextWrapping="Wrap" Margin="0,7,0,0" />
+        </StackPanel>
+      </Border>
+
+      <!-- supported media (profiles) -->
+      <TextBlock Classes="sec" Text="SUPPORTED MEDIA" Margin="2,18,0,8" IsVisible="{Binding HasDetails}"
+                 ToolTip.Tip="Every disc 'profile' the drive reports it can handle. A profile is a specific media type: CD-ROM, CD-R, CD-RW, DVD-ROM, the DVD+/-R family, Blu-ray, and so on. This is the drive telling you what it was built to do." />
+      <ItemsControl ItemsSource="{Binding Details.SupportedProfiles}" IsVisible="{Binding HasDetails}">
+        <ItemsControl.ItemsPanel><ItemsPanelTemplate><WrapPanel /></ItemsPanelTemplate></ItemsControl.ItemsPanel>
+        <ItemsControl.ItemTemplate>
+          <DataTemplate x:DataType="x:String">
+            <Border Background="{DynamicResource Glass}" BorderBrush="{DynamicResource GlassLine}" BorderThickness="1" CornerRadius="6" Padding="9,4" Margin="0,0,7,7">
+              <TextBlock Text="{Binding}" FontFamily="{StaticResource Mono}" FontSize="11" Foreground="{DynamicResource InkDim}" />
+            </Border>
+          </DataTemplate>
+        </ItemsControl.ItemTemplate>
+      </ItemsControl>
+
+      <!-- full GET CONFIGURATION feature list; lit dot = currently active -->
+      <TextBlock Classes="sec" Text="DRIVE FEATURES  (GET CONFIGURATION)" Margin="2,16,0,8" IsVisible="{Binding HasDetails}"
+                 ToolTip.Tip="The full feature list the drive exposes through the SCSI GET CONFIGURATION command. Each feature is a capability defined by the MMC standard. A lit dot means the feature is active right now for the loaded media; an unlit dot means it is supported but not currently in use. Hover a feature for its raw code." />
+      <Border Classes="card" CornerRadius="10" Padding="6" IsVisible="{Binding HasDetails}">
+        <ItemsControl ItemsSource="{Binding Details.Features}">
+          <ItemsControl.ItemsPanel><ItemsPanelTemplate><WrapPanel /></ItemsPanelTemplate></ItemsControl.ItemsPanel>
+          <ItemsControl.ItemTemplate>
+            <DataTemplate x:DataType="m:DriveFeatureRow">
+              <Border Padding="9,5" Margin="3" CornerRadius="6" Background="{DynamicResource Glass}"
+                      ToolTip.Tip="{Binding CodeHex}">
+                <DockPanel>
+                  <Ellipse DockPanel.Dock="Left" Width="9" Height="9" VerticalAlignment="Center" Margin="0,0,7,0"
+                           Classes="lampdot" Classes.on="{Binding Current}" />
+                  <TextBlock Text="{Binding Name}" FontFamily="{StaticResource Mono}" FontSize="10.5" Foreground="{DynamicResource InkDim}" />
+                </DockPanel>
+              </Border>
+            </DataTemplate>
+          </ItemsControl.ItemTemplate>
+        </ItemsControl>
+      </Border>
+
+      <TextBlock Text="{Binding Status}" Foreground="{DynamicResource Muted}" FontSize="12" Margin="2,16,0,0" TextWrapping="Wrap" />
+      <TextBlock Text="All values are read live from the drive over SCSI (INQUIRY, GET CONFIGURATION, GET PERFORMANCE). A lit dot means the feature is currently active; the read offset comes from the AccurateRip drive database."
+                 FontFamily="{StaticResource Mono}" FontSize="10.5" Foreground="{DynamicResource Muted}" Margin="2,8,0,0" TextWrapping="Wrap" />
+    </StackPanel>
+  </ScrollViewer>
+</UserControl>

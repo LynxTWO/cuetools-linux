@@ -28,6 +28,7 @@ public partial class MainWindow : Window
         SettingsPage.DataContext = graph.SettingsPage;
         ReportPage.DataContext = graph.Report;
         NamingPage.DataContext = graph.Naming;
+        DrivePage.DataContext = graph.DrivePage;
         RipPage.DataContext = graph.Rip;
         RipPage.Init(graph.Config, graph.Catalog, graph.Art);
         UpdateToggleText();
@@ -113,6 +114,9 @@ public partial class MainWindow : Window
     private void OnNamingNavPressed(object? sender, PointerPressedEventArgs e)
         => ShowPage(NamingPage, NamingNav);
 
+    private void OnDriveNavPressed(object? sender, PointerPressedEventArgs e)
+        => ShowPage(DrivePage, DriveNav);
+
     /// <summary>D-073: a secondary drive window never publishes shared settings, so it
     /// does not show the page at all. Removing the card beats explaining a read-only one.</summary>
     public void HideSettingsNav() => SettingsNav.IsVisible = false;
@@ -143,7 +147,7 @@ public partial class MainWindow : Window
     private void ShowPage(Control page, Border nav)
     {
         _activeNav = nav;
-        foreach (Control candidate in new Control[] { VerifyPage, ConvertPage, QueuePage, RipPage, SettingsPage, ReportPage, NamingPage })
+        foreach (Control candidate in new Control[] { VerifyPage, ConvertPage, QueuePage, RipPage, SettingsPage, ReportPage, NamingPage, DrivePage })
             candidate.IsVisible = ReferenceEquals(candidate, page);
         RestyleNavs();
     }
@@ -154,7 +158,7 @@ public partial class MainWindow : Window
     /// toggle with the new theme's own brushes.</summary>
     private void RestyleNavs()
     {
-        foreach (Border candidate in new[] { VerifyNav, ConvertNav, QueueNav, RipNav, SettingsNav, ReportNav, NamingNav })
+        foreach (Border candidate in new[] { VerifyNav, ConvertNav, QueueNav, RipNav, SettingsNav, ReportNav, NamingNav, DriveNav })
             StyleNav(candidate, ReferenceEquals(candidate, _activeNav));
     }
 
