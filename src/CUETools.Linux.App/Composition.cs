@@ -135,6 +135,7 @@ public static class Composition
         SettingsViewModel SettingsPage,
         ReportViewModel Report,
         NamingViewModel Naming,
+        DriveViewModel DrivePage,
         VerificationBackfillService Backfill,
         IDiagnosticLog Log,
         CUEConfig Config,
@@ -270,6 +271,7 @@ public static class Composition
         var verifyHistory = new CUETools.Wpf.Accuracy.VerifyHistoryStore();
         var calService = new CUETools.Wpf.Accuracy.DriveCalibrationService(log, calStore);
         IDriveService drives = new DriveService(config, log);
+        var drivePage = new DriveViewModel(drives, calService, dispatcher);
         // Publish a requested drive before the rip view model is constructed
         // (the WPF secondary-window pattern): pages then initialize against
         // that hardware with no transient read of the first enumerated drive.
@@ -350,7 +352,7 @@ public static class Composition
         var reportPage = new ReportViewModel(reports);
 
         return new AppGraph(
-            viewModel, convertViewModel, queueViewModel, settingsPage, reportPage, namingPage, backfill, log, config,
+            viewModel, convertViewModel, queueViewModel, settingsPage, reportPage, namingPage, drivePage, backfill, log, config,
             catalog, appSettings, settingsStore, enrichment, journal, ripViewModel,
             albumArt);
     }
