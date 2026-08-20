@@ -217,6 +217,24 @@
                          Foreground="{DynamicResource Muted}" />
             </StackPanel>
           </Border>
+          <Border x:Name="AdvancedNav"
+                  Background="Transparent"
+                  BorderBrush="{DynamicResource Line}"
+                  BorderThickness="1"
+                  CornerRadius="6"
+                  Padding="12,9"
+                  Cursor="Hand"
+                  PointerPressed="OnAdvancedNavPressed">
+            <StackPanel>
+              <TextBlock Text="Advanced"
+                         FontSize="13"
+                         Foreground="{DynamicResource Ink}" />
+              <TextBlock Text="Engine options, rarely needed"
+                         FontFamily="{StaticResource Mono}"
+                         FontSize="10.5"
+                         Foreground="{DynamicResource Muted}" />
+            </StackPanel>
+          </Border>
         </StackPanel>
       </Border>
 
@@ -229,6 +247,7 @@
         <views:NamingView x:Name="NamingPage" IsVisible="False" />
         <views:DriveView x:Name="DrivePage" IsVisible="False" />
         <views:SettingsView x:Name="SettingsPage" IsVisible="False" />
+        <views:AdvancedView x:Name="AdvancedPage" IsVisible="False" />
       </Grid>
 
     </Grid>
