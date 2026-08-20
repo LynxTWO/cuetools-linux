@@ -52,7 +52,7 @@ player makes during playback, so a long secure rip is not cut short by
 an idle timeout. The rip log says when the hold begins; if the machine
 cannot grant one (no systemd, for instance), the log says
 `the system may sleep during this rip` instead of pretending. The
-screen may still blank - only sleep is held off, and a crashed app
+screen may still blank (only sleep is held off), and a crashed app
 releases the hold by itself.
 
 A window CUETools opened for a second drive has no Settings entry at

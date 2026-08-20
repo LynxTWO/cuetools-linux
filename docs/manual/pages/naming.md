@@ -21,14 +21,15 @@ when its field is empty. The shipped template is:
 ```
 
 Under **FIELDS**, every placeholder the engine understands is a button.
-Click one and it is inserted at the cursor position in the template,
-so you can build a scheme without memorizing the field names.
+Click one and it drops in at your cursor, so you can build a scheme
+without memorizing the field names.
 
 **PRESET** offers three starting points: **Archival (default)**, the
 shipped scheme; **Artist - Album (year)**, a flat
 artist-album-year folder; and **Simple**, plain artist/album folders
-with the featured-artist move and the release descriptor turned off. Picking a preset replaces the whole scheme,
-template and switches together, and the preview updates at once.
+with the featured-artist move and the release descriptor turned off.
+Picking a preset replaces the whole scheme, template and switches
+together, and the preview updates at once.
 
 ## The clean-up rules
 

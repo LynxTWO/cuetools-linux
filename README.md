@@ -6,10 +6,10 @@ CUETools Database, repair damaged rips from CTDB parity, and convert between
 lossless formats. Same engine as the Windows build, same evidence discipline,
 in a package a fraction of the size.
 
-**Status: built, unreleased, and not yet recommended for strangers.** Twelve
-slices are complete with evidence, from verification through ripping to
-database contribution. There is no published release yet, and several things
-a first-time user needs are still missing. See
+**Status: built, unreleased, and not yet recommended for strangers.**
+Twelve slices are complete with evidence, from verification through
+ripping to database contribution, and the app has reached page parity
+with the Windows head. There is no published release yet. See
 [Known limitations](#known-limitations) before trying it.
 
 ## What works today
@@ -25,25 +25,25 @@ a first-time user needs are still missing. See
 | Offline journal and automatic backfill | Built, evidenced |
 | Share a verified rip with the CUETools Database, by consent | Built, one live submission confirmed by independent lookup |
 | Settings page, including privacy and consent controls | Built, evidenced |
+| Guided recovery when a USB drive wedges mid-rip | Built, evidenced live on a real wedge (twice in one day) |
+| Report, Naming editor, Drive & Read, Advanced, and How a CD Works pages | Built, render-evidenced |
+| Keep-awake during rips (systemd sleep inhibitor) | Built, evidenced live |
 
 Every claim above traces to a slice brief in `docs/` with its own evidence
 section. Nothing here is inferred from a screenshot.
 
 ## Known limitations
 
-Read these before installing. They are the reason there is no release yet.
+Read these before installing. They are why there is no release yet.
 
 - The current binary needs glibc 2.38 or newer, so it does not start on
-  Ubuntu 22.04 or Debian 12 despite those being the intended floor. The
-  floor is a build-machine artifact, not a code requirement; the fix is a
-  build-environment change. See F-38 in the findings.
-- A wedged USB drive still needs guidance the app does not give yet:
-  SLICE-011 (guided drive recovery) is the gate the first public preview
-  waits for (D-065).
-- The output naming template has no editor; changing it means editing
-  `~/.config/CUETools2026/settings.txt` with the app closed.
-- Keep-awake is not wired up on Linux, so the machine may sleep during a
-  long rip. The switch exists on the Settings page and says so.
+  Ubuntu 22.04 or Debian 12 even though those are the intended floor.
+  The floor is a build-machine artifact, not a code requirement; the
+  fix is a build-environment change. See F-38 in the findings.
+- The first public preview is now an owner go/no-go: the technical
+  gate (D-065, guided drive recovery) was met on 2026-08-19 with a
+  live wedge and a live cure. Until the owner calls it, build from
+  source.
 
 ## The documents
 
@@ -52,7 +52,7 @@ Read these before installing. They are the reason there is no release yet.
 | [docs/ARCHITECTURE.md](docs/ARCHITECTURE.md) | The puzzle: modules, interfaces, data flow, technology, extension points |
 | [docs/ENGINEERING.md](docs/ENGINEERING.md) | The rules: requirements, data model, security, standards, verification, definition of done |
 | [docs/DECISION-LOG.md](docs/DECISION-LOG.md) | Every significant choice, its reasoning, and its revisit trigger (D-001 onward) |
-| [docs/SLICE-001-verify.md](docs/SLICE-001-verify.md) | The current build boundary: album verification, end to end |
+| [docs/SLICE-013-fractional-scaling.md](docs/SLICE-013-fractional-scaling.md) | The current build boundary: elegant layout under OS display scaling |
 | [docs/TRIAGE.md](docs/TRIAGE.md) | Project triage card and unknowns list |
 | [docs/RESEARCH-2026-08-11.md](docs/RESEARCH-2026-08-11.md) | The landscape and framework research this design stands on |
 
