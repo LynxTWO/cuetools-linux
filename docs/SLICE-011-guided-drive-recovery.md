@@ -122,8 +122,33 @@ content, hardware identity and counters only (scrub rule holds).
   failed rung, cure with retry, the proven-cure lead after two
   consecutive cures, the uncured terminal with its recorded incident,
   and the unidentifiable-drive hand-instructions path.
-- [ ] One live wedge session end to end (grind, dialog, verified rungs,
-  cure, incident record, retry), counters recorded in this brief.
+- [x] One live wedge session end to end, 2026-08-19, owner-driven. The
+  trigger was real work, not a staged grind: a Paranoid Test and Copy of
+  the scratched Telarc reference disc on the ASUS BW-16D1HT wedged the
+  drive twice in one day (07:31 run, storm during Copy at ~94%,
+  storm-batches=2, storm-pinpoints=32, failed after 2262s; 12:33 run,
+  storm during the CONFIRMING read at ~92% after Test and Copy both
+  completed, failed after 558s, and the engine held the completed Copy
+  rather than deleting it). Both failures carried
+  payload_rejection_storm_fatal=1 and the power-cycle guidance.
+
+  The second wedge persisted for over seven hours (a direct TOC ioctl at
+  17:22 still returned EIO). The owner opened the offer from the Rip
+  page, walked the dialog, and the CABLE REPLUG alone cured it: the
+  incident record at 20:43 UTC-4 reads RungsAttempted=[cable-replug],
+  CuringRung=cable-replug, keyed to "ASUS     - BW-16D1HT", with the
+  scrubbed failure counters as the trigger context. The dialog reported
+  the cure, said it was recorded, and Retry now launched a fresh Test
+  and Copy through the calibrated paths (log: start mode=verify at
+  20:45:04, a new transaction, not a resume).
+
+  The cure is itself a finding: the 2026-08-14 characterization said this
+  state survives a cable replug and only a full power cycle has cleared
+  it. This wedge cleared on the replug. Wedge depth evidently varies, and
+  the ladder's verify-not-assume design is what caught it: a dialog that
+  led with the power rung on the old evidence would have made the owner
+  do the harder step for nothing. The engine's storm message needs its
+  "only a full power cycle" wording softened to match the evidence.
 - [x] Scrub audit of the incident record and dialog text, 2026-08-18.
   The incident record carries five fields: TimestampUtc, Trigger (one of
   the two classifier names), TriggerContext (the scrubbed reader counters
