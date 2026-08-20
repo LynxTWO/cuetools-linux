@@ -30,6 +30,7 @@ public partial class MainWindow : Window
         NamingPage.DataContext = graph.Naming;
         DrivePage.DataContext = graph.DrivePage;
         AdvancedPage.DataContext = graph.Advanced;
+        ExplorePage.DataContext = graph.Explore;
         RipPage.DataContext = graph.Rip;
         RipPage.Init(graph.Config, graph.Catalog, graph.Art);
         UpdateToggleText();
@@ -121,6 +122,9 @@ public partial class MainWindow : Window
     private void OnAdvancedNavPressed(object? sender, PointerPressedEventArgs e)
         => ShowPage(AdvancedPage, AdvancedNav);
 
+    private void OnExploreNavPressed(object? sender, PointerPressedEventArgs e)
+        => ShowPage(ExplorePage, ExploreNav);
+
     /// <summary>D-073: a secondary drive window never publishes shared settings, so it
     /// does not show the page at all. Removing the card beats explaining a read-only one.</summary>
     public void HideSettingsNav() => SettingsNav.IsVisible = false;
@@ -151,7 +155,7 @@ public partial class MainWindow : Window
     private void ShowPage(Control page, Border nav)
     {
         _activeNav = nav;
-        foreach (Control candidate in new Control[] { VerifyPage, ConvertPage, QueuePage, RipPage, SettingsPage, ReportPage, NamingPage, DrivePage, AdvancedPage })
+        foreach (Control candidate in new Control[] { VerifyPage, ConvertPage, QueuePage, RipPage, SettingsPage, ReportPage, NamingPage, DrivePage, AdvancedPage, ExplorePage })
             candidate.IsVisible = ReferenceEquals(candidate, page);
         RestyleNavs();
     }
@@ -162,7 +166,7 @@ public partial class MainWindow : Window
     /// toggle with the new theme's own brushes.</summary>
     private void RestyleNavs()
     {
-        foreach (Border candidate in new[] { VerifyNav, ConvertNav, QueueNav, RipNav, SettingsNav, ReportNav, NamingNav, DriveNav, AdvancedNav })
+        foreach (Border candidate in new[] { VerifyNav, ConvertNav, QueueNav, RipNav, SettingsNav, ReportNav, NamingNav, DriveNav, AdvancedNav, ExploreNav })
             StyleNav(candidate, ReferenceEquals(candidate, _activeNav));
     }
 

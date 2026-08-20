@@ -1,0 +1,45 @@
+<UserControl xmlns="https://github.com/avaloniaui"
+             xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
+             xmlns:vm="using:CUETools.Wpf.ViewModels"
+             xmlns:ctl="using:CUETools.Linux.App.Controls"
+             x:Class="CUETools.Linux.App.Views.ExploreView"
+             x:DataType="vm:ExploreViewModel">
+  <Grid Background="{DynamicResource Ground}" ColumnDefinitions="*,392">
+
+    <!-- interactive disc stage: the control owns its own pan/zoom pointer handling -->
+    <ctl:ExploreDisc Grid.Column="0" x:Name="Stage" />
+    <Border Grid.Column="0" VerticalAlignment="Bottom" HorizontalAlignment="Center" Margin="0,0,0,16"
+            Background="{DynamicResource Glass}" BorderBrush="{DynamicResource GlassLine}" BorderThickness="1" CornerRadius="8" Padding="12,6">
+      <TextBlock Text="drag to move  .  scroll to zoom - keep going until the spiral resolves"
+                 FontFamily="{StaticResource Mono}" FontSize="11" Foreground="{DynamicResource Muted}" />
+    </Border>
+
+    <!-- lesson panel -->
+    <Border Grid.Column="1" Background="{DynamicResource Panel}" BorderBrush="{DynamicResource Line}" BorderThickness="1,0,0,0" Padding="20,18">
+      <ScrollViewer VerticalScrollBarVisibility="Auto">
+        <StackPanel>
+          <TextBlock Text="{Binding Title}" FontFamily="{StaticResource Serif}" FontSize="24" Foreground="{DynamicResource Ink}" />
+          <TextBlock Foreground="{DynamicResource Muted}" FontSize="12.5" TextWrapping="Wrap" Margin="0,6,0,0"
+                     Text="Zoom in and the data track appears. Every number here is the real CD spec." />
+
+          <TextBlock Text="THE SPIRAL" FontSize="10" FontWeight="Bold" Foreground="{StaticResource Teal}" Margin="0,18,0,4" />
+          <TextBlock Foreground="{DynamicResource InkDim}" FontSize="12.5" TextWrapping="Wrap"
+                     Text="One continuous track, read from the inside out - not concentric rings. It is about 5 km long, wound with 1.6 um between turns. Because most of the disc's area is near the rim, most of the music lives in the outer half." />
+
+          <TextBlock Text="PITS AND LANDS" FontSize="10" FontWeight="Bold" Foreground="{StaticResource Teal}" Margin="0,16,0,4" />
+          <TextBlock Foreground="{DynamicResource InkDim}" FontSize="12.5" TextWrapping="Wrap"
+                     Text="The track is a string of bumps (pits) and flats (lands), each at least ~0.83 um long. A pit-to-land transition is a 1, everything else a 0 (EFM). The laser sees a pit as dimmer, because its height cancels part of the reflection." />
+
+          <TextBlock Text="CONSTANT DATA RATE (CLV)" FontSize="10" FontWeight="Bold" Foreground="{StaticResource Teal}" Margin="0,16,0,4" />
+          <TextBlock Foreground="{DynamicResource InkDim}" FontSize="12.5" TextWrapping="Wrap"
+                     Text="The disc spins faster at the hub and slower at the rim so the track passes the laser at a constant speed - that is why a rip's read position moves outward quickly at first, then slows." />
+
+          <TextBlock Text="THE LAYERS" FontSize="10" FontWeight="Bold" Foreground="{StaticResource Teal}" Margin="0,18,0,8" />
+          <Border Background="{DynamicResource Face}" BorderBrush="{DynamicResource Line}" BorderThickness="1" CornerRadius="9" Padding="10,8">
+            <ctl:LayerCross Height="216" />
+          </Border>
+        </StackPanel>
+      </ScrollViewer>
+    </Border>
+  </Grid>
+</UserControl>

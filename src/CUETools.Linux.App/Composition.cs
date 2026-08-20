@@ -137,6 +137,7 @@ public static class Composition
         NamingViewModel Naming,
         DriveViewModel DrivePage,
         AdvancedViewModel Advanced,
+        ExploreViewModel Explore,
         VerificationBackfillService Backfill,
         IDiagnosticLog Log,
         CUEConfig Config,
@@ -352,9 +353,10 @@ public static class Composition
         var settingsPage = new SettingsViewModel(config, appSettings, log, catalog, dialogs);
         var reportPage = new ReportViewModel(reports);
         var advancedPage = new AdvancedViewModel(config, log);
+        var explorePage = new ExploreViewModel(orbital3D: false);   // this head pans a 2D disc
 
         return new AppGraph(
-            viewModel, convertViewModel, queueViewModel, settingsPage, reportPage, namingPage, drivePage, advancedPage, backfill, log, config,
+            viewModel, convertViewModel, queueViewModel, settingsPage, reportPage, namingPage, drivePage, advancedPage, explorePage, backfill, log, config,
             catalog, appSettings, settingsStore, enrichment, journal, ripViewModel,
             albumArt);
     }
