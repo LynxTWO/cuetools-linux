@@ -119,12 +119,12 @@ written to settings, history, or output contracts.
   segments, and the given-up sectors (3+3/4+1 across the damage
   cluster) rendered the red-edged terminals. S10-007: every screenshot
   is at the default width with the 24-track strip legible.
-- [ ] S10-003's Burst half (no pass lane on a live Burst run) and
-  S10-005's formal Salvage-path run are the two rows not yet witnessed
-  live; the lane's absence for Burst and the terminal marking are
-  pinned by unit tests, and the red terminal rendered live on the
-  Secure runs. Owner to decide whether a dedicated Salvage run on the
-  Reggae Roots disc is still wanted.
+- [x] S10-005 closed by owner decision, 2026-08-19 evening: no dedicated
+  Salvage run ("we know it's cooked"). The red-edged terminal state
+  rendered live on the Secure runs with the logged given-up counts, and
+  the marking rules are pinned by unit tests. S10-003's Burst half (the
+  lane's absence on a live Burst run) stays covered by its unit test and
+  gets witnessed whenever a Burst rip next happens naturally.
 - [x] Honesty audit: every displayed number is a literal engine value or
   arithmetic over TOC boundaries (TrackProgressModel doc contract); the
   only smoothing anywhere is animation, and the model owns no clock.
