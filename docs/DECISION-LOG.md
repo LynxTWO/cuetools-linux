@@ -1048,3 +1048,35 @@ collapsible drawer behind a hamburger button.
 REVISIT WHEN: The icon set proves illegible at strip sizes in render
 checks, or the analog-controls pass changes the visual language the
 icons must speak.
+
+DECISION: D-076 Scaling breakpoints, icon language, evidence, build order (owner interview 2026-08-20)
+STATUS: Confirmed
+CHOICE: Four calls, all the interview's recommended options. (1) Two
+breakpoints and a low floor: the full layout holds at 1140 logical
+pixels of width and above; below that the rail collapses to the D-075
+icon strip and two-column pages stack to one; below 860 the floor
+applies - horizontal scrolling instead of clipping, and the window
+minimum drops from 960x560 to 640x480 so the app can fit the 960x540
+logical desktop a 200 percent 1080p screen offers. (2) The strip icons
+are designed once, in the analog language: a column of small backlit
+keys with etched icons, the active page lit; the planned analog
+controls pass inherits this language rather than designing a second
+one. (3) Tier one closes on an automated render matrix (5 scale
+factors x 2 themes x 3 layout states per page, assertion-backed
+no-clipping checks) plus one live GNOME fractional-scaling walkthrough
+by the owner on real hardware. (4) The icon set is the scaling slice's
+first build item, so the strip ships looking final; the analog
+controls pass follows as its own slice.
+BECAUSE: Owner answers 2026-08-20. The floor numbers come from
+measured desktop arithmetic (200 percent on 1080p leaves less logical
+height than today's window minimum); one icon language avoids
+designing the same eleven-entry set twice and gives the analog pass a
+head start; the S10/S11 close pattern (automation plus a live session)
+is the house evidence standard.
+OPTIONS CONSIDERED: Three gradual breakpoint steps; owner-supplied
+thresholds; plain monoline glyphs now with an analog restyle later;
+monogram placeholders; automated-only or live-only evidence; reflow
+before icons; the full analog pass before any reflow.
+REVISIT WHEN: Render evidence shows a breakpoint number producing a
+broken intermediate state, or the icon set proves illegible at strip
+size (reopens D-075's options).
