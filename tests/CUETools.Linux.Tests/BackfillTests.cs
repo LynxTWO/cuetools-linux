@@ -100,6 +100,7 @@ public class BackfillTests
     [Fact]
     public void ReplaySkipsEntirelyWhenStillOffline()
     {
+        if (ReplayPlatform.Unsupported) return;   // pinned instead by MacReplayFailsClosedTests
         var store = NewStore(out string dir);
         try
         {
@@ -122,6 +123,7 @@ public class BackfillTests
     [Fact]
     public void ReplayResolvesExistingSourceAndRecordsEvidence()
     {
+        if (ReplayPlatform.Unsupported) return;   // pinned instead by MacReplayFailsClosedTests
         var store = NewStore(out string dir);
         string album = Path.Combine(Path.GetTempPath(), $"cuetools-album-{Guid.NewGuid():N}");
         try
@@ -166,6 +168,7 @@ public class BackfillTests
     [Fact]
     public void ReplayMarksMissingSourceUnresolvableWithReason()
     {
+        if (ReplayPlatform.Unsupported) return;   // pinned instead by MacReplayFailsClosedTests
         var store = NewStore(out string dir);
         try
         {
@@ -190,6 +193,7 @@ public class BackfillTests
     [Fact]
     public void ReplayKeepsFailedVerifyPendingWithAttemptRecorded()
     {
+        if (ReplayPlatform.Unsupported) return;   // pinned instead by MacReplayFailsClosedTests
         var store = NewStore(out string dir);
         string album = Path.Combine(Path.GetTempPath(), $"cuetools-album-{Guid.NewGuid():N}");
         try
