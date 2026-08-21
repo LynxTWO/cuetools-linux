@@ -23,11 +23,6 @@
     <Style Selector="TextBlock.repaired">
       <Setter Property="Foreground" Value="{DynamicResource StatusGood}" />
     </Style>
-    <Style Selector="Button.accent">
-      <Setter Property="Background" Value="{DynamicResource StatusAccent}" />
-      <Setter Property="Foreground" Value="{DynamicResource Ground}" />
-      <Setter Property="FontWeight" Value="SemiBold" />
-    </Style>
   </UserControl.Styles>
 
   <Grid RowDefinitions="Auto,*,Auto" Background="{DynamicResource Ground}">

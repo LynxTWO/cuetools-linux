@@ -14,6 +14,7 @@
   <Application.Styles>
     <FluentTheme />
     <StyleInclude Source="avares://CUETools.Linux.App/Theme/LitSwitch.axaml" />
+    <StyleInclude Source="avares://CUETools.Linux.App/Theme/AnalogControls.axaml" />
   </Application.Styles>
 
 </Application>

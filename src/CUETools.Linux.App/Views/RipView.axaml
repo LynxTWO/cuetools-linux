@@ -237,9 +237,9 @@
                          Margin="0,0,6,0" />
               </DockPanel>
               <StackPanel Orientation="Horizontal" Spacing="14">
-                <CheckBox Content="cue" IsChecked="{Binding CreateCue}"
+                <CheckBox Classes="lit" Content="cue" IsChecked="{Binding CreateCue}"
                           FontSize="12" />
-                <CheckBox Content="log" IsChecked="{Binding WriteLog}"
+                <CheckBox Classes="lit" Content="log" IsChecked="{Binding WriteLog}"
                           FontSize="12" />
               </StackPanel>
               <DockPanel>
@@ -279,16 +279,16 @@
             <StackPanel Spacing="8">
               <TextBlock Text="RUN" FontFamily="{StaticResource Mono}"
                          FontSize="11" Foreground="{DynamicResource Muted}" />
-              <Button x:Name="RipButton" Content="Rip" Classes="accent"
+              <Button x:Name="RipButton" Content="Rip" Classes="transport primary"
                       Command="{Binding RipCommand}"
                       HorizontalAlignment="Stretch" />
-              <Button x:Name="TestCopyButton" Content="Test &amp; Copy"
+              <Button x:Name="TestCopyButton" Classes="transport" Content="Test &amp; Copy"
                       Command="{Binding TestCopyCommand}"
                       HorizontalAlignment="Stretch" />
-              <Button x:Name="VerifyOnlyButton" Content="Verify only"
+              <Button x:Name="VerifyOnlyButton" Classes="transport" Content="Verify only"
                       Command="{Binding VerifyCommand}"
                       HorizontalAlignment="Stretch" />
-              <Button x:Name="StopButton" Content="Stop"
+              <Button x:Name="StopButton" Classes="transport" Content="Stop"
                       Command="{Binding StopCommand}"
                       HorizontalAlignment="Stretch" />
               <controls:DiscReadMap Height="150"

@@ -1128,3 +1128,15 @@ chosen with the writing pass explicitly queued ahead).
 OPTIONS CONSIDERED: Holding the stamp until the brief was re-read in
 the new voice.
 REVISIT WHEN: Nothing pending; the stamp stands.
+
+DECISION: D-079 SLICE-014 analog controls approved
+STATUS: Confirmed
+CHOICE: The owner approves SLICE-014 as written (2026-08-21): lamp
+checkboxes, the machined key as the default button, transport legends
+on the RUN group with disabled-as-unpowered, render-zoo evidence, and
+the owner's live eyeball as the close. Combos and spinners stay out;
+WPF parity rides the port lane later.
+BECAUSE: Owner stamp on the drafted brief, concept board approved
+2026-08-20.
+OPTIONS CONSIDERED: In the brief.
+REVISIT WHEN: The eyeball raises findings.

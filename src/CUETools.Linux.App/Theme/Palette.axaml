@@ -23,6 +23,10 @@
       <SolidColorBrush x:Key="StatusGood" Color="#5CCB8B" />
       <SolidColorBrush x:Key="StatusWarning" Color="#E9A63F" />
       <SolidColorBrush x:Key="StatusDanger" Color="#E06C75" />
+      <Color x:Key="StatusAccentColor">#34CFC0</Color>
+      <Color x:Key="AccentKeyTop">#3BD8C9</Color>
+      <Color x:Key="AccentKeyBottom">#27A99C</Color>
+      <SolidColorBrush x:Key="AccentKeyText" Color="#0C0F0D" />
       <SolidColorBrush x:Key="ScrollTrack" Color="#111713" />
       <SolidColorBrush x:Key="ScrollTrackBorder" Color="#2B3931" />
       <SolidColorBrush x:Key="ScrollThumb" Color="#50675F" />
@@ -68,6 +72,10 @@
       <SolidColorBrush x:Key="StatusGood" Color="#246D3C" />
       <SolidColorBrush x:Key="StatusWarning" Color="#835600" />
       <SolidColorBrush x:Key="StatusDanger" Color="#A83442" />
+      <Color x:Key="StatusAccentColor">#087067</Color>
+      <Color x:Key="AccentKeyTop">#087067</Color>
+      <Color x:Key="AccentKeyBottom">#065850</Color>
+      <SolidColorBrush x:Key="AccentKeyText" Color="#F4F7EF" />
       <SolidColorBrush x:Key="ScrollTrack" Color="#D7DED1" />
       <SolidColorBrush x:Key="ScrollTrackBorder" Color="#B7C2B2" />
       <SolidColorBrush x:Key="ScrollThumb" Color="#71837B" />
