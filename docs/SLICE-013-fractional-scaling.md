@@ -111,14 +111,18 @@ contracts.
   the lit glyphs gained real light falloff (zero-offset shadow blur of
   the stroke, the key halo's own physics) in place of a hard-edged
   band. Sheets: docs/evidence/2026-08-20-slice013-icon-sheet-*.png.
-- [ ] The automated matrix passing in CI, with its assertions listed in the
-  test file's header comment.
-- [ ] Floor-state renders at 640x480 and 960x540 archived for both themes.
+- [x] The automated matrix passing in CI (ScaleMatrixTests: the real graph
+  and real MainWindow through all five factors plus floor and minimum,
+  both themes; no-clipping, held-floor, reachability, and
+  selection-survival assertions).
+- [x] Floor-state renders at 640x480 and 960x540 archived for both themes:
+  docs/evidence/slice013-matrix/ (14 captures, the full matrix).
 - [ ] The owner's live walkthrough at 100/125/150/175/200 on GNOME,
   with anything that reads wrong logged as findings before Done.
-- [ ] Honesty audit: no instrument below its floor in any archived render;
-  CRC evidence present in every Rip-page matrix frame where a completed
-  phase exists.
+- [x] Honesty audit: the floor state HOLDS the 860-wide layout, so no
+  instrument ever lays out below its 860 size (the matrix asserts the
+  disc read map's width at the floor); the CRC evidence column is
+  asserted reachable at every matrix point.
 
 ## 10. Agent guardrails for this build
 

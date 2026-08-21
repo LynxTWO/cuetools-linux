@@ -22,7 +22,7 @@
                    FontFamily="{StaticResource Mono}" FontSize="11"
                    Foreground="{DynamicResource Muted}"
                    VerticalAlignment="Center" Margin="0,0,10,0" />
-        <ComboBox DockPanel.Dock="Left" MinWidth="70"
+        <ComboBox x:Name="DriveSelector" DockPanel.Dock="Left" MinWidth="70"
                   ItemsSource="{Binding Drives}"
                   SelectedItem="{Binding SelectedDrive}"
                   IsEnabled="{Binding DriveSelectorEnabled}"
@@ -35,7 +35,7 @@
                 Command="{Binding EjectCommand}"
                 ToolTip.Tip="{Binding EjectButtonTip}"
                 Padding="12,6" VerticalAlignment="Center" />
-        <Button DockPanel.Dock="Right" Content="Read disc"
+        <Button DockPanel.Dock="Right" x:Name="ReadDiscButton" Content="Read disc"
                 Command="{Binding ReadDiscCommand}"
                 Padding="12,6" Margin="0,0,8,0" VerticalAlignment="Center" />
         <TextBlock Text="{Binding StatusText}"
@@ -147,7 +147,7 @@
                 <TextBlock Grid.Column="2" Text="LENGTH" FontFamily="{StaticResource Mono}" FontSize="10" Foreground="{DynamicResource Muted}" />
                 <TextBlock Grid.Column="3" Text="AR CONF" FontFamily="{StaticResource Mono}" FontSize="10" Foreground="{DynamicResource Muted}" ToolTip.Tip="AccurateRip confidence for this track, from the last completed read." />
                 <TextBlock Grid.Column="4" Text="CTDB" FontFamily="{StaticResource Mono}" FontSize="10" Foreground="{DynamicResource Muted}" ToolTip.Tip="CUETools Database confidence for this track, from the last completed read." />
-                <TextBlock Grid.Column="5" Text="TEST CRC" FontFamily="{StaticResource Mono}" FontSize="10" Foreground="{DynamicResource Muted}" ToolTip.Tip="Full-range CRC32 of the Test read." />
+                <TextBlock Grid.Column="5" x:Name="TestCrcHeader" Text="TEST CRC" FontFamily="{StaticResource Mono}" FontSize="10" Foreground="{DynamicResource Muted}" ToolTip.Tip="Full-range CRC32 of the Test read." />
                 <TextBlock Grid.Column="6" Text="COPY CRC" FontFamily="{StaticResource Mono}" FontSize="10" Foreground="{DynamicResource Muted}" ToolTip.Tip="Full-range CRC32 of the Copy read." />
               </Grid>
             </Border>
@@ -279,16 +279,16 @@
             <StackPanel Spacing="8">
               <TextBlock Text="RUN" FontFamily="{StaticResource Mono}"
                          FontSize="11" Foreground="{DynamicResource Muted}" />
-              <Button Content="Rip" Classes="accent"
+              <Button x:Name="RipButton" Content="Rip" Classes="accent"
                       Command="{Binding RipCommand}"
                       HorizontalAlignment="Stretch" />
-              <Button Content="Test &amp; Copy"
+              <Button x:Name="TestCopyButton" Content="Test &amp; Copy"
                       Command="{Binding TestCopyCommand}"
                       HorizontalAlignment="Stretch" />
-              <Button Content="Verify only"
+              <Button x:Name="VerifyOnlyButton" Content="Verify only"
                       Command="{Binding VerifyCommand}"
                       HorizontalAlignment="Stretch" />
-              <Button Content="Stop"
+              <Button x:Name="StopButton" Content="Stop"
                       Command="{Binding StopCommand}"
                       HorizontalAlignment="Stretch" />
               <controls:DiscReadMap Height="150"
