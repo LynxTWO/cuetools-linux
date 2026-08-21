@@ -9,6 +9,11 @@ namespace CUETools.Linux.App.Theme;
 /// icon: Settings is a bank of mixer faders, Advanced is the recessed
 /// trimmer screw you only touch deliberately, How a CD Works is the
 /// magnifier over the disc. 24x24 viewbox, 2px strokes, round caps.
+///
+/// The lit treatment (owner-corrected on the approval sheet): the groove's
+/// light needs real falloff, not a wider band. Render the lit stroke with a
+/// zero-offset DropShadowEffect in the halo color (blur ~8 dark / ~7 light,
+/// opacity ~0.9 / ~0.65), the same physics as the key's own halo.
 /// </summary>
 public static class RailIcons
 {
