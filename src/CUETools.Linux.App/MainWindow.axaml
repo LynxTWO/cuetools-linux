@@ -4,7 +4,7 @@
         x:Class="CUETools.Linux.App.MainWindow"
         Title="CUETools Linux"
         Width="1200" Height="720"
-        MinWidth="960" MinHeight="560"
+        MinWidth="640" MinHeight="480"
         Background="{DynamicResource Ground}">
 
   <!-- Shell structure mirroring the WPF MainWindow: faceplate header bar,
@@ -38,9 +38,9 @@
       </DockPanel>
     </Border>
 
-    <Grid Grid.Row="1" ColumnDefinitions="214,*">
+    <Grid Grid.Row="1" x:Name="RailGrid" ColumnDefinitions="214,*">
 
-      <Border Grid.Column="0"
+      <Border Grid.Column="0" x:Name="FullRail"
               Background="{DynamicResource Bar}"
               BorderBrush="{DynamicResource Line}"
               BorderThickness="0,0,1,0">
@@ -262,7 +262,20 @@
         </StackPanel>
       </Border>
 
-      <Grid Grid.Column="1">
+      <Border Grid.Column="0" x:Name="StripRail" IsVisible="False"
+              Background="{DynamicResource Bar}"
+              BorderBrush="{DynamicResource Line}"
+              BorderThickness="0,0,1,0">
+        <ScrollViewer VerticalScrollBarVisibility="Auto">
+          <StackPanel x:Name="StripPanel" Margin="6,14" Spacing="6"
+                      HorizontalAlignment="Center" />
+        </ScrollViewer>
+      </Border>
+
+      <ScrollViewer Grid.Column="1" x:Name="PageScroll"
+                    HorizontalScrollBarVisibility="Disabled"
+                    VerticalScrollBarVisibility="Disabled">
+      <Grid x:Name="PageHost">
         <views:VerifyView x:Name="VerifyPage" />
         <views:RipView x:Name="RipPage" IsVisible="False" />
         <views:ConvertView x:Name="ConvertPage" IsVisible="False" />
@@ -274,6 +287,7 @@
         <views:AdvancedView x:Name="AdvancedPage" IsVisible="False" />
         <views:ExploreView x:Name="ExplorePage" IsVisible="False" />
       </Grid>
+      </ScrollViewer>
 
     </Grid>
   </Grid>
