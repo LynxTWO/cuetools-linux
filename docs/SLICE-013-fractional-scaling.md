@@ -1,6 +1,6 @@
 # CUETools Linux Slice Brief: SLICE-013 fractional scaling
 
-Version: 0.2. Date: 2026-08-20. Status: Approved for build.
+Version: 1.0. Date: 2026-08-21. Status: Done.
 Companion documents: ARCHITECTURE.md, ENGINEERING.md, DECISION-LOG.md
 (D-074, D-075, D-076).
 
@@ -101,7 +101,7 @@ contracts.
 | S13-004 | The window fits and operates on a 960x540 logical desktop (200 percent on 1080p): minimum 640x480, Rip page primary actions, drive selection, and Test/Copy CRC evidence reachable | Live GNOME walkthrough + matrix floor renders |
 | S13-005 | Each instrument stops shrinking at its declared floor and the page reflows around it; the floors are written in the brief's build notes with their numbers | Matrix renders + per-control unit tests |
 | S13-006 | A rip running through a breakpoint transition is unaffected: reflow is display only | Unit test on the reflow path + live spot check |
-| S13-007 | One live GNOME fractional-scaling session by the owner at all five factors on real hardware, walking Rip and Verify | Owner walkthrough, recorded in this brief |
+| S13-007 | One live GNOME fractional-scaling session by the owner at all five factors on real hardware, walking Rip and Verify | Owner walkthrough 2026-08-21: "It looks good!" - no findings raised at any factor |
 
 ## 9. Verification evidence required
 
@@ -117,8 +117,8 @@ contracts.
   selection-survival assertions).
 - [x] Floor-state renders at 640x480 and 960x540 archived for both themes:
   docs/evidence/slice013-matrix/ (14 captures, the full matrix).
-- [ ] The owner's live walkthrough at 100/125/150/175/200 on GNOME,
-  with anything that reads wrong logged as findings before Done.
+- [x] The owner's live walkthrough at 100/125/150/175/200 on GNOME:
+  approved 2026-08-21 with no findings raised.
 - [x] Honesty audit: the floor state HOLDS the 860-wide layout, so no
   instrument ever lays out below its 860 size (the matrix asserts the
   disc read map's width at the floor); the CRC evidence column is
@@ -141,11 +141,12 @@ contracts.
 
 ## 11. Slice definition of done
 
-- [ ] All acceptance criteria pass with linked evidence.
-- [ ] No unlabeled shortcuts inside the boundary.
-- [ ] Documents updated: statuses, log entries for anything learned,
-  manual pages for anything user-visible.
-- [ ] Human walkthrough completed and approved by the owner.
+- [x] All acceptance criteria pass with linked evidence.
+- [x] No unlabeled shortcuts inside the boundary.
+- [x] Documents updated: statuses, ADD section 15, the manual's rail
+  description, and the README's works-today table.
+- [x] Human walkthrough completed and approved by the owner
+  (2026-08-21, no findings).
 
 ## 12. What this unlocks
 

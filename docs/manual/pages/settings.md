@@ -64,8 +64,14 @@ only there.
 The rail on the left holds **Rip**, **Verify & Repair**, **Convert**, and
 **Queue**, then the session pages (**Report**, **Naming**,
 **Drive & Read**, **Settings**, **Advanced**) and **How a CD Works**
-under LEARN. The only control in the window frame itself is the theme
-button in the top right.
+under LEARN. When the window gets narrow (below 1140 logical pixels,
+which is normal life at 175 or 200 percent display scaling), the rail
+becomes a strip of icon keys: same pages, same order, the current
+page's key lit, and the full names in the hover text. Two-column pages
+stack to a single column at the same width, and in a very narrow
+window the page keeps its layout and scrolls sideways instead of
+squeezing anything out of reach. The only control in the window frame
+itself is the theme button in the top right.
 
 | Control | Where it is | Kept for next time |
 | --- | --- | --- |
