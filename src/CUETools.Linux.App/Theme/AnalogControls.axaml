@@ -1,0 +1,181 @@
+<Styles xmlns="https://github.com/avaloniaui"
+        xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml">
+  <!-- SLICE-014: the analog controls pass. Every button is a machined console
+       key (top-lit face, edge, drop shadow, a physical depression while
+       pressed); the RUN group's keys carry backlit legend strips; checkboxes
+       are lamp buttons in the lit-panel language. Disabled is unpowered: the
+       key stays solid, its legend and label go dark (WCAG 1.4.3 exempts
+       inactive controls from contrast minimums; every ENABLED state is pinned
+       by ContrastContractTests). -->
+
+  <!-- the machined key: the default button -->
+  <Style Selector="Button">
+    <Setter Property="Background" Value="{DynamicResource ButtonFace}" />
+    <Setter Property="BorderBrush" Value="{DynamicResource ButtonEdge}" />
+    <Setter Property="BorderThickness" Value="1" />
+    <Setter Property="CornerRadius" Value="7" />
+    <Setter Property="Foreground" Value="{DynamicResource Ink}" />
+    <Setter Property="Padding" Value="12,6" />
+    <Setter Property="HorizontalContentAlignment" Value="Center" />
+    <Setter Property="VerticalContentAlignment" Value="Center" />
+    <Setter Property="ClipToBounds" Value="False" />
+    <Setter Property="Template">
+      <ControlTemplate>
+        <Border x:Name="keyFace"
+                Background="{TemplateBinding Background}"
+                BorderBrush="{TemplateBinding BorderBrush}"
+                BorderThickness="{TemplateBinding BorderThickness}"
+                CornerRadius="{TemplateBinding CornerRadius}"
+                Padding="{TemplateBinding Padding}"
+                ClipToBounds="False"
+                BoxShadow="0 1.5 4 0 #50000000">
+          <Border.RenderTransform>
+            <TranslateTransform Y="0" />
+          </Border.RenderTransform>
+          <StackPanel Spacing="4">
+            <ContentPresenter x:Name="keyContent"
+                              Content="{TemplateBinding Content}"
+                              ContentTemplate="{TemplateBinding ContentTemplate}"
+                              Foreground="{TemplateBinding Foreground}"
+                              HorizontalContentAlignment="{TemplateBinding HorizontalContentAlignment}"
+                              VerticalContentAlignment="{TemplateBinding VerticalContentAlignment}"
+                              RecognizesAccessKey="True" />
+            <!-- the backlit legend strip; transport keys reveal it -->
+            <Border x:Name="legend" Height="3" MinWidth="34" CornerRadius="1.5"
+                    HorizontalAlignment="Center" IsVisible="False"
+                    Background="{DynamicResource StatusAccent}" Opacity="0.45"
+                    ClipToBounds="False" />
+          </StackPanel>
+        </Border>
+      </ControlTemplate>
+    </Setter>
+  </Style>
+
+  <Style Selector="Button /template/ Border#keyFace">
+    <Setter Property="Transitions">
+      <Transitions>
+        <TransformOperationsTransition Property="RenderTransform" Duration="0:0:0.08" />
+      </Transitions>
+    </Setter>
+  </Style>
+  <Style Selector="Button:pointerover /template/ Border#keyFace">
+    <Setter Property="BorderBrush" Value="{DynamicResource ControlBorder}" />
+  </Style>
+  <Style Selector="Button:pressed /template/ Border#keyFace">
+    <Setter Property="RenderTransform" Value="translateY(1.2px)" />
+    <Setter Property="Background" Value="{DynamicResource ButtonPressed}" />
+    <Setter Property="BoxShadow" Value="0 0.5 1.5 0 #50000000" />
+  </Style>
+  <Style Selector="Button:disabled">
+    <Setter Property="Foreground" Value="{DynamicResource Line}" />
+    <Setter Property="Opacity" Value="1" />
+  </Style>
+  <Style Selector="Button:disabled /template/ ContentPresenter#keyContent">
+    <Setter Property="Opacity" Value="1" />
+  </Style>
+  <Style Selector="Button:focus-visible /template/ Border#keyFace">
+    <Setter Property="BorderBrush" Value="{DynamicResource StatusAccent}" />
+  </Style>
+
+  <!-- the accent key: a machined face in the accent metal -->
+  <Style Selector="Button.accent">
+    <Setter Property="Foreground" Value="{DynamicResource AccentKeyText}" />
+    <Setter Property="FontWeight" Value="SemiBold" />
+    <Setter Property="Background">
+      <LinearGradientBrush StartPoint="0%,0%" EndPoint="0%,100%">
+        <GradientStop Color="{DynamicResource AccentKeyTop}" Offset="0" />
+        <GradientStop Color="{DynamicResource AccentKeyBottom}" Offset="1" />
+      </LinearGradientBrush>
+    </Setter>
+  </Style>
+  <Style Selector="Button.accent:disabled">
+    <Setter Property="Background" Value="{DynamicResource ButtonFace}" />
+    <Setter Property="Foreground" Value="{DynamicResource Line}" />
+  </Style>
+
+  <!-- transport keys: the RUN group's dark faces with backlit legends -->
+  <Style Selector="Button.transport /template/ Border#legend">
+    <Setter Property="IsVisible" Value="True" />
+  </Style>
+  <Style Selector="Button.transport.primary /template/ Border#legend">
+    <Setter Property="Opacity" Value="1" />
+    <Setter Property="Effect">
+      <DropShadowEffect OffsetX="0" OffsetY="0" BlurRadius="8" Opacity="0.8"
+                        Color="{DynamicResource StatusAccentColor}" />
+    </Setter>
+  </Style>
+  <Style Selector="Button.transport:disabled /template/ Border#legend">
+    <Setter Property="Background" Value="{DynamicResource Line}" />
+    <Setter Property="Opacity" Value="1" />
+    <Setter Property="Effect" Value="{x:Null}" />
+  </Style>
+
+  <!-- the lamp checkbox: the lit-panel model at checkbox scale -->
+  <Style Selector="CheckBox.lit">
+    <Setter Property="Foreground" Value="{DynamicResource Ink}" />
+    <Setter Property="ClipToBounds" Value="False" />
+    <Setter Property="Template">
+      <ControlTemplate>
+        <Grid ColumnDefinitions="Auto,*" ClipToBounds="False">
+          <Border x:Name="housing" Width="22" Height="22" CornerRadius="6"
+                  BorderThickness="1" BorderBrush="#0A0F0B" ClipToBounds="False">
+            <Border.Background>
+              <LinearGradientBrush StartPoint="0%,0%" EndPoint="0%,100%">
+                <GradientStop Color="#0A0E0B" Offset="0" />
+                <GradientStop Color="#131A14" Offset="1" />
+              </LinearGradientBrush>
+            </Border.Background>
+            <Grid>
+              <Border x:Name="lens" CornerRadius="5" Margin="1" Opacity="0">
+                <Border.Background>
+                  <RadialGradientBrush GradientOrigin="50%,42%" Center="50%,42%"
+                                       RadiusX="70%" RadiusY="70%">
+                    <GradientStop Color="{DynamicResource LampCore}" Offset="0" />
+                    <GradientStop Color="{DynamicResource LampLight}" Offset="0.62" />
+                    <GradientStop Color="{DynamicResource LampCapEdge}" Offset="1" />
+                  </RadialGradientBrush>
+                </Border.Background>
+              </Border>
+              <Path x:Name="tick" Data="M 5,11 L 9.5,15.5 L 17,6.5"
+                    Stroke="#39433A" StrokeThickness="2.4"
+                    StrokeLineCap="Round" StrokeJoin="Round" />
+              <Border Width="12" Height="3" CornerRadius="2"
+                      VerticalAlignment="Top" HorizontalAlignment="Center"
+                      Margin="0,2.5,0,0" Background="#22FFFFFF" />
+            </Grid>
+          </Border>
+          <ContentPresenter Grid.Column="1"
+                            Content="{TemplateBinding Content}"
+                            ContentTemplate="{TemplateBinding ContentTemplate}"
+                            Foreground="{TemplateBinding Foreground}"
+                            VerticalAlignment="Center" Margin="8,0,0,0"
+                            RecognizesAccessKey="True" />
+        </Grid>
+      </ControlTemplate>
+    </Setter>
+  </Style>
+  <Style Selector="CheckBox.lit /template/ Border#lens">
+    <Setter Property="Transitions">
+      <Transitions>
+        <DoubleTransition Property="Opacity" Duration="0:0:0.34" Easing="CubicEaseOut" />
+      </Transitions>
+    </Setter>
+  </Style>
+  <Style Selector="CheckBox.lit:checked /template/ Border#lens">
+    <Setter Property="Opacity" Value="1" />
+    <Setter Property="Transitions">
+      <Transitions>
+        <DoubleTransition Property="Opacity" Duration="0:0:0.18" Easing="CubicEaseOut" />
+      </Transitions>
+    </Setter>
+  </Style>
+  <Style Selector="CheckBox.lit:checked /template/ Path#tick">
+    <Setter Property="Stroke" Value="#0A2A24" />
+  </Style>
+  <Style Selector="CheckBox.lit:checked /template/ Border#housing">
+    <Setter Property="BoxShadow" Value="0 0 10 0 #A034CFC0" />
+  </Style>
+  <Style Selector="CheckBox.lit:focus-visible /template/ Border#housing">
+    <Setter Property="BorderBrush" Value="{DynamicResource StatusAccent}" />
+  </Style>
+</Styles>

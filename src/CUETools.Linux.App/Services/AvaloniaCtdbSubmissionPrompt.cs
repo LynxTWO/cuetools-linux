@@ -149,18 +149,11 @@ public sealed class AvaloniaCtdbSubmissionPrompt : ICtdbSubmissionPrompt
             IsDefault = true,
             IsCancel = true,
         };
-        // The app's Button.accent style is declared inside VerifyView's own styles, so a
-        // window built in code cannot pick it up by class. Same palette keys, applied
-        // directly, with a fallback so a missing resource cannot leave the button
-        // invisible against its own background.
-        yes.Background = dialog.TryFindResource("StatusAccent", out object? accent)
-            && accent is IBrush accentBrush
-            ? accentBrush
-            : Brushes.Teal;
-        yes.Foreground = dialog.TryFindResource("Ground", out object? ground)
-            && ground is IBrush groundBrush
-            ? groundBrush
-            : Brushes.Black;
+        // The accent key is an app-level style now (SLICE-014's machined key
+        // theme), so a window built in code gets it by class like everything
+        // else. The Share button keeps the accent by design: consent's yes is
+        // the one lit key in the dialog.
+        yes.Classes.Add("accent");
         share = yes;
         decline = no;
 

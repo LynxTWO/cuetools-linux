@@ -1,6 +1,6 @@
 # CUETools Linux Slice Brief: SLICE-014 analog controls
 
-Version: 0.1. Date: 2026-08-21. Status: Awaiting approval.
+Version: 0.2. Date: 2026-08-21. Status: Approved for build.
 Companion documents: ARCHITECTURE.md, ENGINEERING.md, DECISION-LOG.md
 (D-075/D-076 icon language, D-077 house voice).
 
@@ -96,8 +96,14 @@ No persistent data.
 
 ## 9. Verification evidence required
 
-- [ ] Render zoo archived (docs/evidence/), all states, both themes.
-- [ ] Suite green including the extended contrast pins.
+- [x] Render zoo archived (docs/evidence/slice014-zoo/): keys normal,
+  pressed (captured mid-hold), disabled, accent; transport primary,
+  secondary, and dead; lamp checkboxes lit and unlit; both themes.
+  Two render-loop catches before the archive: Fluent's state styles
+  were painting boxes behind labels through the reserved presenter
+  name (renamed out of reach), and the lamp lens ran thin (widened).
+- [x] Suite green (143) including the accent-key contrast pins (label
+  vs both gradient stops, both themes; disabled exempt per WCAG 1.4.3).
 - [ ] Owner's live eyeball on the real app.
 
 ## 10. Agent guardrails for this build
@@ -127,4 +133,8 @@ No persistent data.
 
 ---
 
-*Awaiting approval.*
+*Approved for build by the owner, 2026-08-21 ("Let's do it!"), design
+as written. One vocabulary note settled at build time: the RUN group's
+lit-legend key is class "transport primary" rather than reusing the
+accent face class, because the board's transport keys are dark-faced
+with lit legends, not accent-filled.*

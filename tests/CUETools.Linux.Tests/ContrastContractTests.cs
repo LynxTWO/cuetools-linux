@@ -35,7 +35,12 @@ public class ContrastContractTests
     {
         Assert.True(Avalonia.Application.Current!.TryGetResource(key, variant, out object? value),
             $"palette key {key} missing");
-        return Assert.IsAssignableFrom<ISolidColorBrush>(value).Color;
+        return value switch
+        {
+            ISolidColorBrush brush => brush.Color,
+            Color color => color,
+            _ => throw new Xunit.Sdk.XunitException($"{key} is neither a solid brush nor a color"),
+        };
     }
 
     [AvaloniaFact]
@@ -48,6 +53,21 @@ public class ContrastContractTests
             double r = Ratio(Resolve(role, variant), Resolve(surface, variant));
             Assert.True(r >= 4.5,
                 $"{variant} {role} on {surface}: {r:0.00}:1 is under WCAG AA 4.5:1");
+        }
+    }
+
+    [AvaloniaFact]
+    public void TheAccentKeysLabelReadsAtWcagAaOverBothGradientStops()
+    {
+        // SLICE-014's accent key face is a gradient; its label must clear AA
+        // against BOTH stops in both themes. Disabled keys are exempt by
+        // WCAG 1.4.3 (inactive controls); every enabled state is covered here.
+        foreach (ThemeVariant variant in new[] { ThemeVariant.Dark, ThemeVariant.Light })
+        foreach (string stop in new[] { "AccentKeyTop", "AccentKeyBottom" })
+        {
+            double r = Ratio(Resolve("AccentKeyText", variant), Resolve(stop, variant));
+            Assert.True(r >= 4.5,
+                $"{variant} AccentKeyText on {stop}: {r:0.00}:1 is under WCAG AA 4.5:1");
         }
     }
 
