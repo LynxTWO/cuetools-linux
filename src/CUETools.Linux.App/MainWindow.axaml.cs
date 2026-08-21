@@ -31,6 +31,7 @@ public partial class MainWindow : Window
         DrivePage.DataContext = graph.DrivePage;
         AdvancedPage.DataContext = graph.Advanced;
         ExplorePage.DataContext = graph.Explore;
+        BuildStrip();
         RipPage.DataContext = graph.Rip;
         RipPage.Init(graph.Config, graph.Catalog, graph.Art);
         UpdateToggleText();
@@ -162,6 +163,7 @@ public partial class MainWindow : Window
         foreach (Control candidate in new Control[] { VerifyPage, ConvertPage, QueuePage, RipPage, SettingsPage, ReportPage, NamingPage, DrivePage, AdvancedPage, ExplorePage })
             candidate.IsVisible = ReferenceEquals(candidate, page);
         RestyleNavs();
+        RefreshStripActives();
     }
 
     /// <summary>StyleNav assigns brushes resolved at call time, so a theme flip left the
@@ -172,6 +174,11 @@ public partial class MainWindow : Window
     {
         foreach (Border candidate in new[] { VerifyNav, ConvertNav, QueueNav, RipNav, SettingsNav, ReportNav, NamingNav, DriveNav, AdvancedNav, ExploreNav })
             StyleNav(candidate, ReferenceEquals(candidate, _activeNav));
+        foreach (var (key, nav) in _stripKeys)
+        {
+            key.Restyle();
+            key.SetActive(ReferenceEquals(nav, _activeNav));
+        }
     }
 
     private void StyleNav(Border nav, bool active)
@@ -190,4 +197,81 @@ public partial class MainWindow : Window
 
     private void UpdateToggleText()
         => ThemeToggle.Content = _theme.Current == AppTheme.Dark ? "Light theme" : "Dark theme";
+
+    // ---- SLICE-013: the collapsed rail's icon strip and the layout breakpoints ----
+
+    private Controls.RailLayout _railLayout = Controls.RailLayout.Full;
+    private readonly List<(Controls.RailStripKey Key, Border Nav)> _stripKeys = new();
+
+    /// <summary>The strip mirrors the card rail: same pages, same visual order,
+    /// group gaps where the section headers sit. Keys pair with their nav card so
+    /// activation and theme restyles stay one source of truth.</summary>
+    private void BuildStrip()
+    {
+        (Avalonia.Media.Geometry Glyph, string Name, Border Nav, Control Page)[] rows =
+        {
+            (CUETools.Linux.App.Theme.RailIcons.Rip, "Rip", RipNav, RipPage),
+            (CUETools.Linux.App.Theme.RailIcons.Verify, "Verify & Repair", VerifyNav, VerifyPage),
+            (CUETools.Linux.App.Theme.RailIcons.Convert, "Convert", ConvertNav, ConvertPage),
+            (CUETools.Linux.App.Theme.RailIcons.Queue, "Queue", QueueNav, QueuePage),
+            (CUETools.Linux.App.Theme.RailIcons.Report, "Report", ReportNav, ReportPage),
+            (CUETools.Linux.App.Theme.RailIcons.Naming, "Naming", NamingNav, NamingPage),
+            (CUETools.Linux.App.Theme.RailIcons.Drive, "Drive & Read", DriveNav, DrivePage),
+            (CUETools.Linux.App.Theme.RailIcons.Settings, "Settings", SettingsNav, SettingsPage),
+            (CUETools.Linux.App.Theme.RailIcons.Advanced, "Advanced", AdvancedNav, AdvancedPage),
+            (CUETools.Linux.App.Theme.RailIcons.Explore, "How a CD Works", ExploreNav, ExplorePage),
+        };
+        for (int i = 0; i < rows.Length; i++)
+        {
+            var (glyph, name, nav, page) = rows[i];
+            var key = new Controls.RailStripKey(glyph, name);
+            key.PointerPressed += (_, _) => ShowPage(page, nav);
+            _stripKeys.Add((key, nav));
+            // group gaps where the full rail draws WORK / SESSION / LEARN
+            if (i is 3 or 9)
+                StripPanel.Children.Add(new Border { Height = 10 });
+            StripPanel.Children.Add(key);
+            key.Restyle();
+        }
+    }
+
+    protected override void OnSizeChanged(SizeChangedEventArgs e)
+    {
+        base.OnSizeChanged(e);
+        ApplyRailLayout(e.NewSize.Width);
+    }
+
+    /// <summary>D-076's two breakpoints: full rail at 1140 and up, icon strip
+    /// below, and under 860 the floor - the page area holds its 860-wide layout
+    /// and scrolls horizontally instead of clipping.</summary>
+    private void ApplyRailLayout(double width)
+    {
+        Controls.RailLayout layout = Controls.RailBreakpoints.For(width);
+        if (layout == _railLayout)
+            return;
+        _railLayout = layout;
+
+        bool full = layout == Controls.RailLayout.Full;
+        RailGrid.ColumnDefinitions[0].Width = new GridLength(full ? 214 : 56);
+        FullRail.IsVisible = full;
+        StripRail.IsVisible = !full;
+        SettingsPage.SetCompact(!full);
+        NamingPage.SetCompact(!full);
+
+        bool floor = layout == Controls.RailLayout.Floor;
+        PageScroll.HorizontalScrollBarVisibility = floor
+            ? Avalonia.Controls.Primitives.ScrollBarVisibility.Auto
+            : Avalonia.Controls.Primitives.ScrollBarVisibility.Disabled;
+        PageHost.Width = floor ? Controls.RailBreakpoints.FloorBelow : double.NaN;
+
+        RefreshStripActives();
+    }
+
+    private void RefreshStripActives()
+    {
+        foreach (var (key, nav) in _stripKeys)
+            key.SetActive(ReferenceEquals(nav, _activeNav));
+    }
+
+    internal Controls.RailLayout RailLayoutForTest => _railLayout;
 }

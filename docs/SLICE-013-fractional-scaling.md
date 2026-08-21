@@ -105,8 +105,12 @@ contracts.
 
 ## 9. Verification evidence required
 
-- [ ] Icon sheet render (all ten, both themes, strip size and 2x) eyeballed
-  and approved by the owner before reflow work begins.
+- [x] Icon sheet render (all ten, both themes, strip size and 2x) eyeballed
+  and approved by the owner before reflow work begins. Approved
+  2026-08-21 ("looks great, lets do it all") after one markup round:
+  the lit glyphs gained real light falloff (zero-offset shadow blur of
+  the stroke, the key halo's own physics) in place of a hard-edged
+  band. Sheets: docs/evidence/2026-08-20-slice013-icon-sheet-*.png.
 - [ ] The automated matrix passing in CI, with its assertions listed in the
   test file's header comment.
 - [ ] Floor-state renders at 640x480 and 960x540 archived for both themes.

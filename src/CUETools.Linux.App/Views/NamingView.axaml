@@ -27,9 +27,9 @@
   </UserControl.Styles>
 
   <ScrollViewer VerticalScrollBarVisibility="Auto" Background="{DynamicResource Ground}">
-    <Grid ColumnDefinitions="1*,24,1*" Margin="26,18,26,40" MaxWidth="1080">
+    <Grid x:Name="ColumnsGrid" ColumnDefinitions="1*,24,1*" Margin="26,18,26,40" MaxWidth="1080">
       <!-- Left: the scheme -->
-      <StackPanel Grid.Column="0">
+      <StackPanel Grid.Column="0" x:Name="LeftColumn">
         <TextBlock Text="{Binding Title}" FontFamily="{StaticResource Serif}"
                    FontSize="26" Foreground="{DynamicResource Ink}" />
         <TextBlock Text="{Binding Subtitle}" Foreground="{DynamicResource Muted}"
@@ -76,7 +76,7 @@
       </StackPanel>
 
       <!-- Right: the live preview -->
-      <StackPanel Grid.Column="2" Margin="0,58,0,0">
+      <StackPanel Grid.Column="2" x:Name="RightColumn" Margin="0,58,0,0">
         <TextBlock Classes="sec" Text="LIVE PREVIEW" />
         <TextBlock FontSize="11" Foreground="{DynamicResource Muted}" TextWrapping="Wrap" Margin="2,0,0,8"
                    Text="Rendered with the exact engine the rip and convert paths use, so the preview equals the output. The disc in the tray leads when one is loaded." />

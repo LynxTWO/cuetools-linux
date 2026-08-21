@@ -32,9 +32,9 @@
   </UserControl.Styles>
 
   <ScrollViewer VerticalScrollBarVisibility="Auto" Background="{DynamicResource Ground}">
-    <Grid ColumnDefinitions="1*,24,1*" Margin="26,18,26,40" MaxWidth="1080">
+    <Grid x:Name="ColumnsGrid" ColumnDefinitions="1*,24,1*" Margin="26,18,26,40" MaxWidth="1080">
       <!-- Left column -->
-      <StackPanel Grid.Column="0">
+      <StackPanel Grid.Column="0" x:Name="LeftColumn">
         <TextBlock Text="{Binding Title}" FontFamily="{StaticResource Serif}"
                    FontSize="26" Foreground="{DynamicResource Ink}" />
         <TextBlock Text="{Binding Subtitle}" Foreground="{DynamicResource Muted}"
@@ -106,7 +106,7 @@
       </StackPanel>
 
       <!-- Right column -->
-      <StackPanel Grid.Column="2" Margin="0,58,0,0">
+      <StackPanel Grid.Column="2" x:Name="RightColumn" Margin="0,58,0,0">
         <!-- amber bulbs: color-coded category (lit-panel-controls one-knob recolor) -->
         <StackPanel>
           <StackPanel.Resources>
