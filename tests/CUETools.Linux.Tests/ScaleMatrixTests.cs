@@ -33,16 +33,22 @@ public class ScaleMatrixTests
         public Task<bool> ConfirmOkCancelAsync(string message, string title) => Task.FromResult(false);
     }
 
-    private static (double W, double H, RailLayout Expected, string Factor)[] Matrix =>
+    // Each row is the LOGICAL desktop a scale factor leaves on a 1080p screen, paired
+    // with the render scaling itself. Both halves matter and they catch different
+    // damage: the logical size drives reflow, the render scaling drives rasterization.
+    // The scaling column was missing until SLICE-015's research pointed out that no
+    // test in this repo had ever rendered at anything but 1.0x, which made the whole
+    // fractional-scaling damage class undetectable.
+    private static (double W, double H, double Scaling, RailLayout Expected, string Factor)[] Matrix =>
     new[]
     {
-        (1200d, 720d, RailLayout.Full, "100%"),
-        (1200d, 720d, RailLayout.Full, "125%"),
-        (1200d, 700d, RailLayout.Full, "150%"),
-        (1097d, 617d, RailLayout.Compact, "175%"),
-        (960d, 540d, RailLayout.Compact, "200%"),
-        (800d, 540d, RailLayout.Floor, "floor"),
-        (640d, 480d, RailLayout.Floor, "min"),
+        (1200d, 720d, 1.00, RailLayout.Full, "100%"),
+        (1200d, 720d, 1.25, RailLayout.Full, "125%"),
+        (1200d, 700d, 1.50, RailLayout.Full, "150%"),
+        (1097d, 617d, 1.75, RailLayout.Compact, "175%"),
+        (960d, 540d, 2.00, RailLayout.Compact, "200%"),
+        (800d, 540d, 2.00, RailLayout.Floor, "floor"),
+        (640d, 480d, 1.00, RailLayout.Floor, "min"),
     };
 
     [AvaloniaFact]
@@ -56,11 +62,13 @@ public class ScaleMatrixTests
         foreach (ThemeVariant variant in new[] { ThemeVariant.Dark, ThemeVariant.Light })
         {
             Avalonia.Application.Current!.RequestedThemeVariant = variant;
-            foreach (var (w, h, expected, factor) in Matrix)
+            foreach (var (w, h, scaling, expected, factor) in Matrix)
             {
+                window.SetRenderScaling(scaling);
                 window.Width = w;
                 window.Height = h;
                 Avalonia.Threading.Dispatcher.UIThread.RunJobs();
+                Assert.Equal(scaling, window.RenderScaling, 3);
 
                 Assert.Equal(expected, window.RailLayoutForTest);
 

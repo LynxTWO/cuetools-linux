@@ -18,6 +18,12 @@ public class ContrastContractTests
         { "Ink", "InkDim", "Muted", "StatusAccent", "StatusGood", "StatusWarning", "StatusDanger" };
     private static readonly string[] Surfaces = { "Ground", "Bar", "Face", "Panel", "Glass" };
 
+    // The key faces a label actually sits on. ButtonFace is a gradient, so both of its
+    // stops count as surfaces: a label must clear AA against the lightest AND darkest
+    // band of the face beneath it. These were never pinned before SLICE-015's research
+    // pointed out that the plain key face had no contrast contract at all.
+    private static readonly string[] KeySurfaces = { "ButtonFace", "ButtonPressed" };
+
     private static double Luminance(Color c)
     {
         static double F(double v) => v <= 0.04045 ? v / 12.92 : Math.Pow((v + 0.055) / 1.055, 2.4);
@@ -53,6 +59,42 @@ public class ContrastContractTests
             double r = Ratio(Resolve(role, variant), Resolve(surface, variant));
             Assert.True(r >= 4.5,
                 $"{variant} {role} on {surface}: {r:0.00}:1 is under WCAG AA 4.5:1");
+        }
+    }
+
+    /// <summary>Every color a surface key can resolve to: one for a solid brush, one per
+    /// stop for a gradient (a label sits on the whole span, not on an average).</summary>
+    private static IEnumerable<Color> SurfaceColors(string key, ThemeVariant variant)
+    {
+        Assert.True(Avalonia.Application.Current!.TryGetResource(key, variant, out object? value),
+            $"palette key {key} missing");
+        switch (value)
+        {
+            case ISolidColorBrush solid:
+                yield return solid.Color;
+                break;
+            case IGradientBrush gradient:
+                Assert.NotEmpty(gradient.GradientStops);
+                foreach (IGradientStop stop in gradient.GradientStops)
+                    yield return stop.Color;
+                break;
+            default:
+                throw new Xunit.Sdk.XunitException($"{key} is neither a solid brush nor a gradient");
+        }
+    }
+
+    [AvaloniaFact]
+    public void TheKeyFacesCarryTheirLabelsAtWcagAa()
+    {
+        // Ink is the label on a plain machined key, in both its resting and pressed
+        // faces. Disabled labels are exempt (WCAG 1.4.3 covers active controls only).
+        foreach (ThemeVariant variant in new[] { ThemeVariant.Dark, ThemeVariant.Light })
+        foreach (string surface in KeySurfaces)
+        foreach (Color face in SurfaceColors(surface, variant))
+        {
+            double r = Ratio(Resolve("Ink", variant), face);
+            Assert.True(r >= 4.5,
+                $"{variant} Ink on {surface} stop #{face}: {r:0.00}:1 is under WCAG AA 4.5:1");
         }
     }
 
