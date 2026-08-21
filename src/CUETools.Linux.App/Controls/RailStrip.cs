@@ -18,8 +18,10 @@ public enum RailLayout
 
 public static class RailBreakpoints
 {
-    public const double FullAt = 1140;
-    public const double FloorBelow = 860;
+    // the numbers live in App.Core (CUETools.Wpf.Theme.RailBreakpointValues)
+    // so both heads read one source; this head adds only the state mapping
+    public const double FullAt = CUETools.Wpf.Theme.RailBreakpointValues.FullAt;
+    public const double FloorBelow = CUETools.Wpf.Theme.RailBreakpointValues.FloorBelow;
 
     public static RailLayout For(double windowWidth) =>
         windowWidth >= FullAt ? RailLayout.Full
