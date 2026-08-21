@@ -1140,3 +1140,118 @@ BECAUSE: Owner stamp on the drafted brief, concept board approved
 2026-08-20.
 OPTIONS CONSIDERED: In the brief.
 REVISIT WHEN: The eyeball raises findings.
+
+DECISION: D-080 Soft-body rubber keys: scope and fidelity (owner interview 2026-08-21)
+STATUS: Confirmed
+CHOICE: Five calls from the 2026-08-21 interview, after an 11-agent
+research fan-out with compiled probes on the real GPU.
+
+(1) SILHOUETTE. The rim stays pinned for the first build: the corner
+dip reads through shading, tilt, shadow asymmetry and interior
+geometry rather than by the outline physically crossing below its
+neighbours. The owner looks at it and escalates to a bounded un-pin
+only if the shaded dip does not read as "below the surface" to him.
+
+(2) LABEL. The glyphs DO shear with the rubber. See D-081 for the
+measurement that made this affordable; it was not affordable under the
+first research package's reading.
+
+(3) HOVER. Press-only geometry in the first build. Hover keeps a
+non-geometric cue. This is a deliberate subtraction from what the
+owner asked for, taken because a hover dimple trails a normal 400 px/s
+pointer sweep by 5.8 px (1.29x its own radius), because 15 buttons
+carry tooltips so hover is when a user is reading rather than acting,
+and because a pointer sweep across the Rip page's 9 visible buttons
+drags a wake of settling animation over the one screen where a stall
+reads as trouble. Revisit once the press physics ship and the mid-rip
+frame budget is measured.
+
+(4) SCOPE. All 61 Button sites plus the 10 RailStripKey navigation
+keys. Avalonia's bare Button selector matches by exact type, so
+styling Button alone would have left the most-clicked surface in the
+app the only thing that stopped moving.
+
+(5) COST POSTURE. The owner stated he does not mind extra build cost
+to do this the right way. Recorded because it is load-bearing: it is
+why the label shears at all, and it is NOT a licence to take the most
+expensive option where the expensive option measures worse.
+BECAUSE: Owner answers 2026-08-21, each against measured evidence
+presented in the question.
+OPTIONS CONSIDERED: Un-pinned rim now, or permanently pinned; rigid
+label, or shear only on transport keys; hover as asked, or hover only
+on transport keys; transport-only scope, or all buttons without the
+rail.
+REVISIT WHEN: The owner sees the shaded dip and wants the outline to
+move (reopens 1); the press physics ship and hover is re-costed
+(reopens 3).
+
+DECISION: D-081 Sheared glyphs are affordable, and why the first answer was wrong
+STATUS: Confirmed
+CHOICE: Button labels shear with the deforming rubber, using this
+exact recipe and no other: a resting key is drawn NATIVELY and the
+mesh exists only while the key is actually deforming; the pressed
+texture is an SKImage rasterised at 2x device scale for scalings at
+and above 1.50x and at device resolution below that; it is sampled
+with plain SKFilterMode.Linear, never a cubic resampler and never
+SKShader.CreatePicture; it is rasterised once per key per visual state
+per scale and re-sampled per frame, never rebuilt per frame; and the
+label is drawn into the texture with a hairline 0.06 DIP StrokeAndFill
+embolden.
+BECAUSE: The first research package measured sheared glyphs as costing
+20-24 percent of label edge sharpness at every scaling above 1.0x and
+called the obvious mitigation ineffective. The owner asked whether
+supersampling the glyphs would fix it. Measuring his question directly
+found that the earlier mitigation test was a NO-OP: the three
+"recorded at higher resolution" variants render BYTE-IDENTICAL (max
+channel delta 0 at every scaling, at rest and pressed), because
+SKShader.CreatePicture carries no resolution at all - it replays
+vector commands at destination size. His mechanism had never actually
+been tested. Rasterising to a real SKImage at 2x and sampling it puts
+label sharpness at or above a native draw (total-variation ratio 1.059
+/ 1.030 / 1.015 / 1.000 / 0.999 across the five scalings) with mean
+error falling from 26.03 to 2.89 at 2.0x.
+Three further measurements shaped the recipe. Cubic resamplers RING:
+Mitchell puts 10.3 to 15.1 percent of label-band pixels outside the
+local range of a correct render (CatmullRom 13.4 to 19.3), while plain
+bilinear on the same texture holds 0.0 to 5.4 percent and is both
+lower-error and cheaper. Supersampled glyphs come out about 11 percent
+lighter than native ones at any resampler, traced to Skia's glyph-mask
+gamma boost rather than to filtering (a filled path downsamples to
+100.5 percent ink; glyph masks to 88.5), which the embolden pays back
+to 99.9-100.9 percent. And a device-resolution texture is
+BYTE-IDENTICAL to a native draw at rest at every scaling, which is
+what makes the rest-native/press-mesh split free.
+OPTIONS CONSIDERED: Rigid label with in-plane pull (the first
+package's recommendation, and the fallback the owner named if
+supersampling failed); 2x with Mitchell or CatmullRom; output
+supersampling; picture-shader recording at DIP or device scale.
+REVISIT WHEN: The fidelity check on the REAL Avalonia window surface
+finds the native path using LCD subpixel text that a transparent-backed
+texture cannot reproduce. That check is a build gate, not a follow-up.
+
+DECISION: D-082 Project skills are invisible to sessions run from the Linux repo
+STATUS: Open
+CHOICE: Undecided, and it needs one. Measured 2026-08-21: the fork's
+.claude/skills (house-voice, lit-panel-controls, codec-visualization,
+disc-read-visualization) are NOT discovered by a session whose project
+root is the Linux repo, even though the submodule checkout at
+extern/cuetools_2026/.claude/skills contains them byte-identically.
+Skill discovery keys off the session's project root; a nested
+.claude/skills is not scanned, and --add-dir does not change it.
+This silently defeats two recorded decisions: D-077 codified the house
+voice as "a house-voice skill in the fork's .claude/skills", and ADD
+section 8.1b names the visualization skills as the portable patterns
+the Avalonia port follows. Both assume the fork's skills bind work done
+on the Linux head. They do not, and have not.
+OPTIONS: (a) a .claude/skills at the Linux repo root, symlinked to the
+fork's (one source, but a checked-in symlink into a submodule path);
+(b) copy them (drifts); (c) promote the shared ones to the user-level
+~/.claude/skills (works everywhere, measured, but leaves version
+control); (d) require cross-head UI work to run from the fork
+(cheapest, unenforced, and it just failed silently).
+BECAUSE: Surfaced by the SLICE-015 research. Recorded rather than
+fixed because the fix is the owner's call about where shared knowledge
+lives.
+REVISIT WHEN: Immediately. The soft-body skill this slice produces is
+cross-head by definition and will be invisible to exactly the port
+work it exists to guide.
