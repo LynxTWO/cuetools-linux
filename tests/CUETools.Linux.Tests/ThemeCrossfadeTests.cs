@@ -43,9 +43,15 @@ public class ThemeCrossfadeTests
         AssertCornerOpaque((RenderTargetBitmap)overlay.Source!);
 
         Task done = await Task.WhenAny(run, Task.Delay(5000));
-        Assert.Same(run, done);                  // the fade completes on the real clock
+        Assert.Same(run, done);
         Assert.False(overlay.IsVisible);
         Assert.Null(overlay.Source);             // frame released
+        // The flash pin: the overlay must REST at zero. The old keyframe
+        // animation reverted opacity to its base value of 1 on completion,
+        // which flashed the old theme at full strength for a frame; a
+        // transition's destination is the base value, so this holds even
+        // when no clock ever ticks.
+        Assert.Equal(0, overlay.Opacity);
         window.Close();
     }
 

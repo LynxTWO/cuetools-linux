@@ -3,7 +3,6 @@ using Avalonia.Animation;
 using Avalonia.Animation.Easings;
 using Avalonia.Controls;
 using Avalonia.Media.Imaging;
-using Avalonia.Styling;
 
 namespace CUETools.Linux.App.Services;
 
@@ -33,24 +32,34 @@ public static class ThemeCrossfade
             return;
 
         int gen = ++_generation;
+        TimeSpan duration = goingDark ? ToDark : ToLight;
+
+        // The dim-out rides a Transition, not an Animation. A finished Animation
+        // reverts the property to its base value, and with the base at 1 that
+        // revert painted the old theme at full strength for a frame after the
+        // fade (owner-captured, 2026-08-21). A transition's destination IS the
+        // base value, so the frame rests at zero with nothing left to snap back.
+        overlay.Transitions = null;          // land the held frame instantly
         overlay.Source = frame;
         overlay.Opacity = 1;
         overlay.IsVisible = true;
-        var fade = new Animation
+        overlay.Transitions = new Transitions
         {
-            Duration = goingDark ? ToDark : ToLight,
-            Easing = new CubicEaseOut(),
-            Children =
+            new DoubleTransition
             {
-                new KeyFrame { Cue = new Cue(0), Setters = { new Setter(Visual.OpacityProperty, 1.0) } },
-                new KeyFrame { Cue = new Cue(1), Setters = { new Setter(Visual.OpacityProperty, 0.0) } },
+                Property = Visual.OpacityProperty,
+                Duration = duration,
+                Easing = new CubicEaseOut(),
             },
         };
-        await fade.RunAsync(overlay);
+        overlay.Opacity = 0;
+
+        await Task.Delay(duration + TimeSpan.FromMilliseconds(80));
         if (gen == _generation)
         {
             overlay.IsVisible = false;
             overlay.Source = null;
+            overlay.Transitions = null;
         }
         frame.Dispose();
     }
