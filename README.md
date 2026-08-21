@@ -28,6 +28,7 @@ with the Windows head. There is no published release yet. See
 | Guided recovery when a USB drive wedges mid-rip | Built, evidenced live on a real wedge (twice in one day) |
 | Report, Naming editor, Drive & Read, Advanced, and How a CD Works pages | Built, render-evidenced |
 | Keep-awake during rips (systemd sleep inhibitor) | Built, evidenced live |
+| Elegant layout under OS display scaling, 100 to 200 percent | Built; the scale matrix gates it in CI, owner-walked live on GNOME |
 
 Every claim above traces to a slice brief in `docs/` with its own evidence
 section. Nothing here is inferred from a screenshot.
@@ -52,7 +53,7 @@ Read these before installing. They are why there is no release yet.
 | [docs/ARCHITECTURE.md](docs/ARCHITECTURE.md) | The puzzle: modules, interfaces, data flow, technology, extension points |
 | [docs/ENGINEERING.md](docs/ENGINEERING.md) | The rules: requirements, data model, security, standards, verification, definition of done |
 | [docs/DECISION-LOG.md](docs/DECISION-LOG.md) | Every significant choice, its reasoning, and its revisit trigger (D-001 onward) |
-| [docs/SLICE-013-fractional-scaling.md](docs/SLICE-013-fractional-scaling.md) | The current build boundary: elegant layout under OS display scaling |
+| [docs/SLICE-013-fractional-scaling.md](docs/SLICE-013-fractional-scaling.md) | The latest closed slice: elegant layout under OS display scaling |
 | [docs/TRIAGE.md](docs/TRIAGE.md) | Project triage card and unknowns list |
 | [docs/RESEARCH-2026-08-11.md](docs/RESEARCH-2026-08-11.md) | The landscape and framework research this design stands on |
 

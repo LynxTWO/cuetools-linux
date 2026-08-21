@@ -376,25 +376,24 @@ DECISION: D-025 Performance targets (see DECISION-LOG.md)
 
 ## 15. Current Build Boundary
 
-- **Current slice:** SLICE-011 Guided drive recovery
-  (SLICE-011-guided-drive-recovery.md, approved for build 2026-08-15,
-  D-064). It also carries the two evidence rows transferred from
-  SLICE-009 (tie-break third read, Held-state UX; D-063).
-- **Modules the slice touches:** fork engine policy surfacing
-  (CUETools.Ripper.SCSI), shared app core (incident store, recovery
-  policy, RipViewModel hooks), desktop shell (recovery dialog,
-  re-enumeration watcher, TOC probe).
-- **Modules the slice stubs:** none.
+- **Current slice:** none open. SLICE-014 (analog controls pass) is
+  drafted and awaiting approval; the Windows scaling port (D-074's
+  designed next step) runs from the fork side against SLICE-013's
+  matrix as its target behavior.
 - **Built and closed:** SLICE-001 verify, SLICE-002 repair, SLICE-003
   convert, SLICE-004 queue, SLICE-005 codec runtime, SLICE-006
   settings persistence, SLICE-007 external encoders, SLICE-008
-  enrichment, SLICE-009 rip (signed off 2026-08-15; receipts in each
-  brief). SLICE-010 rip progress visuals is Proposed and queued.
+  enrichment, SLICE-009 rip (signed off 2026-08-15), SLICE-010 rip
+  progress visuals (Done 2026-08-19), SLICE-011 guided drive recovery
+  (signed off 2026-08-19, D-065 gate met), SLICE-012 CTDB submit
+  (Done 2026-08-18 with live submission), SLICE-013 fractional
+  scaling (Done 2026-08-21; the scale matrix now gates layout in CI).
+  Receipts in each brief.
 - **Everything else:** designed above, deliberately unbuilt.
-- **Housekeeping note (2026-08-15):** this section went stale between
-  SLICE-002 and SLICE-009 while the expansion loop ran fast; the
-  per-slice briefs stayed authoritative throughout. Corrected with the
-  SLICE-009 closure; keep updating it at every slice boundary.
+- **Housekeeping note (2026-08-21):** stale again between SLICE-011
+  and SLICE-013 (the second offense; the first was corrected
+  2026-08-15). The per-slice briefs stayed authoritative throughout.
+  The close checklist now includes this section by name.
 
 ---
 
