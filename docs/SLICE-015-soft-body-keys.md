@@ -1,6 +1,6 @@
 # CUETools Linux Slice Brief: SLICE-015 soft-body rubber keys
 
-Version: 0.1. Date: 2026-08-21. Status: Awaiting approval.
+Version: 0.2. Date: 2026-08-21. Status: Approved for build.
 Companion documents: ARCHITECTURE.md, ENGINEERING.md, DECISION-LOG.md
 (D-080 scope, D-081 the glyph recipe, D-082 the open skill question,
 D-083 why that recipe is right and the upgrade path if it is not
@@ -189,4 +189,8 @@ Abandon or scope down if any of these is observed mid-build:
 
 ---
 
-*Awaiting approval.*
+*Approved for build by the owner, 2026-08-21, design as written. The
+supersampling question was closed before the stamp: a blind
+forced-choice at true size scored at chance, so the current glyph
+recipe ships unchanged and output supersampling stays a documented
+lever (D-083).*
