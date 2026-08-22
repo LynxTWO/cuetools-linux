@@ -100,20 +100,23 @@ public static class SoftBodyKey
         // around the rim, the way a dent in a glossy surface does. On the light
         // bench there is plenty of range and a plain soft shadow is the honest
         // and stronger cue.
+        // With the cap carrying a real crown highlight, the well's job is to
+        // SUPPRESS that specular locally, which is what a dent in glossy rubber
+        // actually does. An earlier version added its own bright rim and drew
+        // crescent-shaped light artifacts across the key instead.
         var stops = dark
             ? new GradientStops
             {
-                new GradientStop(Color.FromArgb(0x6E, 0, 0, 0), 0),
-                new GradientStop(Color.FromArgb(0x4C, 0, 0, 0), 0.40),
-                new GradientStop(Color.FromArgb(0x14, 0, 0, 0), 0.66),
-                new GradientStop(Color.FromArgb(0x1E, 0xFF, 0xFF, 0xFF), 0.84),
-                new GradientStop(Color.FromArgb(0x00, 0xFF, 0xFF, 0xFF), 1),
+                new GradientStop(Color.FromArgb(0x86, 0, 0, 0), 0),
+                new GradientStop(Color.FromArgb(0x60, 0, 0, 0), 0.42),
+                new GradientStop(Color.FromArgb(0x24, 0, 0, 0), 0.74),
+                new GradientStop(Color.FromArgb(0x00, 0, 0, 0), 1),
             }
             : new GradientStops
             {
-                new GradientStop(Color.FromArgb(0x72, 0, 0, 0), 0),
-                new GradientStop(Color.FromArgb(0x52, 0, 0, 0), 0.38),
-                new GradientStop(Color.FromArgb(0x22, 0, 0, 0), 0.70),
+                new GradientStop(Color.FromArgb(0x4E, 0, 0, 0), 0),
+                new GradientStop(Color.FromArgb(0x38, 0, 0, 0), 0.38),
+                new GradientStop(Color.FromArgb(0x18, 0, 0, 0), 0.70),
                 new GradientStop(Color.FromArgb(0x00, 0, 0, 0), 1),
             };
         var brush = new RadialGradientBrush

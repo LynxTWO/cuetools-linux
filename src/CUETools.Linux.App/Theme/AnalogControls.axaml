@@ -34,19 +34,63 @@
                 BorderBrush="{TemplateBinding BorderBrush}"
                 BorderThickness="{TemplateBinding BorderThickness}"
                 CornerRadius="{TemplateBinding CornerRadius}"
-                Padding="{TemplateBinding Padding}"
                 ClipToBounds="False"
                 BoxShadow="0 1.5 4 0 #50000000">
           <Border.RenderTransform>
             <TranslateTransform Y="0" />
           </Border.RenderTransform>
           <Panel>
+          <!-- SLICE-015: the cap is a DOMED piece of rubber, not a flat panel.
+               Three layers build that shape, and they are what make a tilt read
+               as a solid object rotating rather than a card shearing - the exact
+               failure the WPF head hit and retreated from years ago.
+
+               (a) crown: the bulge catching the bench light, high and centred.
+               (b) shoulder: curvature falloff, so the rubber turns away and
+                   darkens toward every edge instead of ending flat.
+               (c) lip: a bright hairline along the top edge and a shadow along
+                   the bottom, which is the cap's own thickness seen edge-on. -->
+          <Border x:Name="keyShoulder" IsHitTestVisible="False"
+                  CornerRadius="{TemplateBinding CornerRadius}">
+            <Border.Background>
+              <RadialGradientBrush GradientOrigin="50%,45%" Center="50%,45%"
+                                   RadiusX="62%" RadiusY="78%">
+                <GradientStop Color="#00000000" Offset="0" />
+                <GradientStop Color="#00000000" Offset="0.55" />
+                <GradientStop Color="{DynamicResource KeyShoulderMid}" Offset="0.88" />
+                <GradientStop Color="{DynamicResource KeyShoulderEdge}" Offset="1" />
+              </RadialGradientBrush>
+            </Border.Background>
+          </Border>
+          <Border x:Name="keyCrown" IsHitTestVisible="False"
+                  CornerRadius="{TemplateBinding CornerRadius}">
+            <Border.Background>
+              <RadialGradientBrush GradientOrigin="50%,22%" Center="50%,22%"
+                                   RadiusX="58%" RadiusY="62%">
+                <GradientStop Color="{DynamicResource KeyCrownCore}" Offset="0" />
+                <GradientStop Color="{DynamicResource KeyCrownMid}" Offset="0.5" />
+                <GradientStop Color="#00FFFFFF" Offset="1" />
+              </RadialGradientBrush>
+            </Border.Background>
+          </Border>
+          <Border x:Name="keyLip" IsHitTestVisible="False"
+                  CornerRadius="{TemplateBinding CornerRadius}"
+                  BorderThickness="0,1,0,1">
+            <Border.BorderBrush>
+              <LinearGradientBrush StartPoint="0%,0%" EndPoint="0%,100%">
+                <GradientStop Color="{DynamicResource KeyLipTop}" Offset="0" />
+                <GradientStop Color="{DynamicResource KeyLipBottom}" Offset="1" />
+              </LinearGradientBrush>
+            </Border.BorderBrush>
+          </Border>
           <!-- the well's shading, clipped to the cap's own rounded shape: without
                the corner radius the gradient is cut square at the face edge
-               while still dark, which draws a hard rectangle across the key -->
+               while still dark, which draws a hard rectangle across the key. It
+               sits OUTSIDE the padding so it can reach the cap's edges; inside
+               it, it could only ever clip around the label. -->
           <Border x:Name="keyDip" Opacity="0" IsHitTestVisible="False"
                   CornerRadius="{TemplateBinding CornerRadius}" />
-          <StackPanel Spacing="4">
+          <StackPanel Spacing="4" Margin="{TemplateBinding Padding}">
             <ContentPresenter x:Name="keyContent"
                               Content="{TemplateBinding Content}"
                               ContentTemplate="{TemplateBinding ContentTemplate}"

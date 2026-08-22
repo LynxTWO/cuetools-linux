@@ -24,6 +24,12 @@
       <SolidColorBrush x:Key="StatusWarning" Color="#E9A63F" />
       <SolidColorBrush x:Key="StatusDanger" Color="#E06C75" />
       <Color x:Key="StatusAccentColor">#34CFC0</Color>
+      <Color x:Key="KeyShoulderMid">#2E000000</Color>
+      <Color x:Key="KeyShoulderEdge">#5A000000</Color>
+      <Color x:Key="KeyCrownCore">#24FFFFFF</Color>
+      <Color x:Key="KeyCrownMid">#12FFFFFF</Color>
+      <Color x:Key="KeyLipTop">#26FFFFFF</Color>
+      <Color x:Key="KeyLipBottom">#59000000</Color>
       <Color x:Key="AccentKeyTop">#3BD8C9</Color>
       <Color x:Key="AccentKeyBottom">#27A99C</Color>
       <SolidColorBrush x:Key="AccentKeyText" Color="#0C0F0D" />
@@ -73,6 +79,14 @@
       <SolidColorBrush x:Key="StatusWarning" Color="#835600" />
       <SolidColorBrush x:Key="StatusDanger" Color="#A83442" />
       <Color x:Key="StatusAccentColor">#087067</Color>
+      <!-- rubber is matte: a strong crown here reads as polished chrome, not
+           a soft cap. Kept to a gentle lift on the light bench. -->
+      <Color x:Key="KeyShoulderMid">#1A000000</Color>
+      <Color x:Key="KeyShoulderEdge">#33000000</Color>
+      <Color x:Key="KeyCrownCore">#34FFFFFF</Color>
+      <Color x:Key="KeyCrownMid">#14FFFFFF</Color>
+      <Color x:Key="KeyLipTop">#59FFFFFF</Color>
+      <Color x:Key="KeyLipBottom">#33000000</Color>
       <Color x:Key="AccentKeyTop">#087067</Color>
       <Color x:Key="AccentKeyBottom">#065850</Color>
       <SolidColorBrush x:Key="AccentKeyText" Color="#F4F7EF" />
