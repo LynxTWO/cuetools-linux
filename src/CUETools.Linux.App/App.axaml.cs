@@ -101,6 +101,12 @@ public partial class App : Application
                 _ = new AutoRepairDriver(verify, line => graph.Log.Info("repair", line));
             }
 
+            // SLICE-015 step 3, the owner gate: with CUETOOLS_SOFTBODY=1 every Button
+            // in the window becomes a soft rubber key. Off by default so the two
+            // can be compared in one session.
+            if (Controls.SoftBodyKey.Enabled)
+                graph.Log.Info("ui", "soft-body keys enabled (CUETOOLS_SOFTBODY=1)");
+
             var window = new MainWindow(theme, verify, graph.Convert, graph);
             if (launchOptions.IsSecondaryDriveWindow &&
                 launchOptions.PreferredDrive != '\0')

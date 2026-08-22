@@ -1,4 +1,5 @@
 using Avalonia.Controls;
+using Avalonia.VisualTree;
 using Avalonia.Input;
 using Avalonia.Interactivity;
 using Avalonia.Media;
@@ -32,6 +33,11 @@ public partial class MainWindow : Window
         AdvancedPage.DataContext = graph.Advanced;
         ExplorePage.DataContext = graph.Explore;
         BuildStrip();
+        // SLICE-015 gate: attach the soft-body behaviour to every Button in the
+        // tree once it is built, and to any that appear later (dialog content,
+        // items templates). No-op unless CUETOOLS_SOFTBODY=1.
+        if (Controls.SoftBodyKey.Enabled)
+            AttachSoftBodyKeys();
         RipPage.DataContext = graph.Rip;
         RipPage.Init(graph.Config, graph.Catalog, graph.Art);
         UpdateToggleText();
@@ -274,4 +280,25 @@ public partial class MainWindow : Window
     }
 
     internal Controls.RailLayout RailLayoutForTest => _railLayout;
+
+    private void AttachSoftBodyKeys()
+    {
+        void Sweep()
+        {
+            foreach (Avalonia.Visual v in this.GetVisualDescendants())
+                if (v is Button b && b.GetValue(SoftBodyAttachedProperty) is not true)
+                {
+                    b.SetValue(SoftBodyAttachedProperty, true);
+                    Controls.SoftBodyKey.Attach(b);
+                }
+        }
+
+        Sweep();
+        // pages are built lazily and dialogs arrive later, so re-sweep on every
+        // page change rather than assuming one pass caught everything
+        LayoutUpdated += (_, _) => Sweep();
+    }
+
+    private static readonly Avalonia.AttachedProperty<bool> SoftBodyAttachedProperty =
+        Avalonia.AvaloniaProperty.RegisterAttached<MainWindow, Button, bool>("SoftBodyAttached");
 }

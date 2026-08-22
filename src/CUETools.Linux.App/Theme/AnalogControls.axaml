@@ -21,6 +21,14 @@
     <Setter Property="ClipToBounds" Value="False" />
     <Setter Property="Template">
       <ControlTemplate>
+        <Panel ClipToBounds="False">
+        <!-- SLICE-015: the recess the key sits in. Invisible while the cap fills
+             its own bounds; as the cap tilts and recedes under a press, this is
+             the housing wall that comes into view behind it. Without it a
+             receding face just reveals the page and reads as a rendering gap. -->
+        <Border x:Name="keyRecess" Opacity="0" IsHitTestVisible="False"
+                CornerRadius="{TemplateBinding CornerRadius}"
+                Background="{DynamicResource ButtonEdge}" />
         <Border x:Name="keyFace"
                 Background="{TemplateBinding Background}"
                 BorderBrush="{TemplateBinding BorderBrush}"
@@ -32,6 +40,12 @@
           <Border.RenderTransform>
             <TranslateTransform Y="0" />
           </Border.RenderTransform>
+          <Panel>
+          <!-- the well's shading, clipped to the cap's own rounded shape: without
+               the corner radius the gradient is cut square at the face edge
+               while still dark, which draws a hard rectangle across the key -->
+          <Border x:Name="keyDip" Opacity="0" IsHitTestVisible="False"
+                  CornerRadius="{TemplateBinding CornerRadius}" />
           <StackPanel Spacing="4">
             <ContentPresenter x:Name="keyContent"
                               Content="{TemplateBinding Content}"
@@ -40,13 +54,17 @@
                               HorizontalContentAlignment="{TemplateBinding HorizontalContentAlignment}"
                               VerticalContentAlignment="{TemplateBinding VerticalContentAlignment}"
                               RecognizesAccessKey="True" />
+            <!-- SLICE-015: the dip's shading, driven by the soft-body behaviour
+                 when CUETOOLS_SOFTBODY=1. Transparent and inert otherwise. -->
             <!-- the backlit legend strip; transport keys reveal it -->
             <Border x:Name="legend" Height="3" MinWidth="34" CornerRadius="1.5"
                     HorizontalAlignment="Center" IsVisible="False"
                     Background="{DynamicResource StatusAccent}" Opacity="0.45"
                     ClipToBounds="False" />
           </StackPanel>
+          </Panel>
         </Border>
+        </Panel>
       </ControlTemplate>
     </Setter>
   </Style>
