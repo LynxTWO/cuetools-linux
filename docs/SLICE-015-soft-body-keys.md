@@ -2,7 +2,9 @@
 
 Version: 0.1. Date: 2026-08-21. Status: Awaiting approval.
 Companion documents: ARCHITECTURE.md, ENGINEERING.md, DECISION-LOG.md
-(D-080 scope, D-081 the glyph recipe, D-082 the open skill question).
+(D-080 scope, D-081 the glyph recipe, D-082 the open skill question,
+D-083 why that recipe is right and the upgrade path if it is not
+enough).
 
 Designed 2026-08-21 from an 11-agent research fan-out with compiled
 probes on this workstation's real GPU, three adversarial reviews, and

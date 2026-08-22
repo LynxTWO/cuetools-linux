@@ -1255,3 +1255,67 @@ lives.
 REVISIT WHEN: Immediately. The soft-body skill this slice produces is
 cross-head by definition and will be invisible to exactly the port
 work it exists to guide.
+
+DECISION: D-083 Why bilinear wins, and why RIOT's Mitchell does not transfer
+STATUS: Confirmed
+CHOICE: D-081's recipe is unchanged: a 2x device-scale texture sampled
+with plain SKFilterMode.Linear. But its REASONING is corrected, and
+one of its stated virtues was wrong.
+BECAUSE: The owner challenged the anti-Mitchell finding with hands-on
+evidence: RIOT's Mitchell-Netravali downscaler gives him visibly clean
+results with no blur and no ringing on large-factor photo downscales.
+He was right about the mechanism, and measuring it explained a result
+the audit had only described.
+Skia's cubic sampler uses a FIXED texel footprint that does not scale
+with the minification ratio. Measured by sliding a one-texel impulse
+past a fixed output pixel: Skia Linear and Skia Mitchell both touch 2
+source texels at every ratio from 2:1 to 8:1, while a properly scaled
+software Mitchell touches 3, 4, 7, 8, 14, 18. On a source-Nyquist
+grating whose only correct answer is flat grey, Skia's samplers pass
+it through at near full contrast (sd 76.4 at ratio 1.80, 63.5 at
+2.50) and read exactly 0.0 only at 2.00. So plain bilinear is correct
+at ONE ratio, where its 2x2 taps happen to be the exact box, and
+Skia's cubic rings because its negative lobes sit across strokes at a
+footprint that never widens. That is the cause the audit was missing.
+The fix does not transfer, and measures worse on every axis. Averaged
+over 24 press frames at 1.50x, each judged against its own 8x
+brute-force reference: the current recipe scores rmse 5.05 with edge
+energy 1.079 and 0.2 percent ringing, while a software
+Mitchell downscale to device resolution scores rmse 12.76, edge energy
+0.614 and 2.4 percent ringing. At rest the gap widens (2.22 versus
+7.26, ringing 0.1 versus 5.7 percent). Two measured reasons. First,
+our source is vector art, not a photograph: a 2x raster IS the exact
+area integral of the ideal image over each 2x pixel, so the correct
+2:1 reduction is the BOX and anything wider is simply wrong (software
+box at rest scores 2.23 from the identical source, Mitchell 7.26).
+RIOT's Mitchell wins on photos because there the correct answer is
+undefined and its passband boost reads as sharpness; here the correct
+answer is defined. Second, downsampling to device resolution destroys
+the sub-pixel positioning the warp needs: the box is exact at rest
+(0.997 edge energy) but collapses to 0.757 under press, while a 2x
+texture holds near 1.0 because the warp's fractional displacement is
+absorbed inside a footprint already two texels wide.
+CORRECTION TO D-081: it recorded 2x+Linear keeping "109 to 116 percent
+of the reference's label edge energy" as a virtue. On a confound-free
+key the correct target is 100 percent and the recipe measures 107.9
+percent press-averaged. That excess is mild aliasing, not fidelity.
+The recipe is right for a different reason than stated.
+A confound was also found and removed: Skia grid-fits glyph outlines
+to whatever raster size it is asked for and pushes masks through a
+size-dependent contrast LUT, so a 2x raster is not a scaled copy of a
+1x one. Drawing the label as a filled path with hinting None makes it
+scale-invariant and drops the device-res rest error from rmse 14.6-38.2
+to 3.65-4.97. Most of what the earlier tables measured was glyph
+grid-fit, not resampling.
+OPTIONS CONSIDERED: software Mitchell, B-spline, Catmull-Rom, Lanczos3
+and box downscales at 2x, 3x and 4x source; Skia cubic samplers; a
+custom mip chain (impossible: mips are box-built, no public API to
+install one, and DrawVertices never tells the sampler the local scale
+varies, measured as a difference of 1 across mesh scales 0.80 to 1.50).
+REVISIT WHEN: quality is wanted beyond the current recipe. The
+direction is OUTPUT supersampling, never texture downsampling: render
+the warped mesh to a 2x offscreen and box it down. With the existing
+2x texture that is rmse 5.05 -> 3.70 for 3.0x frame cost; with a 4x
+texture, where the offscreen ratio becomes exactly 2:1 and bilinear is
+again the exact box, it is rmse 5.05 -> 2.46, the measured ceiling,
+for 3.9x frame cost and 4x texture memory.
