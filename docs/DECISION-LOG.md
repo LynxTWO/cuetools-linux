@@ -1319,3 +1319,28 @@ the warped mesh to a 2x offscreen and box it down. With the existing
 texture, where the offscreen ratio becomes exactly 2:1 and bilinear is
 again the exact box, it is rmse 5.05 -> 2.46, the measured ceiling,
 for 3.9x frame cost and 4x texture memory.
+
+DECISION: D-084 Three silent failures that must not be "fixed" back
+STATUS: Confirmed
+CHOICE: Recorded before any soft-body code is written, because each
+one fails with no error, no warning and no test failure, and each
+would look like a bug worth reverting to someone who did not measure
+it.
+(1) A TransformOperationsTransition on RenderTransform FLATTENS a
+perspective matrix to its affine part. Measured: a Border carrying the
+transition reports TransformOperations with M13 = 0 and perspective
+false, while the same Button with an empty Transitions collection
+reports a MatrixTransform with perspective true. Both the app's own
+transition in AnalogControls.axaml and FluentTheme's must be removed
+for a projective tilt to survive. Nothing warns.
+(2) A locally set RenderTransform OUTRANKS the :pressed style trigger.
+Once the behaviour assigns a transform in code, the existing
+translateY(1.2px) depression silently stops firing while the XAML
+still reads as though it works.
+(3) If the key face ever becomes self-drawing, every future selector
+of the form `Button.something /template/ Border#keyFace` will parse
+clean, load clean, match the element, and paint nothing.
+BECAUSE: All three were measured during the SLICE-015 research. Each
+is invisible to the compiler, to the XAML loader, and to the suite.
+REVISIT WHEN: Never as a "cleanup". Any change here needs its own
+measurement.
