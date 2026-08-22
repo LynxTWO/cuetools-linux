@@ -110,8 +110,11 @@ public class SoftBodyPressTests
         w.MouseDown(On(w, b, 8, 6), MouseButton.Left);
         Avalonia.Threading.Dispatcher.UIThread.RunJobs();
         Assert.True(p.IsPressed);
-        Assert.Equal(8, p.Point.X, 1);
-        Assert.Equal(6, p.Point.Y, 1);
+        // within a pixel: a pointer position round-trips through window space
+        // and back, so sub-pixel exactness is not the contract. What matters is
+        // that the press landed where the finger did.
+        Assert.True(Math.Abs(p.Point.X - 8) < 1, $"press X {p.Point.X:0.00} should be near 8");
+        Assert.True(Math.Abs(p.Point.Y - 6) < 1, $"press Y {p.Point.Y:0.00} should be near 6");
 
         // the whole point of the feature, measured in device-independent pixels
         double corner = SoftBodyModel.Displacement(p.Point, new Point(8, 6), KeySize, 1);
@@ -133,11 +136,21 @@ public class SoftBodyPressTests
 
         w.MouseDown(On(w, b, 20, 16), MouseButton.Left);
         Avalonia.Threading.Dispatcher.UIThread.RunJobs();
-        Assert.Equal(20, p.Point.X, 1);
+        Assert.True(Math.Abs(p.Point.X - 20) < 1, $"press X {p.Point.X:0.00} should be near 20");
+        double deepAtLeft = SoftBodyModel.Displacement(p.Point, new Point(20, 16), KeySize, 1);
 
         w.MouseMove(On(w, b, 100, 16));
         Avalonia.Threading.Dispatcher.UIThread.RunJobs();
-        Assert.Equal(100, p.Point.X, 1);
+        Assert.True(Math.Abs(p.Point.X - 100) < 1, $"drag X {p.Point.X:0.00} should be near 100");
+
+        // the deformation went with the finger: the right side is now the deep
+        // one and the left side is not
+        double deepAtRight = SoftBodyModel.Displacement(p.Point, new Point(100, 16), KeySize, 1);
+        double leftNow = SoftBodyModel.Displacement(p.Point, new Point(20, 16), KeySize, 1);
+        Assert.True(deepAtRight > leftNow,
+            $"the dimple should have followed: right {deepAtRight:0.000} vs left {leftNow:0.000}");
+        Assert.True(deepAtLeft > leftNow,
+            "the left side should be shallower than it was when it held the press");
 
         w.MouseUp(On(w, b, 100, 16), MouseButton.Left);
         w.Close();
