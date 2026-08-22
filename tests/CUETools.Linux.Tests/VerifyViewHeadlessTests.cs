@@ -17,7 +17,7 @@ public class TestAppBuilder
 {
     public static AppBuilder BuildAvaloniaApp() => AppBuilder
         .Configure<CUETools.Linux.App.App>()
-        .UseHeadless(new AvaloniaHeadlessPlatformOptions { UseHeadlessDrawing = false }).UseSkia();
+        .UseHeadless(new AvaloniaHeadlessPlatformOptions());
 }
 
 // Headless UI wiring tests: the Avalonia VerifyView instantiates against the
