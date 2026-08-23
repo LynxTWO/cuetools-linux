@@ -1230,8 +1230,8 @@ finds the native path using LCD subpixel text that a transparent-backed
 texture cannot reproduce. That check is a build gate, not a follow-up.
 
 DECISION: D-082 Project skills are invisible to sessions run from the Linux repo
-STATUS: Open
-CHOICE: Undecided, and it needs one. Measured 2026-08-21: the fork's
+STATUS: Confirmed 2026-08-23. Option (a). See the resolution below.
+CHOICE: Measured 2026-08-21: the fork's
 .claude/skills (house-voice, lit-panel-controls, codec-visualization,
 disc-read-visualization) are NOT discovered by a session whose project
 root is the Linux repo, even though the submodule checkout at
@@ -1252,9 +1252,33 @@ control); (d) require cross-head UI work to run from the fork
 BECAUSE: Surfaced by the SLICE-015 research. Recorded rather than
 fixed because the fix is the owner's call about where shared knowledge
 lives.
-REVISIT WHEN: Immediately. The soft-body skill this slice produces is
-cross-head by definition and will be invisible to exactly the port
-work it exists to guide.
+RESOLUTION 2026-08-23: option (a), the symlink. Two things were
+measured before choosing, because the original entry only established
+what does NOT work.
+(1) A .claude/skills at the LINUX repo root IS discovered. Tested with
+a throwaway probe skill: it appeared in the session listing. So the
+discovery rule is "project root only", not "no nested directories" -
+the fork's copy fails because it is nested, not because submodule
+paths are special.
+(2) A relative symlink is followed. `.claude/skills ->
+../extern/cuetools_2026/.claude/skills` surfaced all four fork skills
+in a live session. Git stores it as one 120000 blob, so there is one
+source of truth and no copy to drift.
+The objection recorded in option (a), that it is a checked-in symlink
+into a submodule path, turns out to be cheap. An uninitialised
+submodule leaves the link dangling, and discovery then finds nothing
+and reports nothing: it degrades to today's behaviour rather than
+erroring. Windows symlink support does not apply, because this is the
+Linux and macOS head.
+Because the link points at the DIRECTORY, a skill added to the fork
+needs no wiring here. It appears on the next submodule pin bump. The
+soft-body-controls skill that forced this decision is the first case:
+it lands with the pin, not with a second edit.
+Rejected: (b) copying drifts, which is the failure this decision
+exists to prevent; (c) promoting to ~/.claude/skills leaves version
+control, so the skills stop being reviewable with the code they
+describe; (d) "run cross-head work from the fork" is the unenforced
+convention that already failed silently once.
 
 DECISION: D-083 Why bilinear wins, and why RIOT's Mitchell does not transfer
 STATUS: Confirmed
