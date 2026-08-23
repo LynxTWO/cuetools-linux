@@ -55,11 +55,59 @@ public static class SoftBodyModel
     /// read as a slab on a spring rather than a lever on a pivot.</summary>
     private const double PlungerReach = 0.55;
 
+    /// <summary>How far past the key's edge a held press keeps handing its load
+    /// over, in DIP. Slide a finger off a key you are holding and the pressure
+    /// transfers off the cap over roughly a fingertip's width, not instantly
+    /// and not never. Absolute for the same reason the dimple is: how rubber
+    /// lets go does not change because the key is wider.</summary>
+    public const double DisengageBand = 14.0;
+
+    /// <summary>The point on the cap the finger actually bears on. A finger
+    /// cannot load a point that is not on the key, so once the pointer leaves,
+    /// contact stays at the nearest point on the surface: it is sliding along
+    /// the edge, not pressing thin air an inch away.
+    ///
+    /// Leaving this out was a real defect (owner report 2026-08-23). The tilt
+    /// term divides the press offset by the key's own half-diagonal, so an
+    /// unclamped press point off the key drove that ratio past 1 without
+    /// limit - 500 DIP off a 40x30 key reached 20 - and tilt scales on it
+    /// directly. Deformation hit 2.5x the depth budget, and worse the smaller
+    /// the key, because the same drag divides by a smaller half-diagonal AND
+    /// projects onto a shorter reach. The budget is only a ceiling while
+    /// contact is on the cap.</summary>
+    public static Point Contact(Point press, Size size) => new(
+        Math.Clamp(press.X, 0, Math.Max(0, size.Width)),
+        Math.Clamp(press.Y, 0, Math.Max(0, size.Height)));
+
+    /// <summary>How much of the press still reaches the cap: 1 while the
+    /// pointer is on the key, easing to 0 across <see cref="DisengageBand"/>
+    /// once it is not. Smooth at both ends, so grazing the edge does not make
+    /// the key flick.
+    ///
+    /// This also makes the motion honest. Releasing out here does not activate
+    /// the button, and a key that stayed fully depressed the whole time would
+    /// be promising an outcome that is not coming.</summary>
+    public static double Engagement(Point press, Size size)
+    {
+        if (size.Width <= 0 || size.Height <= 0)
+            return 0;
+        double outside = Distance(press, Contact(press, size));
+        if (outside <= 0)
+            return 1;
+        if (outside >= DisengageBand)
+            return 0;
+        double t = 1 - outside / DisengageBand;
+        return t * t * (3 - 2 * t);
+    }
+
     /// <summary>
     /// Displacement at one point of the cap, in DIP, positive INTO the key.
     /// A negative result is a genuine lift: the far side of a lever rises.
     /// </summary>
-    /// <param name="press">Where the finger is, in DIP from the key's top left.</param>
+    /// <param name="press">Where the pointer is, in DIP from the key's top
+    /// left. May be outside the key: a press can be dragged anywhere while the
+    /// button holds capture, and the contact and disengage terms above handle
+    /// it.</param>
     /// <param name="sample">The point being displaced.</param>
     /// <param name="size">The key's size in DIP.</param>
     /// <param name="amount">Press amount, 0 at rest, 1 at full press. Values
@@ -68,6 +116,12 @@ public static class SoftBodyModel
     {
         if (amount <= 0 || size.Width <= 0 || size.Height <= 0)
             return 0;
+
+        // the load that still reaches the cap, and where it bears
+        amount *= Engagement(press, size);
+        if (amount <= 0)
+            return 0;
+        press = Contact(press, size);
 
         var center = new Point(size.Width / 2, size.Height / 2);
         double halfDiag = Distance(center, new Point(0, 0));
