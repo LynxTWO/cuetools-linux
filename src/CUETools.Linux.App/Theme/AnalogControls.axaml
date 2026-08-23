@@ -128,12 +128,24 @@
     <Setter Property="Background" Value="{DynamicResource ButtonPressed}" />
     <Setter Property="BoxShadow" Value="0 0.5 1.5 0 #50000000" />
   </Style>
+  <!-- A dead key is unpowered, not blanked. The legend on a console key is a
+       translucent window in an opaque cap with a bulb behind it; turning the
+       key off turns that bulb down to standby rather than out, so the letters
+       still carry a faint light of their own and stay readable in the dark.
+       The zero-offset shadow is what makes it read as light coming THROUGH the
+       letters instead of grey ink sitting on them (same recipe as the lit rail
+       glyphs). Foreground was the structural Line, which measured 1.2:1 on the
+       key face and could not be read at all. -->
   <Style Selector="Button:disabled">
-    <Setter Property="Foreground" Value="{DynamicResource Line}" />
+    <Setter Property="Foreground" Value="{DynamicResource KeyStandby}" />
     <Setter Property="Opacity" Value="1" />
   </Style>
   <Style Selector="Button:disabled /template/ ContentPresenter#keyContent">
     <Setter Property="Opacity" Value="1" />
+    <Setter Property="Effect">
+      <DropShadowEffect OffsetX="0" OffsetY="0" BlurRadius="5" Opacity="0.30"
+                        Color="{DynamicResource KeyStandbyGlow}" />
+    </Setter>
   </Style>
   <Style Selector="Button:focus-visible /template/ Border#keyFace">
     <Setter Property="BorderBrush" Value="{DynamicResource StatusAccent}" />
@@ -152,7 +164,7 @@
   </Style>
   <Style Selector="Button.accent:disabled">
     <Setter Property="Background" Value="{DynamicResource ButtonFace}" />
-    <Setter Property="Foreground" Value="{DynamicResource Line}" />
+    <Setter Property="Foreground" Value="{DynamicResource KeyStandby}" />
   </Style>
 
   <!-- transport keys: the RUN group's dark faces with backlit legends -->

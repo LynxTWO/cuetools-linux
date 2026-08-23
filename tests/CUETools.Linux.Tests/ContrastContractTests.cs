@@ -114,6 +114,52 @@ public class ContrastContractTests
     }
 
     [AvaloniaFact]
+    public void ADeadKeysLegendStaysReadableWithoutLookingLive()
+    {
+        // WCAG exempts disabled controls, so nothing here was ever measured and
+        // the legend had drifted to the structural Line brush: 1.2:1 on the dark
+        // key face and 1.5:1 on the light one, which the owner reported as simply
+        // unreadable (2026-08-23). A dead key still has to say what it is.
+        //
+        // Both bounds matter. Too dark and the label cannot be read; too bright
+        // and the key stops looking unpowered, which is the state it exists to
+        // communicate. Standby sits between them: legible, and unmistakably not
+        // the live key sitting next to it.
+        foreach (ThemeVariant variant in new[] { ThemeVariant.Dark, ThemeVariant.Light })
+        foreach (string surface in KeySurfaces)
+        foreach (Color face in SurfaceColors(surface, variant))
+        {
+            double standby = Ratio(Resolve("KeyStandby", variant), face);
+            double live = Ratio(Resolve("Ink", variant), face);
+
+            Assert.True(standby >= 3.0,
+                $"{variant} KeyStandby on {surface} stop #{face}: {standby:0.00}:1 is too dim to read");
+            Assert.True(standby <= live / 2.5,
+                $"{variant} KeyStandby on {surface} stop #{face}: {standby:0.00}:1 against a live " +
+                $"{live:0.00}:1 is bright enough to read as powered");
+        }
+    }
+
+    [AvaloniaFact]
+    public void TheStandbyLegendIsLitInTheLampColourNotJustGreyedOut()
+    {
+        // the point of standby is a bulb turned down, not ink faded out, so the
+        // legend has to keep the lamp's hue. A grey here would still pass the
+        // contrast bounds above while losing the whole effect.
+        foreach (ThemeVariant variant in new[] { ThemeVariant.Dark, ThemeVariant.Light })
+        {
+            Color standby = Resolve("KeyStandby", variant);
+            int max = Math.Max(standby.R, Math.Max(standby.G, standby.B));
+            int min = Math.Min(standby.R, Math.Min(standby.G, standby.B));
+            Assert.True(max - min >= 20,
+                $"{variant} KeyStandby #{standby} is within {max - min} of neutral grey: " +
+                "the standby legend must carry the lamp colour");
+            Assert.True(standby.G >= standby.R && standby.B >= standby.R,
+                $"{variant} KeyStandby #{standby} is not on the lamp's teal side");
+        }
+    }
+
+    [AvaloniaFact]
     public void NoViewUsesADecorativeConstantAsTextForeground()
     {
         // the decorative accents are variant-invariant and fail AA on the light
