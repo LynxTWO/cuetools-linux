@@ -37,7 +37,7 @@
 
         <TextBlock Classes="sec" Text="PRESET" />
         <Border Classes="row">
-          <ComboBox x:Name="PresetBox" MinWidth="230" HorizontalAlignment="Left"
+          <ComboBox Classes="window" x:Name="PresetBox" MinWidth="230" HorizontalAlignment="Left"
                     PlaceholderText="Start from a preset..."
                     ItemsSource="{Binding PresetNames}"
                     SelectionChanged="OnPresetChanged" />

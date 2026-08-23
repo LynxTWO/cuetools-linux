@@ -1,5 +1,6 @@
 <Styles xmlns="https://github.com/avaloniaui"
-        xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml">
+        xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
+        xmlns:controls="using:CUETools.Linux.App.Controls">
   <!-- SLICE-014: the analog controls pass. Every button is a machined console
        key (top-lit face, edge, drop shadow, a physical depression while
        pressed); the RUN group's keys carry backlit legend strips; checkboxes
@@ -251,5 +252,302 @@
   </Style>
   <Style Selector="CheckBox.lit:focus-visible /template/ Border#housing">
     <Setter Property="BorderBrush" Value="{DynamicResource StatusAccent}" />
+  </Style>
+
+  <!-- ===================================================================
+       SLICE-016 selectors. A dropdown hides its options behind a click,
+       which is right for a list and wrong for three fixed choices that fit
+       on one line. Two controls split that: the bank below for a fixed
+       short set, and the machined window for an open or long-labelled one.
+
+       The bank is a ListBox rather than a new control on purpose. Arrow-key
+       selection, the accessible name and selected state per key, and the
+       ItemsSource/SelectedItem/SelectedIndex trio the old ComboBoxes were
+       already bound to all come with it, so a call site changes one element
+       name and keeps its bindings.
+       =================================================================== -->
+
+  <!-- the housing: the same recessed well the switches sit in, holding a
+       row of keys that are mechanically linked, so a new one going down
+       forces the old one up -->
+  <Style Selector="ListBox.bank">
+    <Setter Property="Background" Value="Transparent" />
+    <Setter Property="BorderThickness" Value="0" />
+    <Setter Property="Padding" Value="0" />
+    <Setter Property="HorizontalAlignment" Value="Left" />
+    <Setter Property="VerticalAlignment" Value="Center" />
+    <!-- WrapPanel, not a horizontal stack. A bank shows every position at
+         once, which makes it wider than the dropdown it replaces, and the Rip
+         page's right rail is 300 DIP - a four-key quality bank does not fit
+         on one line there at any padding worth having. Wrapping turns it into
+         a two-row keypad, which is what console hardware does with the same
+         problem, instead of cutting the last position off. -->
+    <Setter Property="ItemsPanel">
+      <ItemsPanelTemplate>
+        <WrapPanel Orientation="Horizontal" />
+      </ItemsPanelTemplate>
+    </Setter>
+    <Setter Property="Template">
+      <ControlTemplate>
+        <Border Name="bankHousing"
+                Background="{DynamicResource ButtonPressed}"
+                BorderBrush="{DynamicResource ButtonEdge}"
+                BorderThickness="1"
+                CornerRadius="7"
+                Padding="2">
+          <ItemsPresenter Name="PART_ItemsPresenter"
+                          ItemsPanel="{TemplateBinding ItemsPanel}" />
+        </Border>
+      </ControlTemplate>
+    </Setter>
+  </Style>
+
+  <!-- each key: the SLICE-014 machined cap, minus the housing it already
+       has from the bank around it -->
+  <Style Selector="ListBox.bank ListBoxItem">
+    <Setter Property="Foreground" Value="{DynamicResource Muted}" />
+    <Setter Property="Cursor" Value="Hand" />
+    <Setter Property="Padding" Value="12,5" />
+    <Setter Property="Margin" Value="0,1,2,1" />
+    <Setter Property="Template">
+      <ControlTemplate>
+        <Border Name="bankKey"
+                Background="Transparent"
+                BorderBrush="Transparent"
+                BorderThickness="1"
+                CornerRadius="5"
+                Padding="{TemplateBinding Padding}">
+          <StackPanel Spacing="3">
+            <ContentPresenter Name="bankKeyContent"
+                              Content="{TemplateBinding Content}"
+                              ContentTemplate="{TemplateBinding ContentTemplate}"
+                              HorizontalAlignment="Center" />
+            <!-- the detent pip: the lamp that says which position is engaged -->
+            <Border Name="bankPip"
+                    Height="3" Width="20" CornerRadius="1.5"
+                    HorizontalAlignment="Center"
+                    Opacity="0.55"
+                    Background="{DynamicResource Line}" />
+          </StackPanel>
+        </Border>
+      </ControlTemplate>
+    </Setter>
+  </Style>
+
+  <!-- A narrow rail cannot afford a label column AND a full-width bank. The
+       Rip page's right rail is 300 DIP, where a four-key quality bank beside
+       its label overflows and clips its last position - measured, not
+       guessed: the first render of this slice cut "Salvage" off. Compact
+       tightens the keys and the caller stacks the label above. -->
+  <Style Selector="ListBox.bank.compact ListBoxItem">
+    <Setter Property="Padding" Value="8,5" />
+    <Setter Property="FontSize" Value="11.5" />
+  </Style>
+
+  <Style Selector="ListBox.bank ListBoxItem:pointerover /template/ Border#bankKey">
+    <Setter Property="BorderBrush" Value="{DynamicResource Line}" />
+  </Style>
+  <Style Selector="ListBox.bank ListBoxItem:pressed /template/ Border#bankKey">
+    <Setter Property="Background" Value="{DynamicResource ButtonPressed}" />
+    <Setter Property="RenderTransform" Value="translateY(1.2px)" />
+  </Style>
+
+  <!-- the held-down key -->
+  <Style Selector="ListBox.bank ListBoxItem:selected">
+    <Setter Property="Foreground" Value="{DynamicResource Ink}" />
+    <Setter Property="FontWeight" Value="SemiBold" />
+  </Style>
+  <Style Selector="ListBox.bank ListBoxItem:selected /template/ Border#bankKey">
+    <Setter Property="Background" Value="{DynamicResource ButtonFace}" />
+    <Setter Property="BoxShadow" Value="0 1 3 0 #55000000" />
+  </Style>
+  <Style Selector="ListBox.bank ListBoxItem:selected /template/ Border#bankPip">
+    <Setter Property="Background" Value="{DynamicResource StatusAccent}" />
+    <Setter Property="Opacity" Value="1" />
+    <Setter Property="BoxShadow" Value="0 0 8 0 #A034CFC0" />
+  </Style>
+
+  <!-- a dead bank is unpowered, not blanked: same standby legend as a key -->
+  <Style Selector="ListBox.bank:disabled ListBoxItem">
+    <Setter Property="Foreground" Value="{DynamicResource KeyStandby}" />
+    <Setter Property="Cursor" Value="Arrow" />
+  </Style>
+  <Style Selector="ListBox.bank:disabled ListBoxItem /template/ ContentPresenter#bankKeyContent">
+    <Setter Property="Effect">
+      <DropShadowEffect OffsetX="0" OffsetY="0" BlurRadius="5" Opacity="0.30"
+                        Color="{DynamicResource KeyStandbyGlow}" />
+    </Setter>
+  </Style>
+  <Style Selector="ListBox.bank:disabled ListBoxItem:selected /template/ Border#bankPip">
+    <Setter Property="Background" Value="{DynamicResource KeyStandby}" />
+    <Setter Property="BoxShadow" Value="none" />
+  </Style>
+
+  <Style Selector="ListBox.bank:focus-visible /template/ Border#bankHousing">
+    <Setter Property="BorderBrush" Value="{DynamicResource StatusAccent}" />
+  </Style>
+
+  <!-- The machined window: for a list that is genuinely a list, or whose
+       labels are too long to lay out side by side. A recessed glass window
+       showing the current value, with a ridged thumbwheel on the right edge -
+       the wheel is the part that says there is more than one.
+
+       This is a template restyle of ComboBox, not a new control, so opening,
+       keyboard handling and the accessible role are all untouched. -->
+  <Style Selector="ComboBox.window">
+    <Setter Property="Background" Value="{DynamicResource ButtonPressed}" />
+    <Setter Property="BorderBrush" Value="{DynamicResource ButtonEdge}" />
+    <Setter Property="Foreground" Value="{DynamicResource Ink}" />
+    <Setter Property="HorizontalAlignment" Value="Left" />
+    <Setter Property="VerticalAlignment" Value="Center" />
+    <Setter Property="Cursor" Value="Hand" />
+    <Setter Property="Template">
+      <ControlTemplate>
+        <Border Name="winHousing"
+                Background="{TemplateBinding Background}"
+                BorderBrush="{TemplateBinding BorderBrush}"
+                BorderThickness="1"
+                CornerRadius="7"
+                Padding="2">
+          <Grid ColumnDefinitions="*,Auto">
+            <!-- the glass: the lit window the value shows through -->
+            <Border Name="winGlass" Grid.Column="0"
+                    Background="{DynamicResource ButtonFace}"
+                    CornerRadius="5,0,0,5"
+                    Padding="10,4,8,4">
+              <StackPanel Spacing="0" VerticalAlignment="Center">
+                <ContentPresenter Name="winValue"
+                                  Content="{TemplateBinding SelectionBoxItem}"
+                                  ContentTemplate="{TemplateBinding ItemTemplate}"
+                                  Foreground="{TemplateBinding Foreground}"
+                                  VerticalAlignment="Center" />
+                <TextBlock Name="winCount"
+                           FontSize="8" FontFamily="Ubuntu Mono, DejaVu Sans Mono, monospace"
+                           Foreground="{DynamicResource Muted}"
+                           IsVisible="False" />
+              </StackPanel>
+            </Border>
+            <!-- the thumbwheel: ridged, and the only part saying there is more -->
+            <Border Name="winWheel" Grid.Column="1"
+                    Width="20" CornerRadius="0,5,5,0">
+              <Border.Background>
+                <LinearGradientBrush StartPoint="0%,0%" EndPoint="100%,0%">
+                  <GradientStop Color="{DynamicResource KeyShoulderEdge}" Offset="0" />
+                  <GradientStop Color="#00000000" Offset="0.3" />
+                  <GradientStop Color="#00000000" Offset="0.7" />
+                  <GradientStop Color="{DynamicResource KeyShoulderEdge}" Offset="1" />
+                </LinearGradientBrush>
+              </Border.Background>
+              <StackPanel Spacing="2" VerticalAlignment="Center">
+                <Border Height="1" Width="11" Opacity="0.5" HorizontalAlignment="Center"
+                        Background="{DynamicResource Line}" />
+                <Border Height="1" Width="11" HorizontalAlignment="Center"
+                        Background="{DynamicResource Line}" />
+                <Border Height="1" Width="11" HorizontalAlignment="Center"
+                        Background="{DynamicResource Line}" />
+                <Border Height="1" Width="11" HorizontalAlignment="Center"
+                        Background="{DynamicResource Line}" />
+                <Border Height="1" Width="11" Opacity="0.5" HorizontalAlignment="Center"
+                        Background="{DynamicResource Line}" />
+              </StackPanel>
+            </Border>
+
+            <Popup Name="PART_Popup"
+                   Grid.Column="0" Grid.ColumnSpan="2"
+                   WindowManagerAddShadowHint="False"
+                   IsOpen="{TemplateBinding IsDropDownOpen, Mode=TwoWay}"
+                   PlacementTarget="{TemplateBinding}"
+                   Placement="BottomEdgeAlignedLeft"
+                   VerticalOffset="3"
+                   IsLightDismissEnabled="True">
+              <Border Name="winList"
+                      Background="{DynamicResource Panel}"
+                      BorderBrush="{DynamicResource ButtonEdge}"
+                      BorderThickness="1"
+                      CornerRadius="6"
+                      Padding="2"
+                      MinWidth="{Binding $parent[ComboBox].Bounds.Width}"
+                      BoxShadow="0 6 18 0 #70000000">
+                <ScrollViewer HorizontalScrollBarVisibility="Disabled"
+                              VerticalScrollBarVisibility="Auto">
+                  <ItemsPresenter Name="PART_ItemsPresenter"
+                                  ItemsPanel="{TemplateBinding ItemsPanel}" />
+                </ScrollViewer>
+              </Border>
+            </Popup>
+          </Grid>
+        </Border>
+      </ControlTemplate>
+    </Setter>
+  </Style>
+
+  <Style Selector="ComboBox.window:pointerover /template/ Border#winHousing">
+    <Setter Property="BorderBrush" Value="{DynamicResource ControlBorder}" />
+  </Style>
+  <Style Selector="ComboBox.window:focus-visible /template/ Border#winHousing">
+    <Setter Property="BorderBrush" Value="{DynamicResource StatusAccent}" />
+  </Style>
+  <Style Selector="ComboBox.window:disabled">
+    <Setter Property="Foreground" Value="{DynamicResource KeyStandby}" />
+    <Setter Property="Cursor" Value="Arrow" />
+  </Style>
+  <Style Selector="ComboBox.window:disabled /template/ ContentPresenter#winValue">
+    <Setter Property="Effect">
+      <DropShadowEffect OffsetX="0" OffsetY="0" BlurRadius="5" Opacity="0.30"
+                        Color="{DynamicResource KeyStandbyGlow}" />
+    </Setter>
+  </Style>
+
+  <!-- the readout is opt-in: a tape counter earns its space on a real list
+       and is noise on a fixed set of three -->
+  <Style Selector="ComboBox.window.counted /template/ TextBlock#winCount">
+    <Setter Property="IsVisible" Value="True" />
+    <Setter Property="Text">
+      <MultiBinding Converter="{x:Static controls:SelectorPositionConverter.Instance}">
+        <Binding Path="SelectedIndex" RelativeSource="{RelativeSource TemplatedParent}" />
+        <Binding Path="ItemCount" RelativeSource="{RelativeSource TemplatedParent}" />
+      </MultiBinding>
+    </Setter>
+  </Style>
+
+  <!-- rows in the open list: a lit pip beside the engaged one, same language
+       as the bank's detent -->
+  <Style Selector="ComboBox.window ComboBoxItem">
+    <Setter Property="Foreground" Value="{DynamicResource Muted}" />
+    <Setter Property="Padding" Value="0,5,8,5" />
+    <Setter Property="Template">
+      <ControlTemplate>
+        <Border Name="rowFace" Background="Transparent" CornerRadius="4"
+                Padding="{TemplateBinding Padding}">
+          <Grid ColumnDefinitions="Auto,*">
+            <Border Name="rowPip" Grid.Column="0"
+                    Width="3" Height="13" CornerRadius="1.5"
+                    Margin="6,0,8,0" VerticalAlignment="Center"
+                    Opacity="0.35"
+                    Background="{DynamicResource Line}" />
+            <ContentPresenter Name="rowContent" Grid.Column="1"
+                              Content="{TemplateBinding Content}"
+                              ContentTemplate="{TemplateBinding ContentTemplate}"
+                              Foreground="{TemplateBinding Foreground}"
+                              VerticalAlignment="Center" />
+          </Grid>
+        </Border>
+      </ControlTemplate>
+    </Setter>
+  </Style>
+  <Style Selector="ComboBox.window ComboBoxItem:pointerover /template/ Border#rowFace">
+    <Setter Property="Background" Value="{DynamicResource Glass}" />
+  </Style>
+  <Style Selector="ComboBox.window ComboBoxItem:selected">
+    <Setter Property="Foreground" Value="{DynamicResource Ink}" />
+    <Setter Property="FontWeight" Value="SemiBold" />
+  </Style>
+  <Style Selector="ComboBox.window ComboBoxItem:selected /template/ Border#rowFace">
+    <Setter Property="Background" Value="{DynamicResource ButtonFace}" />
+  </Style>
+  <Style Selector="ComboBox.window ComboBoxItem:selected /template/ Border#rowPip">
+    <Setter Property="Background" Value="{DynamicResource StatusAccent}" />
+    <Setter Property="Opacity" Value="1" />
+    <Setter Property="BoxShadow" Value="0 0 7 0 #A034CFC0" />
   </Style>
 </Styles>

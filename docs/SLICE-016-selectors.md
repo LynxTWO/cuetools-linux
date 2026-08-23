@@ -1,6 +1,7 @@
 # CUETools Linux Slice Brief: SLICE-016 analog selectors
 
-Version: 0.1. Date: 2026-08-23. Status: Awaiting owner decision.
+Version: 0.2. Date: 2026-08-23. Status: Approved for build (owner stamp
+2026-08-23, "I agree with your mockups of the dropdowns"), and built.
 Companion documents: ARCHITECTURE.md, DECISION-LOG.md (D-080 the
 analog control scope, D-082 where the shared skills live),
 SLICE-014-analog-controls.md, SLICE-015-soft-body-keys.md.
@@ -79,14 +80,33 @@ control and it is the owner's call.
 Queue action is the other judgement call. It sits inside a table row,
 where a bank fights the column sizing.
 
-## 4. Width
+## 4. Width, and where v0.1 got it wrong
 
-The four-key quality bank measures about 300 pixels against roughly
-140 for the dropdown it replaces. The Rip page has that room at its
-1200 pixel default and the Advanced rows have it at 440, so nothing
-here forces a change to the reflow breakpoints recorded for the Rip
-page. This must be re-measured, not assumed, if a bank ever lands on
-the Rip page's right rail.
+v0.1 said the Rip page "has room at its 1200 pixel default". That was
+the page width, not the width the control actually gets, and the first
+render of the build cut "Salvage" off the quality bank. The Rip page's
+right rail is **300 DIP**, about 274 of it usable, and a four-key bank
+beside its own label does not fit there at any padding worth having.
+The measurement that mattered was never taken.
+
+Three things came out of that, and all three are in the build:
+
+- The label goes **above** the bank in the rail rather than beside it,
+  which returns roughly 58 DIP.
+- A `compact` bank tightens the keys to 8 DIP of horizontal padding at
+  11.5 point. All four quality positions then fit on one line in 274.
+- The bank's items panel is a **WrapPanel**, so when a bank genuinely
+  cannot fit, it becomes a two-row keypad instead of losing a position.
+  Console hardware solves the same problem the same way.
+
+The Advanced rows are 440 DIP and take a bank beside its label with
+room to spare, which is what the mockups showed.
+
+A layout test now pins this. The scale matrix could not see it: it
+asserts the PAGE does not overflow its viewport, and a bank inside a
+fixed-width column overflows the column while the page stays exactly
+as wide as before. The first clipped render was green on every other
+assertion in the suite.
 
 ## 5. Out of scope, on purpose
 
@@ -110,11 +130,34 @@ Advanced rows in the proposed and current form for direct comparison.
 Published for owner review; the harness patch was reverted after each
 capture and the working tree verified clean.
 
-## 7. Acceptance criteria
+## 7. What the build did
 
-Not written. This document exists to carry the design past a context
-boundary and to be decided against, not to be built from yet. When
-approved, the criteria come from SLICE-014's, plus one addition: a
-bank must be operable by keyboard with arrow keys moving the held
-position, and each key must expose its own accessible name and
-selected state.
+Both controls are styles rather than new control classes, which is why
+this landed as one pass.
+
+- The **bank** is `ListBox` with `Classes="bank"`. Arrow-key selection,
+  the accessible name and selected state per key, and the
+  `ItemsSource`/`SelectedItem`/`SelectedIndex` trio the old
+  ComboBoxes were already bound to all come with `ListBox`, so a call
+  site changes one element name and keeps its bindings.
+- The **window** is a `ComboBox` template restyle with
+  `Classes="window"`, so opening, keyboard handling and the accessible
+  role are untouched. `Classes="window counted"` adds the position
+  readout, which stays opt-in per the v0.1 ruling.
+
+Sixteen call sites converted: six to banks (quality, layout on Rip and
+on Settings, metadata search, album art search, network) and ten to
+windows.
+
+## 8. Verification
+
+- 189 tests green, including two new layout tests: no bank position is
+  ever cut off at any of the five supported widths in either theme,
+  and every position is visible, non-empty, and reachable.
+- Rendered through the Skia harness at 1200 DIP in both themes: the
+  Rip page rail and the Advanced page rows.
+- The existing scale matrix still passes unchanged, which matters
+  because banks are wider than the dropdowns they replaced.
+
+Still owed: the owner's eyes on the running build, and a decision on
+the two open calls in section 3 (CTDB sharing wording, Queue action).

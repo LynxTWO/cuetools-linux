@@ -44,7 +44,7 @@
                 BorderBrush="{DynamicResource Line}" BorderThickness="1"
                 CornerRadius="9" Padding="12,10">
           <StackPanel>
-            <ComboBox ItemsSource="{Binding Encoders}"
+            <ComboBox Classes="window counted" ItemsSource="{Binding Encoders}"
                       SelectedItem="{Binding SelectedEncoder}" Width="260"
                       HorizontalAlignment="Left"
                       ToolTip.Tip="Choose the concrete encoder used for this format." />
@@ -63,7 +63,7 @@
                 BorderBrush="{DynamicResource Line}" BorderThickness="1"
                 CornerRadius="9" Padding="12,10">
           <StackPanel>
-            <ComboBox ItemsSource="{Binding Modes}"
+            <ComboBox Classes="window" ItemsSource="{Binding Modes}"
                       SelectedItem="{Binding SelectedMode}" Width="180"
                       HorizontalAlignment="Left"
                       ToolTip.Tip="{Binding ModeHint}" />
@@ -93,7 +93,7 @@
                     <ToggleButton Classes="lit" DockPanel.Dock="Right"
                                   IsChecked="{Binding BoolValue}"
                                   IsVisible="{Binding IsBool}" />
-                    <ComboBox DockPanel.Dock="Right"
+                    <ComboBox Classes="window" DockPanel.Dock="Right"
                               ItemsSource="{Binding EnumValues}"
                               SelectedItem="{Binding TextValue}" MinWidth="130"
                               IsVisible="{Binding IsEnum}" />

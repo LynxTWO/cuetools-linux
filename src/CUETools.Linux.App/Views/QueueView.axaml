@@ -15,7 +15,7 @@
         <TextBlock DockPanel.Dock="Left" Text="Action"
                    Foreground="{DynamicResource Muted}" FontSize="11"
                    VerticalAlignment="Center" Margin="0,0,8,0" />
-        <ComboBox DockPanel.Dock="Left" Width="100" VerticalAlignment="Center"
+        <ComboBox Classes="window" DockPanel.Dock="Left" Width="100" VerticalAlignment="Center"
                   ItemsSource="{Binding Actions}"
                   SelectedItem="{Binding SelectedAction, Mode=TwoWay}" />
         <Button DockPanel.Dock="Left" Width="220" MinWidth="140"

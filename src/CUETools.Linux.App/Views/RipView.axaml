@@ -22,7 +22,7 @@
                    FontFamily="{StaticResource Mono}" FontSize="11"
                    Foreground="{DynamicResource Muted}"
                    VerticalAlignment="Center" Margin="0,0,10,0" />
-        <ComboBox x:Name="DriveSelector" DockPanel.Dock="Left" MinWidth="70"
+        <ComboBox Classes="window counted" x:Name="DriveSelector" DockPanel.Dock="Left" MinWidth="70"
                   ItemsSource="{Binding Drives}"
                   SelectedItem="{Binding SelectedDrive}"
                   IsEnabled="{Binding DriveSelectorEnabled}"
@@ -123,7 +123,7 @@
                        FontFamily="{StaticResource Mono}" FontSize="11"
                        Foreground="{DynamicResource Muted}"
                        VerticalAlignment="Center" Margin="0,0,8,0" />
-            <ComboBox ItemsSource="{Binding Releases}"
+            <ComboBox Classes="window counted" ItemsSource="{Binding Releases}"
                       SelectedItem="{Binding SelectedRelease}"
                       HorizontalAlignment="Stretch">
               <ComboBox.ItemTemplate>
@@ -242,30 +242,28 @@
                 <CheckBox Classes="lit" Content="log" IsChecked="{Binding WriteLog}"
                           FontSize="12" />
               </StackPanel>
-              <DockPanel>
-                <TextBlock DockPanel.Dock="Left" Text="quality"
+              <!-- label above, not beside: this rail is 300 DIP and a four-key
+                   bank alongside its label clips its last position -->
+              <StackPanel Spacing="4">
+                <TextBlock Text="quality"
                            FontFamily="{StaticResource Mono}" FontSize="11"
-                           Foreground="{DynamicResource Muted}"
-                           VerticalAlignment="Center" Margin="0,0,8,0" />
-                <ComboBox SelectedIndex="{Binding CorrectionQuality}"
-                          HorizontalAlignment="Stretch"
-                          ToolTip.Tip="Burst: fast, single pass - windows the vote flags still re-read up to 16 passes, but deep recovery never runs. Secure: read twice + compare, with deep recovery. Paranoid: deepest re-reads. Salvage: for defective-by-design discs - Test &amp; Copy at Burst quality with C2 off at minimum speed; agreement proves the drive's output is stable, and the result is labeled salvaged, never verified.">
-                  <ComboBoxItem Content="Burst" />
-                  <ComboBoxItem Content="Secure" />
-                  <ComboBoxItem Content="Paranoid" />
-                  <ComboBoxItem Content="Salvage" />
-                </ComboBox>
-              </DockPanel>
-              <DockPanel>
-                <TextBlock DockPanel.Dock="Left" Text="layout"
+                           Foreground="{DynamicResource Muted}" />
+                <ListBox Classes="bank compact" SelectedIndex="{Binding CorrectionQuality}"
+                         ToolTip.Tip="Burst: fast, single pass - windows the vote flags still re-read up to 16 passes, but deep recovery never runs. Secure: read twice + compare, with deep recovery. Paranoid: deepest re-reads. Salvage: for defective-by-design discs - Test &amp; Copy at Burst quality with C2 off at minimum speed; agreement proves the drive's output is stable, and the result is labeled salvaged, never verified.">
+                  <ListBoxItem Content="Burst" />
+                  <ListBoxItem Content="Secure" />
+                  <ListBoxItem Content="Paranoid" />
+                  <ListBoxItem Content="Salvage" />
+                </ListBox>
+              </StackPanel>
+              <StackPanel Spacing="4">
+                <TextBlock Text="layout"
                            FontFamily="{StaticResource Mono}" FontSize="11"
-                           Foreground="{DynamicResource Muted}"
-                           VerticalAlignment="Center" Margin="0,0,8,0" />
-                <ComboBox ItemsSource="{Binding OutputLayouts}"
-                          SelectedItem="{Binding SelectedOutputLayout}"
-                          HorizontalAlignment="Stretch"
-                          ToolTip.Tip="Tracks: one file per track. Image + embedded CUE: a single audio file with the cue sheet embedded." />
-              </DockPanel>
+                           Foreground="{DynamicResource Muted}" />
+                <ListBox Classes="bank compact" ItemsSource="{Binding OutputLayouts}"
+                         SelectedItem="{Binding SelectedOutputLayout}"
+                         ToolTip.Tip="Tracks: one file per track. Image + embedded CUE: a single audio file with the cue sheet embedded." />
+              </StackPanel>
               <Button Content="Artwork..."
                       Click="OnArtworkClick"
                       IsEnabled="{Binding IsDiscPresent}"
