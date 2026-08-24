@@ -30,6 +30,33 @@
         <Border x:Name="keyRecess" Opacity="0" IsHitTestVisible="False"
                 CornerRadius="{TemplateBinding CornerRadius}"
                 Background="{DynamicResource ButtonEdge}" />
+        <!-- The housing lamp, seen through the seam around the cap. A key is
+             not welded to the console: there is always a gap at its skirt,
+             and a lamp inside the box shows through it. This layer sits a
+             hair PROUD of the face so that gap exists to be lit, and behind
+             it so the cap occludes it.
+             It needs no per-edge logic to lean the right way. The soft-body
+             homography shrinks and tilts a pressed face, so the cap pulls
+             away from the housing further on the side that is rising, and
+             more of this shows exactly there. The physics already had the
+             asymmetry; this only had to be put behind it.
+             The zero-offset shadow is the spill onto the console around the
+             key, the same recipe as the lit rail glyphs. Everything above it
+             must stay unclipped or the bloom is cut square at the bounds. -->
+        <Border x:Name="keySeam" Opacity="0" IsHitTestVisible="False"
+                ClipToBounds="False"
+                CornerRadius="{TemplateBinding CornerRadius}">
+          <Border.Background>
+            <LinearGradientBrush StartPoint="0%,0%" EndPoint="0%,100%">
+              <GradientStop Color="{DynamicResource KeySeamColor}" Offset="0" />
+              <GradientStop Color="{DynamicResource KeySeamColor}" Offset="1" />
+            </LinearGradientBrush>
+          </Border.Background>
+          <Border.Effect>
+            <DropShadowEffect OffsetX="0" OffsetY="1" BlurRadius="19" Opacity="0.9"
+                              Color="{DynamicResource KeySeamColor}" />
+          </Border.Effect>
+        </Border>
         <Border x:Name="keyFace"
                 Background="{TemplateBinding Background}"
                 BorderBrush="{TemplateBinding BorderBrush}"
@@ -121,8 +148,25 @@
       </Transitions>
     </Setter>
   </Style>
-  <Style Selector="Button:pointerover /template/ Border#keyFace">
-    <Setter Property="BorderBrush" Value="{DynamicResource ControlBorder}" />
+  <!-- Hover and press are told by LIGHT, not by an outline. An outline is a
+       UI convention wearing a console's clothes; a real key sitting in a lit
+       housing shows more of that light as it moves. Approaching the key
+       brings the lamp up to a low glow, pressing it takes the lamp up. -->
+  <Style Selector="Button /template/ Border#keySeam">
+    <Setter Property="Transitions">
+      <Transitions>
+        <DoubleTransition Property="Opacity" Duration="0:0:0.16" Easing="CubicEaseOut" />
+      </Transitions>
+    </Setter>
+  </Style>
+  <Style Selector="Button:pointerover /template/ Border#keySeam">
+    <Setter Property="Opacity" Value="0.34" />
+  </Style>
+  <Style Selector="Button:pressed /template/ Border#keySeam">
+    <Setter Property="Opacity" Value="0.85" />
+  </Style>
+  <Style Selector="Button:disabled /template/ Border#keySeam">
+    <Setter Property="Opacity" Value="0" />
   </Style>
   <Style Selector="Button:pressed /template/ Border#keyFace">
     <Setter Property="RenderTransform" Value="translateY(1.2px)" />
@@ -144,7 +188,7 @@
   <Style Selector="Button:disabled /template/ ContentPresenter#keyContent">
     <Setter Property="Opacity" Value="1" />
     <Setter Property="Effect">
-      <DropShadowEffect OffsetX="0" OffsetY="0" BlurRadius="5" Opacity="0.30"
+      <DropShadowEffect OffsetX="0" OffsetY="0" BlurRadius="5" Opacity="0.20"
                         Color="{DynamicResource KeyStandbyGlow}" />
     </Setter>
   </Style>
@@ -374,7 +418,7 @@
   </Style>
   <Style Selector="ListBox.bank:disabled ListBoxItem /template/ ContentPresenter#bankKeyContent">
     <Setter Property="Effect">
-      <DropShadowEffect OffsetX="0" OffsetY="0" BlurRadius="5" Opacity="0.30"
+      <DropShadowEffect OffsetX="0" OffsetY="0" BlurRadius="5" Opacity="0.20"
                         Color="{DynamicResource KeyStandbyGlow}" />
     </Setter>
   </Style>
@@ -493,7 +537,7 @@
   </Style>
   <Style Selector="ComboBox.window:disabled /template/ ContentPresenter#winValue">
     <Setter Property="Effect">
-      <DropShadowEffect OffsetX="0" OffsetY="0" BlurRadius="5" Opacity="0.30"
+      <DropShadowEffect OffsetX="0" OffsetY="0" BlurRadius="5" Opacity="0.20"
                         Color="{DynamicResource KeyStandbyGlow}" />
     </Setter>
   </Style>
