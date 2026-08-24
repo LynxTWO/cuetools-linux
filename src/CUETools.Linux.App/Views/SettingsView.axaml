@@ -49,9 +49,9 @@
         <Border Classes="row" ToolTip.Tip="Open the tray when a rip finishes."><DockPanel><ToggleButton Classes="row lit" IsChecked="{Binding EjectAfterRip}" /><TextBlock Classes="rowlabel" Text="Eject after rip" /></DockPanel></Border>
         <Border Classes="row" ToolTip.Tip="Rip to separate track files, or to one image file with an embedded CUE sheet.">
           <DockPanel>
-            <ComboBox DockPanel.Dock="Right" MinWidth="190" Margin="8,0,0,0"
-                      ItemsSource="{Binding RipOutputLayouts}"
-                      SelectedItem="{Binding RipOutputLayoutChoice}" />
+            <ListBox Classes="bank" DockPanel.Dock="Right" Margin="8,0,0,0"
+                     ItemsSource="{Binding RipOutputLayouts}"
+                     SelectedItem="{Binding RipOutputLayoutChoice}" />
             <TextBlock Classes="rowlabel" Text="Rip output layout" />
           </DockPanel>
         </Border>
@@ -168,7 +168,7 @@
         </Border>
         <Border Classes="row" ToolTip.Tip="Whether a clean rip or verify is offered to the CUETools Database. Ask shows the sharing dialog each time; the manual's privacy page lists exactly what sharing sends. Damaged, salvaged, and held rips are never shared regardless of this choice.">
           <DockPanel>
-            <ComboBox DockPanel.Dock="Right" MinWidth="190" Margin="8,0,0,0"
+            <ComboBox Classes="window" DockPanel.Dock="Right" MinWidth="190" Margin="8,0,0,0"
                       ItemsSource="{Binding CtdbSharingChoices}"
                       SelectedItem="{Binding CtdbSharingChoice}" />
             <TextBlock Classes="rowlabel" Text="Share verified rips with CTDB" />
