@@ -35,7 +35,7 @@ public static class SoftBodyKey
     public const double SeamHover = 0.34;
     public const double SeamPressed = 0.85;
 
-    public static void Attach(Button button)
+    public static void Attach(Control button)
     {
         if (!Enabled) return;
         var press = new SoftBodyPress();
@@ -105,7 +105,7 @@ public static class SoftBodyKey
     /// <summary>The dip's shading: a soft dark well centred on the press point,
     /// with a light rim just outside it where the rubber bulges. This is what
     /// has to carry "below the surface" when the outline cannot move.</summary>
-    private static void SetDip(Button button, Point? press, double amount)
+    private static void SetDip(Control button, Point? press, double amount)
     {
         if (button.GetVisualDescendant("keyDip") is not Border dip) return;
         if (press is not { } p || amount <= 0.001)

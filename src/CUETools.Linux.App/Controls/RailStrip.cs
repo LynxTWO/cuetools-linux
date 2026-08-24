@@ -42,12 +42,14 @@ public sealed class RailStripKey : Border
 {
     private readonly Avalonia.Controls.Shapes.Path _glyph;
 
+    private readonly Border _face;
+    private readonly Border _recess;
+    private readonly Border _dip;
+
     public RailStripKey(Geometry glyph, string pageName)
     {
         Width = 44;
         Height = 38;
-        CornerRadius = new CornerRadius(7);
-        BorderThickness = new Thickness(1);
         ClipToBounds = false;
         Cursor = new Avalonia.Input.Cursor(Avalonia.Input.StandardCursorType.Hand);
         ToolTip.SetTip(this, pageName);
@@ -63,7 +65,43 @@ public sealed class RailStripKey : Border
             HorizontalAlignment = Avalonia.Layout.HorizontalAlignment.Center,
             VerticalAlignment = Avalonia.Layout.VerticalAlignment.Center,
         };
-        Child = _glyph;
+
+        // SLICE-015 / D-080 (4): these keys deform like the rest. That needs the
+        // same layers the key template builds in XAML, and this control draws
+        // itself, so they are built here under the names the shared soft-body
+        // renderer looks for. The glyph lives INSIDE the face so it shears with
+        // the rubber rather than floating over it (D-080 (2)).
+        //
+        // No "keySeam" here on purpose. The rail key's housing lamp is composed
+        // into its own BoxShadow in Restyle below, and naming a seam layer would
+        // hand the same property to two writers - the renderer would clear it on
+        // release and take the hover glow with it.
+        _dip = new Border
+        {
+            Name = "keyDip",
+            Opacity = 0,
+            IsHitTestVisible = false,
+            CornerRadius = new CornerRadius(7),
+        };
+        _face = new Border
+        {
+            Name = "keyFace",
+            CornerRadius = new CornerRadius(7),
+            BorderThickness = new Thickness(1),
+            ClipToBounds = false,
+            Child = new Panel { Children = { _dip, _glyph } },
+        };
+        _recess = new Border
+        {
+            Name = "keyRecess",
+            Opacity = 0,
+            IsHitTestVisible = false,
+            CornerRadius = new CornerRadius(7),
+        };
+
+        Background = Brushes.Transparent;
+        BorderThickness = new Thickness(0);
+        Child = new Panel { ClipToBounds = false, Children = { _recess, _face } };
     }
 
     public bool IsActiveKey { get; private set; }
@@ -87,11 +125,15 @@ public sealed class RailStripKey : Border
     public void Restyle()
     {
         bool dark = ActualThemeVariant != Avalonia.Styling.ThemeVariant.Light;
-        Background = this.TryFindResource("ButtonFace", ActualThemeVariant, out object? face) && face is IBrush b
+        _face.Background = this.TryFindResource("ButtonFace", ActualThemeVariant, out object? face) && face is IBrush b
             ? b
             : Brushes.Transparent;
-        BorderBrush = this.TryFindResource("ButtonEdge", ActualThemeVariant, out object? edge) && edge is IBrush eb
+        _face.BorderBrush = this.TryFindResource("ButtonEdge", ActualThemeVariant, out object? edge) && edge is IBrush eb
             ? eb
+            : Brushes.Transparent;
+        // the housing wall a receding face reveals; without it the gap shows the page
+        _recess.Background = this.TryFindResource("ButtonEdge", ActualThemeVariant, out object? wall) && wall is IBrush wb
+            ? wb
             : Brushes.Transparent;
         if (IsActiveKey)
         {
@@ -104,13 +146,13 @@ public sealed class RailStripKey : Border
                 Color = Color.Parse(dark ? "#34CFC0" : "#087067"),
                 Opacity = dark ? 0.9 : 0.65,
             };
-            BoxShadow = BoxShadows.Parse(dark ? "0 0 10 0 #7034CFC0" : "0 0 10 0 #50087067");
+            _face.BoxShadow = BoxShadows.Parse(dark ? "0 0 10 0 #7034CFC0" : "0 0 10 0 #50087067");
         }
         else
         {
             _glyph.Stroke = new SolidColorBrush(Color.Parse(dark ? "#4A554B" : "#8A968B"));
             _glyph.Effect = null;
-            BoxShadow = BoxShadows.Parse(dark ? "0 1.5 3 0 #70000000" : "0 1.5 3 0 #30536057");
+            _face.BoxShadow = BoxShadows.Parse(dark ? "0 1.5 3 0 #70000000" : "0 1.5 3 0 #30536057");
         }
 
         // the housing lamp under the key, over whatever shadow the state above
@@ -122,7 +164,7 @@ public sealed class RailStripKey : Border
                 ? $"{sc.R:X2}{sc.G:X2}{sc.B:X2}"
                 : (dark ? "F0A24A" : "C9762A");
             string alpha = _held ? "B0" : "55";
-            BoxShadow = BoxShadows.Parse($"{BoxShadow}, 0 1 13 0 #{alpha}{seam}");
+            _face.BoxShadow = BoxShadows.Parse($"{_face.BoxShadow}, 0 1 13 0 #{alpha}{seam}");
         }
     }
 

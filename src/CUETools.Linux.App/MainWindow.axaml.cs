@@ -285,11 +285,17 @@ public partial class MainWindow : Window
     {
         void Sweep()
         {
+            // Buttons AND the rail's strip keys. D-080 (4) scoped both from the
+            // start; the rail was missing because Avalonia's bare Button selector
+            // matches by exact type and RailStripKey is a Border, so the
+            // most-clicked surface in the app was the one thing not moving.
             foreach (Avalonia.Visual v in this.GetVisualDescendants())
-                if (v is Button b && b.GetValue(SoftBodyAttachedProperty) is not true)
+                if (v is Button or Controls.RailStripKey
+                    && v is Control c
+                    && c.GetValue(SoftBodyAttachedProperty) is not true)
                 {
-                    b.SetValue(SoftBodyAttachedProperty, true);
-                    Controls.SoftBodyKey.Attach(b);
+                    c.SetValue(SoftBodyAttachedProperty, true);
+                    Controls.SoftBodyKey.Attach(c);
                 }
         }
 
