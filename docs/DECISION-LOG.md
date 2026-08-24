@@ -1488,3 +1488,38 @@ of its own contract - 3.2:1 to 3.8:1 across the resting and pressed
 faces - and the glow effect went from 0.30 to 0.20 opacity. It cannot
 go lower without moving that floor, and 3:1 is already the large-text
 threshold rather than the normal-text one.
+
+DECISION: D-089 The rail's strip keys deform, closing D-080 (4)
+STATUS: Confirmed
+CHOICE: The ten navigation strip keys now take the same soft-body
+press as every other key. D-080 (4) scoped them in from the start and
+they were the one surface left out, for the reason that decision
+itself named: Avalonia's bare Button selector matches by exact type,
+`RailStripKey` derives from Border, and so the most-clicked surface in
+the app was the only thing that stopped moving.
+Two changes made it possible and neither was large.
+(1) The press binding and the renderer took `Button` and used nothing
+whatsoever that Button provides - AddHandler, Bounds and GetPosition
+are all on Control. Widening both parameter types was the entire code
+change on that side.
+(2) `RailStripKey` drew itself as a single Border. It now builds the
+same layers the XAML key template builds - keyRecess, keyFace, keyDip -
+under the names the shared renderer looks up, with the glyph INSIDE
+the face so it shears with the rubber per D-080 (2).
+NO keySeam LAYER, deliberately. The rail key's housing lamp is
+composed into its own BoxShadow because the control is code-built
+rather than styled, and naming a seam layer would hand one property to
+two writers: the renderer clears it on release, which would take the
+hover glow with it. That is the D-084 (2) trap one property along, and
+the cheapest defence was to not create the collision.
+GUARDED BY TEST, because the failure is silent. The renderer finds its
+layers by NAME: rename or restructure one and nothing throws, nothing
+warns, no other test fails, and the keys simply stop deforming. Three
+tests now bind the parts, the glyph's parentage, and that a held key
+carries a genuinely projective matrix rather than a flattened affine
+one.
+BECAUSE: D-080 (4) is explicit, and a console whose most-clicked keys
+are the only rigid ones reads as broken rather than as restrained.
+REVISIT WHEN: `RailStripKey` gains a real control template. The layers
+would then come from XAML like every other key and the code-built
+lamp could become a style, removing the one asymmetry above.

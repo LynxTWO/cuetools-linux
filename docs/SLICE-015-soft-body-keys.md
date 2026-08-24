@@ -188,9 +188,9 @@ No persistent data.
 
 - [x] All acceptance criteria pass with linked evidence, except the two
   measurements named in section 9 and marked there rather than here.
-- [x] No unlabeled shortcuts inside the boundary. Two are labeled: the
-  rail keys do not deform (light only, see D-088 and section 4), and
-  the frame-budget measurement is arithmetic-only.
+- [x] No unlabeled shortcuts inside the boundary. One is labeled: the
+  frame-budget measurement is arithmetic-only. The rail-key shortcut
+  that stood here is closed - they deform now, as D-089.
 - [x] Documents updated: statuses, DECISION-LOG (D-085 through D-088).
   No manual text described the old press, so none needed changing.
 - [x] The soft-body skill written, and D-082 resolved so it is actually

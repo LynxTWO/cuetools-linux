@@ -84,16 +84,16 @@ public sealed class SoftBodyPress
     public TimeSpan Disable() => Release(landed: false);
 }
 
-/// <summary>Wiring a real Button's input into a <see cref="SoftBodyPress"/>.
+/// <summary>Wiring a real control's input into a <see cref="SoftBodyPress"/>.
 /// Separated from the renderer so the state machine can be tested headlessly
 /// without anything drawing.</summary>
 public static class SoftBodyPressBinding
 {
-    private static bool Inside(Button button, Point local)
+    private static bool Inside(Control button, Point local)
         => local.X >= 0 && local.Y >= 0
            && local.X <= button.Bounds.Width && local.Y <= button.Bounds.Height;
 
-    public static void Attach(Button button, SoftBodyPress press, Action invalidate)
+    public static void Attach(Control button, SoftBodyPress press, Action invalidate)
     {
         button.AddHandler(InputElement.PointerPressedEvent, (_, e) =>
         {
