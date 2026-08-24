@@ -1446,3 +1446,45 @@ hairlines. The exemption says an inactive control need not meet AA. It
 does not say it may be unreadable.
 REVISIT WHEN: A theme is added. Both bounds are relative to that
 theme's own live key, so the numbers do not transfer.
+
+DECISION: D-088 Hover and press are told by light, not by an outline
+STATUS: Confirmed
+CHOICE: The key template gains a housing lamp behind the cap, seen
+through the seam around it. Approaching a key brings that lamp up to a
+low glow; pressing it takes the lamp up with the press, continuously,
+rather than switching between two states. The hover outline that used
+to appear on the face, and then persist through the press, is gone.
+Owner report 2026-08-23: an outline popping up on hover and staying
+there is a UI convention wearing a console's clothes, where a real key
+in a lit housing shows more of that light as it moves.
+The asymmetry needed no code. The soft-body homography already shrinks
+and tilts a pressed face, so the cap pulls away from the housing
+further on one side, and more of the lamp shows exactly there. The
+physics had it; the lamp only had to be put behind it.
+COLOUR: warm amber-gold, `KeySeamColor`, #F0A24A on the dark bench and
+#C9762A on the light one. Warm on purpose: the console is cool
+green-grey with a teal accent, so a warm light reads as illumination
+from inside the box rather than as another status colour. A test pins
+both properties - that it is warm, and that it is far enough from the
+accent hue to read as a different fixture.
+RENDERED FIRST, TWICE. The first attempt sat the lamp 1.5 DIP proud of
+the face so a lit ring always existed. It rendered as an amber
+OUTLINE, which is the exact thing being removed. The fix was to drop
+the proud ring entirely and let the bloom carry it: light at a seam is
+diffuse, and a hard-edged stroke of any colour reads as a border.
+RESTRAINT: the elegance is in the opacity ramp, not the hue. 0 at
+rest, 0.34 on hover, 0.85 held. The C# ramp constants and the XAML
+style setters are pinned equal by test, because if they drift the lamp
+jumps the instant a key is touched and nothing else would catch it.
+BECAUSE: the outline was the last piece of the key that was not
+modelled on anything physical.
+REVISIT WHEN: the levels are by eye. If the glow reads as brash, the
+opacities are the knob, not the colour.
+
+AMENDMENT TO D-087 (2026-08-23, same session): the standby legend was
+turned down on owner report that it could be "quite a bit dimmer".
+KeyStandby is now #42786F dark and #577F79 light, sitting at the floor
+of its own contract - 3.2:1 to 3.8:1 across the resting and pressed
+faces - and the glow effect went from 0.30 to 0.20 opacity. It cannot
+go lower without moving that floor, and 3:1 is already the large-text
+threshold rather than the normal-text one.

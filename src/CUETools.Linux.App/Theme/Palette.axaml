@@ -25,11 +25,19 @@
       <SolidColorBrush x:Key="StatusDanger" Color="#E06C75" />
       <Color x:Key="StatusAccentColor">#34CFC0</Color>
       <!-- a dead key's legend, lit at standby current: the bulb behind the
-           translucent letters is not off, it is turned right down. 4.0:1 to
-           4.7:1 across the resting and pressed faces, against 14:1 for a live
-           key and the 1.2:1 the old structural Line gave, which could not be
-           read at all. -->
-      <SolidColorBrush x:Key="KeyStandby" Color="#4E8880" />
+           translucent letters is not off, it is turned right down. Turned
+           down again on 08-23 owner note; this now sits at the floor of its
+           own contract, 3.2:1 to 3.8:1 across the resting and pressed faces,
+           against 14:1 for a live key and the 1.2:1 the old structural Line
+           gave, which could not be read at all. It cannot go lower without
+           moving that floor, and 3:1 is already the large-text threshold. -->
+      <SolidColorBrush x:Key="KeyStandby" Color="#42786F" />
+      <!-- the housing lamp under a key, seen through the seam around its cap.
+           Warm on purpose: the console is cool green-grey with a teal accent,
+           so a warm light reads as illumination from inside the box rather
+           than as another status colour. Amber-gold rather than orange, and
+           the restraint lives in the opacity ramp, not the hue. -->
+      <Color x:Key="KeySeamColor">#F0A24A</Color>
       <Color x:Key="KeyStandbyGlow">#34CFC0</Color>
       <Color x:Key="KeyShoulderMid">#2E000000</Color>
       <Color x:Key="KeyShoulderEdge">#5A000000</Color>
@@ -89,12 +97,17 @@
       <!-- the same standby legend on the pale bench. A backlight barely shows
            against a light console in a lit room, which is true of the real
            thing too, so here the reading is carried by the ink and the glow
-           is only a tint. 3.6:1 to 4.9:1 across the resting and pressed faces,
+           is only a tint. 3.2:1 to 4.3:1 across the resting and pressed faces,
            against 16:1 live and the 1.5:1 the old structural Line gave. The
            pressed face is the binding one here: it is the darkest thing a
            standby legend can sit on, which happens when a key is disabled
-           mid-press and takes the dead release. -->
-      <SolidColorBrush x:Key="KeyStandby" Color="#4A7770" />
+           mid-press and takes the dead release. Turned down on the 08-23
+           owner note to the floor of its own contract. -->
+      <SolidColorBrush x:Key="KeyStandby" Color="#577F79" />
+      <!-- the same housing lamp on the pale bench. A glow barely registers
+           against a light console in a lit room, which is true of the real
+           thing, so this is deeper and more saturated to read at all. -->
+      <Color x:Key="KeySeamColor">#C9762A</Color>
       <Color x:Key="KeyStandbyGlow">#087067</Color>
       <!-- rubber is matte: a strong crown here reads as polished chrome, not
            a soft cap. Kept to a gentle lift on the light bench. -->

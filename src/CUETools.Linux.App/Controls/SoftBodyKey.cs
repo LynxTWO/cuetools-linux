@@ -29,6 +29,12 @@ public static class SoftBodyKey
     /// The bench is lit from above, so sinking also means sliding into shadow.</summary>
     private const double Drop = 0.80;
 
+    /// <summary>Housing-lamp levels, matched to the style setters on keySeam so
+    /// the ramp starts exactly where hover left off and hands back to the same
+    /// value. If these drift apart the light jumps at the start of a press.</summary>
+    public const double SeamHover = 0.34;
+    public const double SeamPressed = 0.85;
+
     public static void Attach(Button button)
     {
         if (!Enabled) return;
@@ -48,6 +54,20 @@ public static class SoftBodyKey
 
             if (button.GetVisualDescendant("keyRecess") is Border recess)
                 recess.Opacity = amount <= 0.001 ? 0 : 1;
+
+            // The housing lamp comes up with the press, the way a console key
+            // brightens as it goes down, rather than switching between two
+            // style states. Handing it back matters: a locally set value
+            // outranks a style setter, so leaving one here would kill the
+            // hover glow permanently the first time the key was pressed. Same
+            // trap as D-084 (2), one property along.
+            if (button.GetVisualDescendant("keySeam") is Border seam)
+            {
+                if (amount <= 0.001)
+                    seam.ClearValue(Visual.OpacityProperty);
+                else
+                    seam.Opacity = SeamHover + amount * (SeamPressed - SeamHover);
+            }
 
             if (amount <= 0.001)
             {
