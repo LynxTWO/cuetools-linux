@@ -59,6 +59,30 @@ public class SeamLightTests
             Theme());
     }
 
+    [Fact]
+    public void NoBankPositionOutlinesItselfOnHoverEither()
+    {
+        // the bank keys had the same outline, for the same reason, and it would
+        // have been easy to fix one surface and leave the other
+        Assert.DoesNotMatch(
+            new Regex(@"ListBoxItem:pointerover\s*/template/\s*Border#bankKey"),
+            Theme());
+        Assert.Matches(
+            new Regex(@"ListBoxItem:pointerover\s*/template/\s*Border#bankSeam"),
+            Theme());
+    }
+
+    [Fact]
+    public void TheBankLampNeverAnswersTheQuestionThePipAlreadyAnswers()
+    {
+        // two lights, two questions: the teal pip says which position is
+        // engaged, the warm lamp says which one the pointer is on. Lighting the
+        // seam of the SELECTED key would collapse them into one ambiguous glow.
+        Assert.DoesNotMatch(
+            new Regex(@"ListBoxItem:selected\s*/template/\s*Border#bankSeam"),
+            Theme());
+    }
+
     [AvaloniaFact]
     public void TheHousingLampIsWarmAndNotMistakableForTheAccent()
     {

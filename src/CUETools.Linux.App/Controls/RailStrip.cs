@@ -68,6 +68,14 @@ public sealed class RailStripKey : Border
 
     public bool IsActiveKey { get; private set; }
 
+    /// <summary>Pointer state for the housing lamp (D-088). These keys draw
+    /// themselves rather than living in a template, so the seam light that the
+    /// key styles get from XAML has to be built here instead. D-080 (4) put the
+    /// rail in scope precisely so the most-clicked surface in the app would not
+    /// be the one thing that stopped responding.</summary>
+    private bool _hot;
+    private bool _held;
+
     public void SetActive(bool active)
     {
         IsActiveKey = active;
@@ -104,5 +112,46 @@ public sealed class RailStripKey : Border
             _glyph.Effect = null;
             BoxShadow = BoxShadows.Parse(dark ? "0 1.5 3 0 #70000000" : "0 1.5 3 0 #30536057");
         }
+
+        // the housing lamp under the key, over whatever shadow the state above
+        // chose. An active key keeps its teal halo and gains the warm one, the
+        // same way a lit key on a console still lights its own seam.
+        if (_hot || _held)
+        {
+            string seam = this.TryFindResource("KeySeamColor", ActualThemeVariant, out object? c) && c is Color sc
+                ? $"{sc.R:X2}{sc.G:X2}{sc.B:X2}"
+                : (dark ? "F0A24A" : "C9762A");
+            string alpha = _held ? "B0" : "55";
+            BoxShadow = BoxShadows.Parse($"{BoxShadow}, 0 1 13 0 #{alpha}{seam}");
+        }
+    }
+
+    protected override void OnPointerEntered(Avalonia.Input.PointerEventArgs e)
+    {
+        base.OnPointerEntered(e);
+        _hot = true;
+        Restyle();
+    }
+
+    protected override void OnPointerExited(Avalonia.Input.PointerEventArgs e)
+    {
+        base.OnPointerExited(e);
+        _hot = false;
+        _held = false;
+        Restyle();
+    }
+
+    protected override void OnPointerPressed(Avalonia.Input.PointerPressedEventArgs e)
+    {
+        base.OnPointerPressed(e);
+        _held = true;
+        Restyle();
+    }
+
+    protected override void OnPointerReleased(Avalonia.Input.PointerReleasedEventArgs e)
+    {
+        base.OnPointerReleased(e);
+        _held = false;
+        Restyle();
     }
 }

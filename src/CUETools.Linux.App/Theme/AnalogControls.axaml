@@ -355,25 +355,48 @@
     <Setter Property="Margin" Value="0,1,2,1" />
     <Setter Property="Template">
       <ControlTemplate>
-        <Border Name="bankKey"
-                Background="Transparent"
-                BorderBrush="Transparent"
-                BorderThickness="1"
-                CornerRadius="5"
-                Padding="{TemplateBinding Padding}">
-          <StackPanel Spacing="3">
-            <ContentPresenter Name="bankKeyContent"
-                              Content="{TemplateBinding Content}"
-                              ContentTemplate="{TemplateBinding ContentTemplate}"
-                              HorizontalAlignment="Center" />
-            <!-- the detent pip: the lamp that says which position is engaged -->
-            <Border Name="bankPip"
-                    Height="3" Width="20" CornerRadius="1.5"
-                    HorizontalAlignment="Center"
-                    Opacity="0.55"
-                    Background="{DynamicResource Line}" />
-          </StackPanel>
-        </Border>
+        <Panel ClipToBounds="False">
+          <!-- D-088, same fixture as a full key: the housing lamp under this
+               position, seen through its seam. Tighter and dimmer than a
+               button's, because bank keys sit 2 DIP apart and a button-sized
+               bloom on each would wash across its neighbours.
+               It deliberately does NOT light the selected position. The teal
+               pip says which one is engaged and the amber says which one you
+               are touching; running both off the same key would collapse two
+               different questions into one light. -->
+          <Border Name="bankSeam" Opacity="0" IsHitTestVisible="False"
+                  ClipToBounds="False" CornerRadius="5">
+            <Border.Background>
+              <LinearGradientBrush StartPoint="0%,0%" EndPoint="0%,100%">
+                <GradientStop Color="{DynamicResource KeySeamColor}" Offset="0" />
+                <GradientStop Color="{DynamicResource KeySeamColor}" Offset="1" />
+              </LinearGradientBrush>
+            </Border.Background>
+            <Border.Effect>
+              <DropShadowEffect OffsetX="0" OffsetY="1" BlurRadius="12" Opacity="0.9"
+                                Color="{DynamicResource KeySeamColor}" />
+            </Border.Effect>
+          </Border>
+          <Border Name="bankKey"
+                  Background="Transparent"
+                  BorderBrush="Transparent"
+                  BorderThickness="1"
+                  CornerRadius="5"
+                  Padding="{TemplateBinding Padding}">
+            <StackPanel Spacing="3">
+              <ContentPresenter Name="bankKeyContent"
+                                Content="{TemplateBinding Content}"
+                                ContentTemplate="{TemplateBinding ContentTemplate}"
+                                HorizontalAlignment="Center" />
+              <!-- the detent pip: the lamp that says which position is engaged -->
+              <Border Name="bankPip"
+                      Height="3" Width="20" CornerRadius="1.5"
+                      HorizontalAlignment="Center"
+                      Opacity="0.55"
+                      Background="{DynamicResource Line}" />
+            </StackPanel>
+          </Border>
+        </Panel>
       </ControlTemplate>
     </Setter>
   </Style>
@@ -388,8 +411,22 @@
     <Setter Property="FontSize" Value="11.5" />
   </Style>
 
-  <Style Selector="ListBox.bank ListBoxItem:pointerover /template/ Border#bankKey">
-    <Setter Property="BorderBrush" Value="{DynamicResource Line}" />
+  <!-- light, not an outline: the same replacement D-088 made on the keys -->
+  <Style Selector="ListBox.bank ListBoxItem /template/ Border#bankSeam">
+    <Setter Property="Transitions">
+      <Transitions>
+        <DoubleTransition Property="Opacity" Duration="0:0:0.16" Easing="CubicEaseOut" />
+      </Transitions>
+    </Setter>
+  </Style>
+  <Style Selector="ListBox.bank ListBoxItem:pointerover /template/ Border#bankSeam">
+    <Setter Property="Opacity" Value="0.26" />
+  </Style>
+  <Style Selector="ListBox.bank ListBoxItem:pressed /template/ Border#bankSeam">
+    <Setter Property="Opacity" Value="0.7" />
+  </Style>
+  <Style Selector="ListBox.bank:disabled ListBoxItem /template/ Border#bankSeam">
+    <Setter Property="Opacity" Value="0" />
   </Style>
   <Style Selector="ListBox.bank ListBoxItem:pressed /template/ Border#bankKey">
     <Setter Property="Background" Value="{DynamicResource ButtonPressed}" />
