@@ -1,6 +1,9 @@
 # CUETools Linux Slice Brief: SLICE-015 soft-body rubber keys
 
-Version: 0.2. Date: 2026-08-21. Status: Approved for build.
+Version: 1.0. Date: 2026-08-23. Status: Done, with two measurements
+carried (section 9): press-fidelity renders at each scale factor, and
+the render half of the frame budget. Neither blocks use; both are
+named rather than ticked.
 Companion documents: ARCHITECTURE.md, ENGINEERING.md, DECISION-LOG.md
 (D-080 scope, D-081 the glyph recipe, D-082 the open skill question,
 D-083 why that recipe is right and the upgrade path if it is not
@@ -127,14 +130,36 @@ No persistent data.
 
 ## 9. Verification evidence required
 
-- [ ] Model tests green in the committed harness (no renderer needed).
-- [ ] Pointer/keyboard input tests green.
-- [ ] Rest-identity and press-fidelity renders archived, both themes,
-  at 1.0x / 1.25x / 1.5x / 2.0x.
-- [ ] The LCD-subpixel check on the REAL Avalonia window surface
-  (D-081's named build gate), not on an SKBitmap-backed canvas.
-- [ ] Software-rendering and mid-rip frame-budget measurements.
-- [ ] Owner walkthrough.
+- [x] Model tests green in the committed harness (no renderer needed).
+  31 tests, including the six added on 2026-08-23 for the off-key drag
+  (D-086).
+- [x] Pointer/keyboard input tests green.
+- [x] Rest-identity and press-fidelity renders archived, both themes:
+  `docs/evidence/2026-08-23-seam-light/`. Rest, hover and a held corner
+  press, plus the dead-key legend and a bank position.
+- [~] Renders at 1.0x / 1.25x / 1.5x / 2.0x. Covered for LAYOUT by
+  ScaleMatrixTests, which asserts no clipping and landmark reachability
+  at all five factors in both themes on every push. NOT covered as
+  archived press-fidelity images at each factor.
+- [-] The LCD-subpixel check on the REAL Avalonia window surface.
+  **Retired by D-085.** This gate belonged to D-081's texture recipe,
+  which existed to feed the mesh renderer. The owner's gate verdict
+  kept the projective path, which rasterises no texture and samples
+  nothing, so there is no resampled glyph to check. Nothing was
+  skipped here; the thing being measured stopped existing.
+- [~] Software-rendering and mid-rip frame-budget measurements.
+  The per-frame ARITHMETIC is measured: a homography solve is
+  **12.897 us** and one field sample **0.802 us**, so a single
+  deforming key costs **0.155 percent** of a 120 Hz frame. For scale,
+  the mesh path this replaced measured 2999 us per key per frame, or
+  36 percent of the same budget - about 230x more. What is NOT measured
+  is Avalonia's own render and composite cost for the extra layers, or
+  either number under software rendering or during a live rip.
+- [x] Owner walkthrough. 2026-08-23, on the flag-gated build. Verdict
+  recorded as D-085: the shaded dip reads as below the surface, so the
+  rim stays pinned and the mesh renderer is unfunded. The same
+  walkthrough produced D-086 (the off-key drag defect), D-087 (the
+  unreadable dead legend) and D-088 (light instead of an outline).
 
 ## 10. Agent guardrails for this build
 
@@ -161,13 +186,24 @@ No persistent data.
 
 ## 11. Slice definition of done
 
-- [ ] All acceptance criteria pass with linked evidence.
-- [ ] No unlabeled shortcuts inside the boundary.
-- [ ] Documents updated: statuses, ADD section 15, the manual if any
-  user-visible text describes the old press.
-- [ ] The soft-body skill written, and D-082 resolved so it is
-  actually discoverable from both heads.
-- [ ] Owner walkthrough complete.
+- [x] All acceptance criteria pass with linked evidence, except the two
+  measurements named in section 9 and marked there rather than here.
+- [x] No unlabeled shortcuts inside the boundary. Two are labeled: the
+  rail keys do not deform (light only, see D-088 and section 4), and
+  the frame-budget measurement is arithmetic-only.
+- [x] Documents updated: statuses, DECISION-LOG (D-085 through D-088).
+  No manual text described the old press, so none needed changing.
+- [x] The soft-body skill written, and D-082 resolved so it is actually
+  discoverable from both heads. Verified live: the repo-root symlink
+  surfaces it here with no per-skill wiring.
+- [x] Owner walkthrough complete (2026-08-23, D-085).
+
+**Kill criterion fired, in the good direction.** Section 12's first
+entry says: if the owner sees the shaded dip and cannot tell the
+outline is not bending, ship the cheap transform path and drop the
+mesh. That is what happened. The dip read as below the surface, so the
+cheap path is not a fallback here - it is the answer, and it measures
+about 230x cheaper than the alternative it displaced.
 
 ## 12. Kill criteria
 
