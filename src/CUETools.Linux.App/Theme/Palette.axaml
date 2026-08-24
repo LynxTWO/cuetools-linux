@@ -24,6 +24,13 @@
       <SolidColorBrush x:Key="StatusWarning" Color="#E9A63F" />
       <SolidColorBrush x:Key="StatusDanger" Color="#E06C75" />
       <Color x:Key="StatusAccentColor">#34CFC0</Color>
+      <!-- a dead key's legend, lit at standby current: the bulb behind the
+           translucent letters is not off, it is turned right down. 4.0:1 to
+           4.7:1 across the resting and pressed faces, against 14:1 for a live
+           key and the 1.2:1 the old structural Line gave, which could not be
+           read at all. -->
+      <SolidColorBrush x:Key="KeyStandby" Color="#4E8880" />
+      <Color x:Key="KeyStandbyGlow">#34CFC0</Color>
       <Color x:Key="KeyShoulderMid">#2E000000</Color>
       <Color x:Key="KeyShoulderEdge">#5A000000</Color>
       <Color x:Key="KeyCrownCore">#24FFFFFF</Color>
@@ -79,6 +86,16 @@
       <SolidColorBrush x:Key="StatusWarning" Color="#835600" />
       <SolidColorBrush x:Key="StatusDanger" Color="#A83442" />
       <Color x:Key="StatusAccentColor">#087067</Color>
+      <!-- the same standby legend on the pale bench. A backlight barely shows
+           against a light console in a lit room, which is true of the real
+           thing too, so here the reading is carried by the ink and the glow
+           is only a tint. 3.6:1 to 4.9:1 across the resting and pressed faces,
+           against 16:1 live and the 1.5:1 the old structural Line gave. The
+           pressed face is the binding one here: it is the darkest thing a
+           standby legend can sit on, which happens when a key is disabled
+           mid-press and takes the dead release. -->
+      <SolidColorBrush x:Key="KeyStandby" Color="#4A7770" />
+      <Color x:Key="KeyStandbyGlow">#087067</Color>
       <!-- rubber is matte: a strong crown here reads as polished chrome, not
            a soft cap. Kept to a gentle lift on the light bench. -->
       <Color x:Key="KeyShoulderMid">#1A000000</Color>

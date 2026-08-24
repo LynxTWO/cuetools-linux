@@ -1368,3 +1368,81 @@ BECAUSE: All three were measured during the SLICE-015 research. Each
 is invisible to the compiler, to the XAML loader, and to the suite.
 REVISIT WHEN: Never as a "cleanup". Any change here needs its own
 measurement.
+
+DECISION: D-085 The gate passed, so the mesh renderer is not funded
+STATUS: Confirmed
+CHOICE: SLICE-015's owner gate asked one question of the running
+build: does the shaded dip read as BELOW the console surface, or does
+the outline have to move? Owner verdict 2026-08-23, on the flag-gated
+build: "the shaded dip does read as below the surface". The cheap path
+stands.
+Everything that was funded only by the other answer is therefore not
+being built: the DrawVertices mesh renderer, the custom draw operation,
+the Skia-lane test project, and the supersampled output path costed in
+D-083. The projective homography over a pinned rim, with a housing
+recess behind the receding face, is the shipping technique.
+BECAUSE: The gate existed precisely so this would be decided by
+looking rather than by argument. A silhouette that cannot move was the
+cheap path's one real compromise, and it turns out not to be one at
+this scale.
+REVISIT WHEN: A control gets large enough that a pinned rim reads as a
+sticker rather than a cap. The rim is pinned in DIP, so the failure
+mode is a big key, not a small one.
+
+DECISION: D-086 A held press that leaves the key hands its load back
+STATUS: Confirmed
+CHOICE: The deformation model gained two physical terms: contact is
+clamped to the key's own rectangle, and the load eases off across a
+14 DIP band once the pointer is outside it.
+Owner report 2026-08-23: dragging a few hundred pixels off a key while
+holding it looked fine on long keys and progressively wrong as the key
+got shorter. Measured, that is a real defect and not a matter of taste.
+The tilt term divides the press offset by the key's OWN half-diagonal,
+so an unclamped press point off the key drives that ratio past 1
+without limit - 500 DIP off a 40x30 key reaches 20 - and tilt scales
+on it directly. Worst displacement measured 14.79 DIP against a 6.0
+budget, 2.5 budgets through the console floor, and the exaggeration
+grows as the key shrinks because the same drag divides by a smaller
+half-diagonal AND projects onto a shorter reach. A long key is not
+exempt, only slower: a 360x34 key breaks the budget too, at a longer
+drag.
+The fix is physical on both counts. A finger cannot load a point that
+is not on the cap, so contact stays at the nearest point on the
+surface. And sliding a finger off a key you are holding transfers the
+pressure off it, so the key rises. The second term also makes the
+motion honest, because releasing out there does not activate the
+button, and a key that stayed fully depressed the whole time would be
+promising an outcome that is not coming. Dragging back on presses it
+again; the disengage is not a latch.
+BECAUSE: The existing budget invariant (S15_003) swept press points
+only INSIDE the key, so it could not see any of this. The budget is
+only a ceiling while contact is on the cap.
+REVISIT WHEN: The band is 14 DIP by eye, not by measurement. If a key
+ever flicks as the pointer grazes its edge, that number is the one to
+look at, not the smoothstep around it.
+
+DECISION: D-087 A dead key is unpowered, not blanked
+STATUS: Confirmed
+CHOICE: A disabled key's legend is lit at standby current instead of
+being painted in the structural Line brush. New palette tokens
+KeyStandby and KeyStandbyGlow, plus a zero-offset drop shadow in the
+lamp colour on the content presenter, which is what makes it read as
+light coming THROUGH translucent letters rather than grey ink sitting
+on them. Same recipe as the lit rail glyphs.
+Owner report 2026-08-23: the off look is right, but the text cannot be
+read. Measured, the legend was at 1.2:1 on the dark key face and 1.5:1
+on the light one. That is not dim, it is invisible. A live key is 14:1
+and 16:1.
+Standby is bounded on BOTH sides and pinned by test: at least 3.0:1 so
+it can be read, and no more than two fifths of the live key's ratio so
+it still reads as unpowered, across the resting AND pressed faces in
+both themes. The pressed face is the binding case on the light bench,
+because a key disabled mid-press takes the dead release while its face
+is still darkened. A second test pins the hue, because a neutral grey
+would pass the contrast bounds while losing the whole effect.
+BECAUSE: WCAG 1.4.3 exempts disabled controls, so nothing here was
+ever measured and the legend had quietly drifted to a brush meant for
+hairlines. The exemption says an inactive control need not meet AA. It
+does not say it may be unreadable.
+REVISIT WHEN: A theme is added. Both bounds are relative to that
+theme's own live key, so the numbers do not transfer.
