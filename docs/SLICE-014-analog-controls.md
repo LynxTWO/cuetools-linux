@@ -1,6 +1,6 @@
 # CUETools Linux Slice Brief: SLICE-014 analog controls
 
-Version: 0.2. Date: 2026-08-21. Status: Approved for build.
+Version: 1.0. Date: 2026-08-23. Status: Done.
 Companion documents: ARCHITECTURE.md, ENGINEERING.md, DECISION-LOG.md
 (D-075/D-076 icon language, D-077 house voice).
 
@@ -104,7 +104,18 @@ No persistent data.
   name (renamed out of reach), and the lamp lens ran thin (widened).
 - [x] Suite green (143) including the accent-key contrast pins (label
   vs both gradient stops, both themes; disabled exempt per WCAG 1.4.3).
-- [ ] Owner's live eyeball on the real app.
+- [x] Owner's live eyeball on the real app (2026-08-23). It found the
+  one thing this slice's own guardrail had told it to protect, and the
+  slice had broken anyway: section 10 says never make a control's state
+  less legible than before, and "the unpowered read must never cost the
+  user the ability to see a control exists". The dead key's legend had
+  been left on the structural `Line` brush, which measured **1.2:1** on
+  the dark face and 1.5:1 on the light one. That is not dim, it is
+  invisible, and nothing caught it because WCAG exempts disabled
+  controls so nothing had ever measured them. Fixed and bounded both
+  ways by test as D-087.
+  The same pass replaced the hover outline with the housing lamp
+  (D-088), which supersedes this slice's non-geometric hover cue.
 
 ## 10. Agent guardrails for this build
 
@@ -119,17 +130,24 @@ No persistent data.
 
 ## 11. Slice definition of done
 
-- [ ] All acceptance criteria pass with linked evidence.
-- [ ] No unlabeled shortcuts inside the boundary.
-- [ ] Documents updated: statuses, ADD section 15, manual touches if
-  any text describes the old controls.
-- [ ] Owner eyeball complete.
+- [x] All acceptance criteria pass with linked evidence.
+- [x] No unlabeled shortcuts inside the boundary.
+- [x] Documents updated: statuses, DECISION-LOG (D-087, D-088). No
+  manual text described the old controls, so none needed changing.
+- [x] Owner eyeball complete (2026-08-23). See section 9: it caught a
+  real breach of this slice's own guardrail, now fixed as D-087.
 
 ## 12. What this unlocks
 
 - The WPF head's analog pass, from a proven Linux look.
 - The full-sweep restyle decision (combos, spinners) with real
   evidence about whether the bench language helps or hurts data entry.
+  **Taken, as SLICE-016.** The answer was that the question had a
+  false premise: eleven of the fifteen selectors were never lists, so
+  they became banks of interlocked keys rather than restyled combos,
+  and only the four real lists kept a dropdown behind a machined
+  window. Each bank key is this slice's machined cap, so the language
+  carried over without a second control family.
 
 ---
 

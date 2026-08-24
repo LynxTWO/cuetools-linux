@@ -53,16 +53,28 @@ public class SelectorLayoutTests
         var window = new MainWindow(new ThemeState(), graph.Verify, graph.Convert, graph);
         window.Show();
 
+        // every page that carries a bank, not just Rip. The clipping this test
+        // exists to catch is invisible at page level, so a page left unvisited
+        // is a page left unchecked.
+        var pages = new (string Name, Action Show)[]
+        {
+            ("rip", window.ShowRipPage),
+            ("settings", window.ShowSettingsPage),
+            ("queue", window.ShowQueuePage),
+            ("convert", window.ShowConvertPage),
+        };
+
         var checkedAny = false;
         foreach (ThemeVariant variant in new[] { ThemeVariant.Dark, ThemeVariant.Light })
         {
             Avalonia.Application.Current!.RequestedThemeVariant = variant;
             foreach (var (w, h, scale, name) in Widths)
+            foreach (var (pageName, show) in pages)
             {
                 window.SetRenderScaling(scale);
                 window.Width = w;
                 window.Height = h;
-                window.ShowRipPage();
+                show();
                 Avalonia.Threading.Dispatcher.UIThread.RunJobs();
 
                 foreach (ListBox bank in window.GetVisualDescendants()
@@ -80,10 +92,10 @@ public class SelectorLayoutTests
                         double right = topLeft!.Value.X + item.Bounds.Width;
 
                         Assert.True(right <= bank.Bounds.Width + 0.5,
-                            $"{name} {variant}: bank position \"{item.Content}\" ends at {right:0.0} " +
+                            $"{pageName} {name} {variant}: bank position \"{item.Content}\" ends at {right:0.0} " +
                             $"inside a bank only {bank.Bounds.Width:0.0} wide, so it is cut off");
                         Assert.True(item.Bounds.Width > 1,
-                            $"{name} {variant}: bank position \"{item.Content}\" collapsed to " +
+                            $"{pageName} {name} {variant}: bank position \"{item.Content}\" collapsed to " +
                             $"{item.Bounds.Width:0.0} wide");
                     }
                 }

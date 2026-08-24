@@ -71,14 +71,27 @@ in `RipView.axaml`, and the Advanced page tooltips.
 | Encoder, mode, enum | Encoder settings | up to 9 codecs, per-codec modes | window |
 | Action | Queue | short fixed set | window |
 
-CTDB sharing is the interesting one. It has only three options, which
-says bank, but its labels run about 330 pixels laid out as one, which
-says window. Long labels win. Shortening them to Ask, Always, Never
-would make it a clean bank, but that is a wording change to a consent
-control and it is the owner's call.
+CTDB sharing is the interesting one, and it stays a window. Measured
+2026-08-23: the Settings row is 455 DIP wide and its control gets 296.
+A three-key bank with these labels needs about 352 for the keys, and
+the row label "Share verified rips with CTDB" takes another 190, so it
+does not fit beside its label at any padding worth having. It WOULD
+fit with the label stacked above, but that is the only row on the page
+that would break the label-left rhythm.
+The alternative is shortening the options to Ask, Always, Never, which
+reads fine under that row label and would make a clean bank. Not
+taken. It is a wording change to a consent control, `settings.md` line
+34 quotes the current strings, and the long labels are the ones that
+still say what they mean when a screen reader reads the option without
+the row label. If the owner wants the bank, the change is those three
+strings, the manual line, and an accessible name on the bank; it is
+about five minutes and it is reversible.
 
-Queue action is the other judgement call. It sits inside a table row,
-where a bank fights the column sizing.
+Queue action BECAME a bank. The earlier reasoning was wrong on a fact:
+it is not in a table row. It sits in a `LastChildFill="False"` toolbar
+where a wider control just pushes the next one along, and its options
+are `Verify` and `Convert` - two short labels, which is the rocker
+case. Both now show without a click.
 
 ## 4. Width, and where v0.1 got it wrong
 
@@ -145,9 +158,9 @@ this landed as one pass.
   role are untouched. `Classes="window counted"` adds the position
   readout, which stays opt-in per the v0.1 ruling.
 
-Sixteen call sites converted: six to banks (quality, layout on Rip and
-on Settings, metadata search, album art search, network) and ten to
-windows.
+Sixteen call sites converted: SEVEN to banks (quality, layout on Rip
+and on Settings, metadata search, album art search, network, and the
+Queue action added 2026-08-23) and nine to windows.
 
 ## 8. Verification
 
